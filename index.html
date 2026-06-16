@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Vigahome — Dashboard Equipo</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+:root{
+  --blue:#1A5FA8;--blue-dark:#0F3F7A;--blue-light:#E6F1FB;--blue-txt:#0C447C;
+  --green:#0F6E56;--green-light:#E1F5EE;--green-txt:#085041;
+  --purple:#533AB7;--purple-light:#EEEDFE;--purple-txt:#3C3489;
+  --red:#E24B4A;--red-light:#FCEBEB;--red-txt:#A32D2D;
+  --amber:#BA7517;--amber-light:#FAEEDA;--amber-txt:#854F0B;
+  --ok-bg:#EAF3DE;--ok-txt:#3B6D11;
+  --warn-bg:#FAEEDA;--warn-txt:#854F0B;
+  --crit-bg:#FCEBEB;--crit-txt:#A32D2D;
+  --bg:#F7F7F5;--surface:#FFF;--border:#E5E5E5;
+  --text:#1A1A1A;--text2:#555;--text3:#999;
+  --r:10px;--rs:6px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--text);font-size:14px}
+.app{max-width:1280px;margin:0 auto;padding:1.5rem 1rem}
+.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:10px}
+.top-left p{font-size:11px;font-weight:500;letter-spacing:.05em;color:var(--text3);text-transform:uppercase;margin-bottom:2px}
+.top-left h1{font-size:22px;font-weight:500}
+.nav{display:flex;gap:6px;flex-wrap:wrap}
+.nav button{font-size:12px;padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;transition:all .15s}
+.nav button.active{background:var(--blue-dark);color:#fff;border-color:var(--blue-dark)}
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:1.5rem}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px}
+.stat-label{font-size:11px;color:var(--text3);margin-bottom:4px}
+.stat-val{font-size:22px;font-weight:500}
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1rem;margin-bottom:10px}
+.card h3{font-size:14px;font-weight:500;margin-bottom:10px}
+/* GRID */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px}
+/* TAGS */
+.tag{font-size:10px;font-weight:500;padding:2px 7px;border-radius:10px;display:inline-block;white-space:nowrap}
+.tag-tere{background:var(--blue-light);color:var(--blue-txt)}
+.tag-vivi{background:var(--green-light);color:var(--green-txt)}
+.tag-simona{background:var(--purple-light);color:var(--purple-txt)}
+.tag-diario{background:#FCEBEB;color:#791F1F}
+.tag-semanal{background:#E6F1FB;color:#0C447C}
+.tag-mensual{background:#E1F5EE;color:#085041}
+.tag-trimestral{background:#EEEDFE;color:#3C3489}
+.badge{font-size:10px;font-weight:500;padding:2px 8px;border-radius:10px;white-space:nowrap}
+/* TAREA ROW */
+.tarea-row{display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)}
+.tarea-row:last-child{border-bottom:none}
+.tarea-check{width:16px;height:16px;border:1.5px solid var(--border);border-radius:3px;cursor:pointer;flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;font-size:10px}
+.tarea-check.done{background:var(--ok-txt);border-color:var(--ok-txt);color:#fff}
+.tarea-info{flex:1}
+.tarea-titulo{font-size:13px;font-weight:500;margin-bottom:2px}
+.tarea-titulo.done{text-decoration:line-through;color:var(--text3)}
+.tarea-desc{font-size:11px;color:var(--text3);margin-bottom:4px}
+.tarea-tags{display:flex;gap:4px;flex-wrap:wrap}
+.tarea-actions{display:flex;gap:4px;opacity:0;transition:opacity .15s}
+.tarea-row:hover .tarea-actions{opacity:1}
+.btn-icon{background:none;border:none;cursor:pointer;color:var(--text3);font-size:14px;padding:2px}
+/* FORM */
+.form-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem;margin-bottom:12px}
+.form-card h2{font-size:15px;font-weight:500;margin-bottom:1rem}
+.field{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
+.field label{font-size:12px;color:var(--text2)}
+input,select,textarea{font-size:13px;padding:7px 10px;border:1px solid var(--border);border-radius:var(--rs);background:var(--surface);color:var(--text);width:100%;outline:none;font-family:inherit}
+input:focus,select:focus,textarea:focus{border-color:var(--blue)}
+.btn-row{display:flex;gap:8px;margin-top:12px}
+.btn-primary{padding:8px 16px;border-radius:var(--rs);border:none;background:var(--blue-dark);color:#fff;font-size:13px;font-weight:500;cursor:pointer}
+.btn-secondary{padding:8px 16px;border-radius:var(--rs);border:1px solid var(--border);background:transparent;color:var(--text2);font-size:13px;cursor:pointer}
+.btn-danger{padding:8px 16px;border-radius:var(--rs);border:none;background:var(--red-light);color:var(--red-txt);font-size:13px;cursor:pointer}
+.btn-add{font-size:12px;padding:5px 12px;border-radius:20px;border:1px dashed var(--border);background:transparent;color:var(--blue);cursor:pointer;margin-bottom:12px}
+/* FILTROS */
+.filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem;align-items:center}
+.filter-btn{font-size:12px;padding:4px 12px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer}
+.filter-btn.active{background:var(--blue-dark);color:#fff;border-color:var(--blue-dark)}
+/* CALENDARIO */
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal-header{font-size:11px;font-weight:500;text-align:center;padding:6px;color:var(--text3)}
+.cal-day{min-height:80px;border:1px solid var(--border);border-radius:var(--rs);padding:4px;background:var(--surface);cursor:pointer;transition:background .15s}
+.cal-day:hover{background:var(--blue-light)}
+.cal-day.today{border-color:var(--blue);border-width:2px}
+.cal-day.other-month{background:#fafafa;opacity:.5}
+.cal-day-num{font-size:11px;font-weight:500;margin-bottom:3px;color:var(--text2)}
+.cal-evento{font-size:10px;padding:1px 5px;border-radius:3px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cal-nav{display:flex;align-items:center;gap:12px;margin-bottom:1rem}
+.cal-nav h3{font-size:15px;font-weight:500;flex:1;text-align:center}
+.cal-nav button{padding:5px 12px;border-radius:var(--rs);border:1px solid var(--border);background:var(--surface);cursor:pointer;font-size:13px}
+/* PRESUPUESTO */
+.presup-header{display:flex;align-items:center;gap:10px;margin-bottom:1rem;flex-wrap:wrap}
+.presup-resumen{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin-bottom:1.5rem}
+.presup-stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px}
+.presup-stat-label{font-size:11px;color:var(--text3);margin-bottom:4px}
+.presup-stat-val{font-size:20px;font-weight:500}
+.gasto-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+.gasto-row:last-child{border-bottom:none}
+.gasto-monto{font-weight:500;white-space:nowrap;min-width:80px;text-align:right}
+.gasto-actions{opacity:0;transition:opacity .15s}
+.gasto-row:hover .gasto-actions{opacity:1}
+/* PROGRESS */
+.progress-bar{height:6px;background:#eee;border-radius:3px;overflow:hidden;margin-top:4px}
+.progress-fill{height:100%;border-radius:3px;transition:width .3s}
+/* PERSON SECTION */
+.person-section{margin-bottom:1.5rem}
+.person-header{display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:var(--r) var(--r) 0 0;cursor:pointer}
+.person-header h2{font-size:15px;font-weight:500;color:#fff;flex:1}
+.person-body{border:1px solid var(--border);border-top:none;border-radius:0 0 var(--r) var(--r);overflow:hidden}
+/* ATRASADAS */
+.atrasada-row{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-bottom:1px solid var(--border);font-size:12px}
+.atrasada-row:last-child{border-bottom:none}
+/* TOAST */
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:#1a1a1a;color:#fff;padding:10px 18px;border-radius:var(--rs);font-size:13px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:3000}
+.toast.show{opacity:1}
+.empty{text-align:center;padding:2rem;color:var(--text3);font-size:13px}
+.loading{text-align:center;padding:2rem;color:var(--text3)}
+@media(max-width:600px){.grid2,.grid3{grid-template-columns:1fr}.cal-grid{grid-template-columns:repeat(7,1fr)}.cal-day{min-height:50px}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <div class="top-left">
+      <p>Vigahome · Gestión de equipo</p>
+      <h1>Dashboard Equipo MKT</h1>
+    </div>
+    <div class="nav">
+      <button class="active" onclick="setView('dashboard')">Dashboard</button>
+      <button onclick="setView('tareas')">Tareas</button>
+      <button onclick="setView('calendario')">Calendario</button>
+      <button onclick="setView('presupuesto')">Presupuesto</button>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="view-dashboard">
+    <div class="stats" id="dash-stats"></div>
+    <div class="grid2">
+      <div class="card">
+        <h3>⚠ Atrasadas o vencen hoy</h3>
+        <div id="dash-atrasadas"><div class="loading">Cargando...</div></div>
+      </div>
+      <div class="card">
+        <h3>📊 Avance del mes por persona</h3>
+        <div id="dash-avance"></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>📅 Próximas fechas límite</h3>
+      <div id="dash-proximas"></div>
+    </div>
+  </div>
+
+  <!-- TAREAS -->
+  <div id="view-tareas" style="display:none">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:8px">
+      <div class="filters" id="filtros-tareas">
+        <button class="filter-btn active" onclick="setFiltroTarea('todas',this)">Todas</button>
+        <button class="filter-btn" onclick="setFiltroTarea('Tere',this)">Tere</button>
+        <button class="filter-btn" onclick="setFiltroTarea('Vivi',this)">Vivi</button>
+        <button class="filter-btn" onclick="setFiltroTarea('Simona',this)">Simona</button>
+        <button class="filter-btn" onclick="setFiltroTarea('pendiente',this)">Pendientes</button>
+        <button class="filter-btn" onclick="setFiltroTarea('completada',this)">Completadas</button>
+      </div>
+      <button class="btn-add" onclick="toggleFormTarea()">+ Nueva tarea</button>
+    </div>
+
+    <div id="form-tarea" style="display:none">
+      <div class="form-card">
+        <h2 id="form-tarea-title">Nueva tarea</h2>
+        <input type="hidden" id="ft-id"/>
+        <div class="grid3">
+          <div class="field"><label>Persona</label>
+            <select id="ft-persona">
+              <option value="">Seleccionar</option>
+              <option value="Tere">Tere</option>
+              <option value="Vivi">Vivi</option>
+              <option value="Simona">Simona</option>
+            </select>
+          </div>
+          <div class="field"><label>Frecuencia</label>
+            <select id="ft-frecuencia">
+              <option value="">Seleccionar</option>
+              <option value="diario">Diario</option>
+              <option value="semanal">Semanal</option>
+              <option value="mensual">Mensual</option>
+              <option value="trimestral">Trimestral</option>
+              <option value="puntual">Puntual</option>
+            </select>
+          </div>
+          <div class="field"><label>Estado</label>
+            <select id="ft-estado">
+              <option value="pendiente">Pendiente</option>
+              <option value="en_progreso">En progreso</option>
+              <option value="completada">Completada</option>
+              <option value="bloqueada">Bloqueada</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid2">
+          <div class="field"><label>Categoría / Proyecto</label>
+            <input type="text" id="ft-categoria" placeholder="Ej: Agua de la Llave, RRSS, PDV..."/>
+          </div>
+          <div class="field"><label>Fecha límite</label>
+            <input type="date" id="ft-fecha"/>
+          </div>
+        </div>
+        <div class="field"><label>Tarea</label>
+          <input type="text" id="ft-tarea" placeholder="Ej: Brief campaña Agua de la Llave"/>
+        </div>
+        <div class="field"><label>Descripción / detalle</label>
+          <textarea id="ft-desc" rows="2" placeholder="Ej: Incluir 4 mails semanales + 2 extra + 12 ads TOFU/MOFU/BOFU..."></textarea>
+        </div>
+        <div class="btn-row">
+          <button class="btn-primary" onclick="guardarTarea()">Guardar</button>
+          <button class="btn-secondary" onclick="toggleFormTarea()">Cancelar</button>
+          <button class="btn-danger" id="btn-del-tarea" style="display:none" onclick="eliminarTarea()">Eliminar</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="lista-tareas"><div class="loading">Cargando tareas...</div></div>
+  </div>
+
+  <!-- CALENDARIO -->
+  <div id="view-calendario" style="display:none">
+    <div class="cal-nav">
+      <button onclick="cambiarMes(-1)">← Anterior</button>
+      <h3 id="cal-titulo"></h3>
+      <button onclick="cambiarMes(1)">Siguiente →</button>
+    </div>
+    <div class="cal-grid" id="cal-headers">
+      <div class="cal-header">Lun</div><div class="cal-header">Mar</div><div class="cal-header">Mié</div>
+      <div class="cal-header">Jue</div><div class="cal-header">Vie</div><div class="cal-header">Sáb</div><div class="cal-header">Dom</div>
+    </div>
+    <div class="cal-grid" id="cal-grid" style="margin-top:4px"></div>
+    <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+      <span style="font-size:11px;display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--blue-light)"></span>Tere</span>
+      <span style="font-size:11px;display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--green-light)"></span>Vivi</span>
+      <span style="font-size:11px;display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--purple-light)"></span>Simona</span>
+      <span style="font-size:11px;display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--red-light)"></span>Vencida</span>
+    </div>
+  </div>
+
+  <!-- PRESUPUESTO -->
+  <div id="view-presupuesto" style="display:none">
+    <div class="presup-header">
+      <select id="filtro-mes-presup" onchange="renderPresupuesto()" style="width:auto;font-size:13px;padding:6px 10px">
+        <option value="">Todos los meses</option>
+      </select>
+      <select id="filtro-cat-presup" onchange="renderPresupuesto()" style="width:auto;font-size:13px;padding:6px 10px">
+        <option value="">Todas las categorías</option>
+        <option value="Ads">Ads (Meta, Google)</option>
+        <option value="Influencers">Influencers</option>
+        <option value="Diseño">Diseño / Producción</option>
+        <option value="Ferias">Ferias y Activaciones</option>
+        <option value="Impresion">Impresión y POP</option>
+        <option value="Otro">Otro</option>
+      </select>
+      <button class="btn-add" onclick="toggleFormGasto()" style="margin:0">+ Agregar gasto</button>
+    </div>
+
+    <div id="form-gasto" style="display:none">
+      <div class="form-card">
+        <h2 id="form-gasto-title">Nuevo gasto</h2>
+        <input type="hidden" id="fg-id"/>
+        <div class="grid3">
+          <div class="field"><label>Fecha</label><input type="date" id="fg-fecha"/></div>
+          <div class="field"><label>Categoría</label>
+            <select id="fg-cat">
+              <option value="Ads">Ads (Meta, Google)</option>
+              <option value="Influencers">Influencers</option>
+              <option value="Diseño">Diseño / Producción</option>
+              <option value="Ferias">Ferias y Activaciones</option>
+              <option value="Impresion">Impresión y POP</option>
+              <option value="Otro">Otro</option>
+            </select>
+          </div>
+          <div class="field"><label>Monto (CLP)</label><input type="number" id="fg-monto" placeholder="Ej: 420000" min="0"/></div>
+        </div>
+        <div class="grid2">
+          <div class="field"><label>Campaña / Proyecto</label><input type="text" id="fg-campana" placeholder="Ej: Agua de la Llave, Influencer Joaquín..."/></div>
+          <div class="field"><label>Descripción</label><input type="text" id="fg-desc" placeholder="Ej: Pauta Meta Ads julio..."/></div>
+        </div>
+        <div class="btn-row">
+          <button class="btn-primary" onclick="guardarGasto()">Guardar</button>
+          <button class="btn-secondary" onclick="toggleFormGasto()">Cancelar</button>
+          <button class="btn-danger" id="btn-del-gasto" style="display:none" onclick="eliminarGasto()">Eliminar</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="presup-resumen" id="presup-stats"></div>
+    <div class="grid2" style="margin-bottom:12px">
+      <div class="card"><h3>Gasto por categoría</h3><canvas id="ch-categorias"></canvas></div>
+      <div class="card"><h3>Gasto por campaña</h3><canvas id="ch-campanas"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>Detalle de gastos</h3>
+      <div id="lista-gastos"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDX1Gu65DJC_POPgDnssAT7e10LJD_ae_o",
+  authDomain: "equipo-mkt.firebaseapp.com",
+  projectId: "equipo-mkt",
+  storageBucket: "equipo-mkt.firebasestorage.app",
+  messagingSenderId: "861642824099",
+  appId: "1:861642824099:web:a10865c33e632d85216216"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+let tareas=[], gastos=[], filtroTarea="todas", calMes=new Date().getMonth(), calAnio=new Date().getFullYear(), chartCat=null, chartCamp=null;
+
+// ── TAREAS PRECARGADAS ─────────────────────────────────────────────────────
+const TAREAS_DEFAULT = [
+  // TERE
+  {persona:"Tere",frecuencia:"diario",categoria:"General",tarea:"Revisar urgentes de José y canales retail",descripcion:"Mails, WhatsApp de Easy/Sodimac. Si no hay nada, terminas en 5 min.",estado:"pendiente"},
+  {persona:"Tere",frecuencia:"diario",categoria:"General",tarea:"Aprobar piezas con fecha de ese día",descripcion:"Solo las que bloquean al equipo.",estado:"pendiente"},
+  {persona:"Tere",frecuencia:"semanal",categoria:"General",tarea:"Brief semanal equipo — lunes",descripcion:"Qué es prioridad, qué viene de José, qué tiene fecha.",estado:"pendiente"},
+  {persona:"Tere",frecuencia:"semanal",categoria:"Ads",tarea:"Revisar paid ads (Meta + Meli)",descripcion:"CPA, presupuesto, qué ad funciona y cuál pausar.",estado:"pendiente"},
+  {persona:"Tere",frecuencia:"semanal",categoria:"PDV",tarea:"Sell-out Vessanti + Humbolt",descripcion:"Números de las tiendas piloto. Si algo baja, actuar esa semana.",estado:"pendiente"},
+  {persona:"Tere",frecuencia:"mensual",categoria:"Contenido",tarea:"Definir pilares del mes — día 20",descripcion:"Máximo 3 focos: campaña activa, productos, mensaje central.",estado:"pendiente"},
+  {persona:"Tere",frecuencia:"mensual",categoria:"Mailings",tarea:"Copy 8 mailings base activa",descripcion:"Defines el mensaje de cada uno. CM programa, Vivi diseña.",estado:"pendiente"},
+  {persona:"Tere",frecuencia:"mensual",categoria:"General",tarea:"Reporte mensual a José",descripcion:"Sell-out por canal, métricas clave, estado de proyectos.",estado:"pendiente"},
+  {persona:"Tere",frecuencia:"mensual",categoria:"PDV",tarea:"Capacitación vendedores Easy + Sodimac",descripcion:"Mínimo 1x mes cada una.",estado:"pendiente"},
+  {persona:"Tere",frecuencia:"mensual",categoria:"Montu",tarea:"Definir productos a destacar en Montu",descripcion:"Qué productos y tipo de campaña. Brief a Simona.",estado:"pendiente"},
+  {persona:"Tere",frecuencia:"puntual",categoria:"Agua de la Llave",tarea:"Brief completo campaña Agua de la Llave",descripcion:"4 mailings + 2 extra + 12 ads TOFU/MOFU/BOFU",estado:"pendiente"},
+  {persona:"Tere",frecuencia:"puntual",categoria:"Clientes VIP",tarea:"Brief campaña VigaFRIENDS/VIP",descripcion:"6 semanas de estructura + copy",estado:"pendiente"},
+  {persona:"Tere",frecuencia:"puntual",categoria:"Autolavable",tarea:"Estructura campaña Autolavable Manual",descripcion:"Incluye estrategia video instalación con Sodimac",estado:"pendiente"},
+  {persona:"Tere",frecuencia:"puntual",categoria:"Water POV",tarea:"Redactar Water POV Vigahome (1 página)",descripcion:"El manifiesto de marca. Qué creemos sobre el agua que el mercado no dice.",estado:"pendiente"},
+  {persona:"Tere",frecuencia:"puntual",categoria:"Influencers",tarea:"Estructura proceso selección influencers",descripcion:"Criterios de métricas, ventas y seguimiento",estado:"pendiente"},
+  {persona:"Tere",frecuencia:"puntual",categoria:"Quitasarro",tarea:"Brief influencer + campaña ads Walmart/Lider",descripcion:"Esperando ok de José",estado:"bloqueada"},
+  {persona:"Tere",frecuencia:"puntual",categoria:"Ferias",tarea:"Calendario ferias Chicureo + proyección 100 clientes",descripcion:"Espacio Urbano, Farmers Market, bazares",estado:"pendiente"},
+  // VIVI
+  {persona:"Vivi",frecuencia:"diario",categoria:"General",tarea:"Revisar cola de trabajo del día",descripcion:"Qué tiene fecha hoy o mañana. Si algo va tarde, avisar ese mismo día.",estado:"pendiente"},
+  {persona:"Vivi",frecuencia:"semanal",categoria:"General",tarea:"Reunión de equipo — lunes",descripcion:"Llegar con bloqueos: qué no tiene brief, qué depende de aprobación.",estado:"pendiente"},
+  {persona:"Vivi",frecuencia:"semanal",categoria:"PDV",tarea:"Material POP y PDV (físico)",descripcion:"Stoppers, cabeceras, material retail. Con brief de Tere.",estado:"pendiente"},
+  {persona:"Vivi",frecuencia:"semanal",categoria:"PDV",tarea:"Vendedor silencioso Vessanti + Humbolt",descripcion:"Siempre los dos juntos — base compartida.",estado:"pendiente"},
+  {persona:"Vivi",frecuencia:"mensual",categoria:"Mailings",tarea:"8 headers/banners mailings base",descripcion:"Con pilares aprobados por Tere el día 20. Son 8 piezas.",estado:"pendiente"},
+  {persona:"Vivi",frecuencia:"mensual",categoria:"Ecommerce",tarea:"Actualización fichas ecommerce",descripcion:"vigahome.com + Meli + Falabella + Paris",estado:"pendiente"},
+  {persona:"Vivi",frecuencia:"puntual",categoria:"PDQ",tarea:"PDQ filtros ducha — 70 tiendas",descripcion:"Entrada julio. Esperando medidas de José.",estado:"bloqueada"},
+  {persona:"Vivi",frecuencia:"puntual",categoria:"PDQ",tarea:"PDQ Humbolt",descripcion:"Confirmar productos a exhibir con José.",estado:"bloqueada"},
+  {persona:"Vivi",frecuencia:"puntual",categoria:"PDV",tarea:"Cabecera Sodimac Open Kennedy",descripcion:"Faltan medidas. Avisar para ir a medir.",estado:"bloqueada"},
+  {persona:"Vivi",frecuencia:"puntual",categoria:"Agua de la Llave",tarea:"KV + gráficas campaña Agua de la Llave",descripcion:"Banner + 8 gráficas RRSS + 6 mailings + 12 ads",estado:"pendiente"},
+  {persona:"Vivi",frecuencia:"puntual",categoria:"Clientes VIP",tarea:"KV + diseño mailings VIP",descripcion:"6 mailings + piezas RRSS",estado:"pendiente"},
+  // SIMONA
+  {persona:"Simona",frecuencia:"diario",categoria:"RRSS",tarea:"Monitoreo y respuesta RRSS",descripcion:"Comentarios, DMs, menciones en IG y TikTok. Máximo 24h sin respuesta.",estado:"pendiente"},
+  {persona:"Simona",frecuencia:"diario",categoria:"RRSS",tarea:"Publicar stories del día",descripcion:"IG stories según la grilla. No necesita aprobación.",estado:"pendiente"},
+  {persona:"Simona",frecuencia:"semanal",categoria:"General",tarea:"Reunión de equipo — lunes (no trabaja lunes)",descripcion:"Asistir con reporte de la semana anterior.",estado:"pendiente"},
+  {persona:"Simona",frecuencia:"semanal",categoria:"RRSS",tarea:"Programar publicaciones semana",descripcion:"IG + TikTok + LinkedIn según la grilla. Todo programado el lunes.",estado:"pendiente"},
+  {persona:"Simona",frecuencia:"semanal",categoria:"Ads",tarea:"Revisar métricas paid ads",descripcion:"CPA Meta, CTR Google. Reportar a Tere si algo fuera de rango.",estado:"pendiente"},
+  {persona:"Simona",frecuencia:"semanal",categoria:"Influencers",tarea:"Check-in influencers activos",descripcion:"¿Tienen el producto? ¿Saben qué publicar? Relación cercana.",estado:"pendiente"},
+  {persona:"Simona",frecuencia:"mensual",categoria:"Mailings",tarea:"8 mailings — programar y enviar",descripcion:"Con piezas de Vivi y copy de Tere. Distribuidos en el mes.",estado:"pendiente"},
+  {persona:"Simona",frecuencia:"mensual",categoria:"Contenido",tarea:"Borrador grilla mes siguiente — día 23",descripcion:"Con pilares de Tere. Canal, formato, quién produce, fechas.",estado:"pendiente"},
+  {persona:"Simona",frecuencia:"mensual",categoria:"Montu",tarea:"Brief mensual a Montu",descripcion:"Qué productos, formatos y mensajes para el mes.",estado:"pendiente"},
+  {persona:"Simona",frecuencia:"mensual",categoria:"Influencers",tarea:"Brief mensual a influencers",descripcion:"Por WhatsApp — tono cercano, no formal.",estado:"pendiente"},
+  {persona:"Simona",frecuencia:"mensual",categoria:"Métricas",tarea:"Reporte métricas mensual",descripcion:"RRSS + email + paid ads + ecommerce externo.",estado:"pendiente"},
+  {persona:"Simona",frecuencia:"puntual",categoria:"Agua de la Llave",tarea:"Terminar edición videos ads campaña",descripcion:"Videos deben estar listos antes del lanzamiento.",estado:"pendiente"},
+  {persona:"Simona",frecuencia:"puntual",categoria:"TikTok",tarea:"Grabar contenido TikTok con tendencias",descripcion:"Mínimo 2 videos por semana basados en trends.",estado:"pendiente"},
+];
+
+// ── FIREBASE HELPERS ───────────────────────────────────────────────────────
+async function cargarTareas(){
+  const snap = await getDocs(query(collection(db,"tareas"), orderBy("persona")));
+  tareas = snap.docs.map(d=>({id:d.id,...d.data()}));
+  if(tareas.length===0) await cargarTareasDefault();
+  renderView();
+}
+
+async function cargarTareasDefault(){
+  for(const t of TAREAS_DEFAULT){
+    const ref = await addDoc(collection(db,"tareas"),{...t,fecha_limite:null,created_at:new Date().toISOString()});
+    tareas.push({id:ref.id,...t,fecha_limite:null});
+  }
+}
+
+async function cargarGastos(){
+  const snap = await getDocs(query(collection(db,"gastos"), orderBy("fecha","desc")));
+  gastos = snap.docs.map(d=>({id:d.id,...d.data()}));
+  poblarMeses();
+  if(document.getElementById("view-presupuesto").style.display!=="none") renderPresupuesto();
+}
+
+function poblarMeses(){
+  const meses=new Set(gastos.map(g=>g.fecha?.substring(0,7)).filter(Boolean));
+  const sel=document.getElementById("filtro-mes-presup");
+  const val=sel.value;
+  sel.innerHTML=`<option value="">Todos los meses</option>`+[...meses].sort().reverse().map(m=>`<option value="${m}">${m}</option>`).join("");
+  sel.value=val;
+}
+
+// ── RENDER VIEWS ───────────────────────────────────────────────────────────
+window.setView = function(v){
+  ["dashboard","tareas","calendario","presupuesto"].forEach(x=>{
+    document.getElementById("view-"+x).style.display=x===v?"block":"none";
+  });
+  document.querySelectorAll(".nav button").forEach((b,i)=>b.classList.toggle("active",["dashboard","tareas","calendario","presupuesto"][i]===v));
+  renderView(v);
+}
+
+function renderView(v){
+  const cur=v||["dashboard","tareas","calendario","presupuesto"].find(x=>document.getElementById("view-"+x).style.display!=="none")||"dashboard";
+  if(cur==="dashboard") renderDashboard();
+  else if(cur==="tareas") renderTareas();
+  else if(cur==="calendario") renderCalendario();
+  else if(cur==="presupuesto") renderPresupuesto();
+}
+
+// DASHBOARD
+function renderDashboard(){
+  const hoy=new Date().toISOString().split("T")[0];
+  const pendientes=tareas.filter(t=>t.estado==="pendiente"||t.estado==="en_progreso");
+  const completadas=tareas.filter(t=>t.estado==="completada");
+  const atrasadas=tareas.filter(t=>t.fecha_limite&&t.fecha_limite<hoy&&t.estado!=="completada");
+  const vencenHoy=tareas.filter(t=>t.fecha_limite===hoy&&t.estado!=="completada");
+  const bloqueadas=tareas.filter(t=>t.estado==="bloqueada");
+
+  document.getElementById("dash-stats").innerHTML=[
+    {label:"Total tareas",val:tareas.length},
+    {label:"Pendientes",val:pendientes.length,color:"var(--amber-txt)"},
+    {label:"Completadas",val:completadas.length,color:"var(--ok-txt)"},
+    {label:"Atrasadas",val:atrasadas.length,color:"var(--crit-txt)"},
+    {label:"Vencen hoy",val:vencenHoy.length,color:"var(--red-txt)"},
+    {label:"Bloqueadas",val:bloqueadas.length,color:"var(--text3)"},
+  ].map(s=>`<div class="stat"><div class="stat-label">${s.label}</div><div class="stat-val" style="color:${s.color||"var(--text)"}">${s.val}</div></div>`).join("");
+
+  // Atrasadas
+  const ats=[...atrasadas,...vencenHoy];
+  document.getElementById("dash-atrasadas").innerHTML=ats.length?ats.map(t=>`
+    <div class="atrasada-row">
+      <div style="flex:1">
+        <span class="tag tag-${t.persona?.toLowerCase()}" style="margin-right:4px">${t.persona}</span>
+        <strong style="font-size:12px">${t.tarea}</strong>
+        <span style="font-size:11px;color:var(--crit-txt);margin-left:6px">${t.fecha_limite===hoy?"Vence hoy":"Venció "+t.fecha_limite}</span>
+      </div>
+      <button class="btn-icon" onclick="completarRapido('${t.id}')">✓</button>
+    </div>
+  `).join(""):`<div class="empty">✓ Sin tareas atrasadas</div>`;
+
+  // Avance por persona
+  ["Tere","Vivi","Simona"].forEach(p=>{
+    const pTareas=tareas.filter(t=>t.persona===p);
+    const pComp=pTareas.filter(t=>t.estado==="completada").length;
+    const pct=pTareas.length?Math.round(pComp/pTareas.length*100):0;
+    const color=p==="Tere"?"var(--blue)":p==="Vivi"?"var(--green)":"var(--purple)";
+    document.getElementById("dash-avance").innerHTML=(document.getElementById("dash-avance").innerHTML||"")+`
+      <div style="margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+          <span style="font-size:13px;font-weight:500">${p}</span>
+          <span style="font-size:12px;color:var(--text3)">${pComp}/${pTareas.length} completadas (${pct}%)</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${color}"></div></div>
+      </div>
+    `;
+  });
+  // Limpiar duplicados
+  const av=document.getElementById("dash-avance");
+  if(av.querySelectorAll("div").length>9) av.innerHTML="";
+  if(!av.innerHTML){
+    ["Tere","Vivi","Simona"].forEach(p=>{
+      const pTareas=tareas.filter(t=>t.persona===p);
+      const pComp=pTareas.filter(t=>t.estado==="completada").length;
+      const pct=pTareas.length?Math.round(pComp/pTareas.length*100):0;
+      const color=p==="Tere"?"var(--blue)":p==="Vivi"?"var(--green)":"var(--purple)";
+      av.innerHTML+=`<div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:13px;font-weight:500">${p}</span><span style="font-size:12px;color:var(--text3)">${pComp}/${pTareas.length} (${pct}%)</span></div><div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${color}"></div></div></div>`;
+    });
+  }
+
+  // Próximas
+  const prox=tareas.filter(t=>t.fecha_limite&&t.fecha_limite>=hoy&&t.estado!=="completada").sort((a,b)=>a.fecha_limite.localeCompare(b.fecha_limite)).slice(0,8);
+  document.getElementById("dash-proximas").innerHTML=prox.length?prox.map(t=>{
+    const dias=Math.ceil((new Date(t.fecha_limite)-new Date(hoy))/(1000*60*60*24));
+    const color=dias===0?"var(--crit-txt)":dias<=3?"var(--amber-txt)":"var(--text3)";
+    return`<div class="atrasada-row"><div style="flex:1"><span class="tag tag-${t.persona?.toLowerCase()}" style="margin-right:4px">${t.persona}</span><strong style="font-size:12px">${t.tarea}</strong><span class="tag tag-${t.frecuencia}" style="margin-left:4px">${t.frecuencia}</span></div><span style="font-size:11px;font-weight:500;color:${color};white-space:nowrap">${dias===0?"Hoy":dias===1?"Mañana":"En "+dias+" días"}</span></div>`;
+  }).join(""):`<div class="empty">Sin fechas límite próximas</div>`;
+}
+
+// TAREAS
+function renderTareas(){
+  const ft=filtroTarea;
+  let lista=[...tareas];
+  if(ft==="Tere"||ft==="Vivi"||ft==="Simona") lista=lista.filter(t=>t.persona===ft);
+  else if(ft==="pendiente") lista=lista.filter(t=>t.estado==="pendiente"||t.estado==="en_progreso"||t.estado==="bloqueada");
+  else if(ft==="completada") lista=lista.filter(t=>t.estado==="completada");
+
+  if(!lista.length){document.getElementById("lista-tareas").innerHTML=`<div class="empty">Sin tareas con este filtro</div>`;return}
+
+  // Agrupar por persona
+  const porPersona={};
+  lista.forEach(t=>{if(!porPersona[t.persona])porPersona[t.persona]=[];porPersona[t.persona].push(t)});
+
+  const colores={Tere:["var(--blue-dark)","var(--blue-light)"],Vivi:["var(--green-dark)","var(--green-light)"],Simona:["var(--purple-dark||#3C3489)","var(--purple-light)"]};
+
+  document.getElementById("lista-tareas").innerHTML=Object.entries(porPersona).map(([persona,ts])=>{
+    const [hd,light]=colores[persona]||["#333","#eee"];
+    const frecOrden={diario:0,semanal:1,mensual:2,trimestral:3,puntual:4};
+    ts.sort((a,b)=>(frecOrden[a.frecuencia]||9)-(frecOrden[b.frecuencia]||9));
+    return`<div class="person-section">
+      <div class="person-header" style="background:${hd}"><h2>${persona}</h2><span style="font-size:12px;color:rgba(255,255,255,.7)">${ts.filter(t=>t.estado==="completada").length}/${ts.length} completadas</span></div>
+      <div class="person-body" style="padding:0 1rem">
+        ${ts.map(t=>{
+          const done=t.estado==="completada";
+          const estadoColor={pendiente:"var(--amber-txt)",en_progreso:"var(--blue-txt)",completada:"var(--ok-txt)",bloqueada:"var(--text3)"};
+          const estadoLabel={pendiente:"Pendiente",en_progreso:"En progreso",completada:"✓ Lista",bloqueada:"⚠ Bloqueada"};
+          return`<div class="tarea-row">
+            <div class="tarea-check ${done?"done":""}" onclick="toggleEstado('${t.id}','${t.estado}')">${done?"✓":""}</div>
+            <div class="tarea-info">
+              <div class="tarea-titulo ${done?"done":""}">${t.tarea}</div>
+              ${t.descripcion?`<div class="tarea-desc">${t.descripcion}</div>`:""}
+              <div class="tarea-tags">
+                <span class="tag tag-${t.frecuencia}">${t.frecuencia}</span>
+                ${t.categoria?`<span class="tag" style="background:#f1efe8;color:#555">${t.categoria}</span>`:""}
+                ${t.fecha_limite?`<span class="tag" style="background:${isVencida(t)?"var(--crit-bg)":"var(--blue-light)"};color:${isVencida(t)?"var(--crit-txt)":"var(--blue-txt)"}">📅 ${t.fecha_limite}</span>`:""}
+                <span class="badge" style="background:transparent;color:${estadoColor[t.estado]||"#555"}">${estadoLabel[t.estado]||t.estado}</span>
+              </div>
+            </div>
+            <div class="tarea-actions">
+              <button class="btn-icon" onclick="editarTarea('${t.id}')" title="Editar">✏</button>
+            </div>
+          </div>`;
+        }).join("")}
+      </div>
+    </div>`;
+  }).join("");
+}
+
+function isVencida(t){
+  const hoy=new Date().toISOString().split("T")[0];
+  return t.fecha_limite&&t.fecha_limite<hoy&&t.estado!=="completada";
+}
+
+// CALENDARIO
+function renderCalendario(){
+  const titulo=new Date(calAnio,calMes,1).toLocaleDateString("es-CL",{month:"long",year:"numeric"});
+  document.getElementById("cal-titulo").textContent=titulo.charAt(0).toUpperCase()+titulo.slice(1);
+
+  const primerDia=new Date(calAnio,calMes,1);
+  const ultimoDia=new Date(calAnio,calMes+1,0);
+  const hoy=new Date().toISOString().split("T")[0];
+
+  let diasPrevios=(primerDia.getDay()+6)%7;
+  const dias=[];
+  for(let i=diasPrevios;i>0;i--){
+    const d=new Date(calAnio,calMes,-i+1);
+    dias.push({fecha:d.toISOString().split("T")[0],otroMes:true,num:d.getDate()});
+  }
+  for(let i=1;i<=ultimoDia.getDate();i++){
+    const d=new Date(calAnio,calMes,i);
+    dias.push({fecha:d.toISOString().split("T")[0],otroMes:false,num:i});
+  }
+  while(dias.length%7!==0){
+    const last=new Date(dias[dias.length-1].fecha);
+    last.setDate(last.getDate()+1);
+    dias.push({fecha:last.toISOString().split("T")[0],otroMes:true,num:last.getDate()});
+  }
+
+  const colorPersona={Tere:"#E6F1FB",Vivi:"#E1F5EE",Simona:"#EEEDFE"};
+  const colorPersonaTxt={Tere:"#0C447C",Vivi:"#085041",Simona:"#3C3489"};
+
+  document.getElementById("cal-grid").innerHTML=dias.map(d=>{
+    const events=tareas.filter(t=>t.fecha_limite===d.fecha);
+    const isToday=d.fecha===hoy;
+    const eventsHtml=events.map(t=>{
+      const venc=t.estado!=="completada"&&d.fecha<hoy;
+      const bg=venc?"var(--red-light)":colorPersona[t.persona]||"#eee";
+      const txt=venc?"var(--red-txt)":colorPersonaTxt[t.persona]||"#333";
+      return`<div class="cal-evento" style="background:${bg};color:${txt}" title="${t.persona}: ${t.tarea}">${t.tarea}</div>`;
+    }).join("");
+    return`<div class="cal-day${d.otroMes?" other-month":""}${isToday?" today":""}"><div class="cal-day-num">${d.num}</div>${eventsHtml}</div>`;
+  }).join("");
+}
+
+window.cambiarMes=function(dir){calMes+=dir;if(calMes>11){calMes=0;calAnio++}else if(calMes<0){calMes=11;calAnio--}renderCalendario()}
+
+// PRESUPUESTO
+window.renderPresupuesto=function(){
+  const mesFiltro=document.getElementById("filtro-mes-presup").value;
+  const catFiltro=document.getElementById("filtro-cat-presup").value;
+  let lista=[...gastos];
+  if(mesFiltro) lista=lista.filter(g=>g.fecha?.startsWith(mesFiltro));
+  if(catFiltro) lista=lista.filter(g=>g.categoria===catFiltro);
+
+  const total=lista.reduce((a,g)=>a+(g.monto||0),0);
+  const porCat={};lista.forEach(g=>{porCat[g.categoria]=(porCat[g.categoria]||0)+(g.monto||0)});
+  const porCamp={};lista.forEach(g=>{if(g.campana)porCamp[g.campana]=(porCamp[g.campana]||0)+(g.monto||0)});
+
+  document.getElementById("presup-stats").innerHTML=[
+    {label:"Total gastado",val:`$${total.toLocaleString("es-CL")}`,color:"var(--crit-txt)"},
+    {label:"N° de gastos",val:lista.length},
+    {label:"Promedio por gasto",val:lista.length?`$${Math.round(total/lista.length).toLocaleString("es-CL")}`:"—"},
+    {label:"Mayor categoría",val:Object.entries(porCat).sort((a,b)=>b[1]-a[1])[0]?.[0]||"—"},
+  ].map(s=>`<div class="presup-stat"><div class="presup-stat-label">${s.label}</div><div class="presup-stat-val" style="color:${s.color||"var(--text)"}">${s.val}</div></div>`).join("");
+
+  // Gráficos
+  const mkDoughnut=(id,labels,data,colors)=>{
+    const el=document.getElementById(id);if(!el)return;
+    if(window[id+"Chart"])window[id+"Chart"].destroy();
+    window[id+"Chart"]=new Chart(el,{type:"doughnut",data:{labels,datasets:[{data,backgroundColor:colors,borderWidth:0}]},options:{plugins:{legend:{position:"bottom",labels:{font:{size:11}}}}}});
+  };
+  const catColors=["#1A5FA8","#E24B4A","#0F6E56","#BA7517","#533AB7","#888"];
+  mkDoughnut("ch-categorias",Object.keys(porCat),Object.values(porCat),catColors);
+  mkDoughnut("ch-campanas",Object.keys(porCamp).slice(0,6),Object.values(porCamp).slice(0,6),catColors);
+
+  document.getElementById("lista-gastos").innerHTML=lista.length?lista.map(g=>`
+    <div class="gasto-row">
+      <div style="flex:1">
+        <span class="tag" style="background:#f1efe8;color:#555;margin-right:6px">${g.categoria}</span>
+        <strong style="font-size:13px">${g.descripcion||g.campana||"Sin descripción"}</strong>
+        ${g.campana?`<span style="font-size:11px;color:var(--text3);margin-left:6px">· ${g.campana}</span>`:""}
+        <span style="font-size:11px;color:var(--text3);margin-left:6px">${g.fecha||""}</span>
+      </div>
+      <div class="gasto-monto" style="color:var(--crit-txt)">$${(g.monto||0).toLocaleString("es-CL")}</div>
+      <div class="gasto-actions">
+        <button class="btn-icon" onclick="editarGasto('${g.id}')">✏</button>
+        <button class="btn-icon" onclick="eliminarGastoId('${g.id}')">🗑</button>
+      </div>
+    </div>
+  `).join(""):`<div class="empty">Sin gastos registrados con este filtro</div>`;
+}
+
+// ── ACCIONES TAREAS ────────────────────────────────────────────────────────
+window.setFiltroTarea=function(f,btn){filtroTarea=f;document.querySelectorAll("#filtros-tareas .filter-btn").forEach(b=>b.classList.remove("active"));btn.classList.add("active");renderTareas()}
+
+window.toggleFormTarea=function(){
+  const f=document.getElementById("form-tarea");
+  const vis=f.style.display==="none";
+  f.style.display=vis?"block":"none";
+  if(vis){resetFormTarea()}
+}
+
+function resetFormTarea(){
+  document.getElementById("ft-id").value="";
+  document.getElementById("form-tarea-title").textContent="Nueva tarea";
+  document.getElementById("btn-del-tarea").style.display="none";
+  ["ft-persona","ft-frecuencia","ft-categoria","ft-tarea","ft-desc"].forEach(id=>document.getElementById(id).value="");
+  document.getElementById("ft-estado").value="pendiente";
+  document.getElementById("ft-fecha").value="";
+}
+
+window.guardarTarea=async function(){
+  const id=document.getElementById("ft-id").value;
+  const data={
+    persona:document.getElementById("ft-persona").value,
+    frecuencia:document.getElementById("ft-frecuencia").value,
+    categoria:document.getElementById("ft-categoria").value,
+    tarea:document.getElementById("ft-tarea").value,
+    descripcion:document.getElementById("ft-desc").value,
+    estado:document.getElementById("ft-estado").value,
+    fecha_limite:document.getElementById("ft-fecha").value||null,
+  };
+  if(!data.tarea||!data.persona){showToast("Completa persona y tarea");return}
+  try{
+    if(id){await updateDoc(doc(db,"tareas",id),data);tareas=tareas.map(t=>t.id===id?{...t,...data}:t)}
+    else{const ref=await addDoc(collection(db,"tareas"),{...data,created_at:new Date().toISOString()});tareas.push({id:ref.id,...data})}
+    showToast("✓ Guardado");document.getElementById("form-tarea").style.display="none";resetFormTarea();renderTareas();
+  }catch(e){showToast("Error: "+e.message)}
+}
+
+window.editarTarea=function(id){
+  const t=tareas.find(x=>x.id===id);if(!t)return;
+  document.getElementById("ft-id").value=id;
+  document.getElementById("form-tarea-title").textContent="Editar tarea";
+  document.getElementById("btn-del-tarea").style.display="block";
+  document.getElementById("ft-persona").value=t.persona||"";
+  document.getElementById("ft-frecuencia").value=t.frecuencia||"";
+  document.getElementById("ft-categoria").value=t.categoria||"";
+  document.getElementById("ft-tarea").value=t.tarea||"";
+  document.getElementById("ft-desc").value=t.descripcion||"";
+  document.getElementById("ft-estado").value=t.estado||"pendiente";
+  document.getElementById("ft-fecha").value=t.fecha_limite||"";
+  document.getElementById("form-tarea").style.display="block";
+}
+
+window.eliminarTarea=async function(){
+  const id=document.getElementById("ft-id").value;
+  if(!id||!confirm("¿Eliminar esta tarea?"))return;
+  await deleteDoc(doc(db,"tareas",id));
+  tareas=tareas.filter(t=>t.id!==id);
+  document.getElementById("form-tarea").style.display="none";
+  resetFormTarea();showToast("Eliminada");renderTareas();
+}
+
+window.toggleEstado=async function(id,estado){
+  const nuevo=estado==="completada"?"pendiente":"completada";
+  await updateDoc(doc(db,"tareas",id),{estado:nuevo});
+  tareas=tareas.map(t=>t.id===id?{...t,estado:nuevo}:t);
+  renderView();
+}
+
+window.completarRapido=async function(id){
+  await updateDoc(doc(db,"tareas",id),{estado:"completada"});
+  tareas=tareas.map(t=>t.id===id?{...t,estado:"completada"}:t);
+  renderDashboard();showToast("✓ Marcada como completada");
+}
+
+// ── ACCIONES GASTOS ────────────────────────────────────────────────────────
+window.toggleFormGasto=function(){
+  const f=document.getElementById("form-gasto");
+  const vis=f.style.display==="none";
+  f.style.display=vis?"block":"none";
+  if(vis){resetFormGasto()}
+}
+
+function resetFormGasto(){
+  document.getElementById("fg-id").value="";
+  document.getElementById("form-gasto-title").textContent="Nuevo gasto";
+  document.getElementById("btn-del-gasto").style.display="none";
+  document.getElementById("fg-fecha").value=new Date().toISOString().split("T")[0];
+  document.getElementById("fg-cat").value="Ads";
+  ["fg-monto","fg-campana","fg-desc"].forEach(id=>document.getElementById(id).value="");
+}
+
+window.guardarGasto=async function(){
+  const id=document.getElementById("fg-id").value;
+  const data={
+    fecha:document.getElementById("fg-fecha").value,
+    categoria:document.getElementById("fg-cat").value,
+    monto:parseInt(document.getElementById("fg-monto").value)||0,
+    campana:document.getElementById("fg-campana").value,
+    descripcion:document.getElementById("fg-desc").value,
+    mes:document.getElementById("fg-fecha").value?.substring(0,7),
+  };
+  try{
+    if(id){await updateDoc(doc(db,"gastos",id),data);gastos=gastos.map(g=>g.id===id?{...g,...data}:g)}
+    else{const ref=await addDoc(collection(db,"gastos"),{...data,created_at:new Date().toISOString()});gastos.push({id:ref.id,...data})}
+    showToast("✓ Gasto guardado");document.getElementById("form-gasto").style.display="none";poblarMeses();renderPresupuesto();
+  }catch(e){showToast("Error: "+e.message)}
+}
+
+window.editarGasto=function(id){
+  const g=gastos.find(x=>x.id===id);if(!g)return;
+  document.getElementById("fg-id").value=id;
+  document.getElementById("form-gasto-title").textContent="Editar gasto";
+  document.getElementById("btn-del-gasto").style.display="block";
+  document.getElementById("fg-fecha").value=g.fecha||"";
+  document.getElementById("fg-cat").value=g.categoria||"Ads";
+  document.getElementById("fg-monto").value=g.monto||"";
+  document.getElementById("fg-campana").value=g.campana||"";
+  document.getElementById("fg-desc").value=g.descripcion||"";
+  document.getElementById("form-gasto").style.display="block";
+}
+
+window.eliminarGasto=async function(){
+  const id=document.getElementById("fg-id").value;
+  if(!id||!confirm("¿Eliminar este gasto?"))return;
+  await eliminarGastoId(id);
+  document.getElementById("form-gasto").style.display="none";
+}
+
+window.eliminarGastoId=async function(id){
+  await deleteDoc(doc(db,"gastos",id));
+  gastos=gastos.filter(g=>g.id!==id);
+  showToast("Eliminado");poblarMeses();renderPresupuesto();
+}
+
+function showToast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2500)}
+
+// INIT
+document.getElementById("fg-fecha").value=new Date().toISOString().split("T")[0];
+await cargarTareas();
+await cargarGastos();
+renderDashboard();
+</script>
+</body>
+</html>
