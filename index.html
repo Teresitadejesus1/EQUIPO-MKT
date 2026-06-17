@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Vigahome — Dashboard MKT</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+:root{
+  --brand:#0F3F7A;--brand2:#1A5FA8;--blue-light:#E6F1FB;--blue-txt:#0C447C;
+  --green:#0F6E56;--green-light:#E1F5EE;--green-txt:#085041;
+  --purple:#533AB7;--purple-light:#EEEDFE;--purple-txt:#3C3489;
+  --red:#E24B4A;--red-light:#FCEBEB;--red-txt:#A32D2D;
+  --amber:#BA7517;--amber-light:#FAEEDA;--amber-txt:#854F0B;
+  --ok:#3B6D11;
+  --bg:#F4F6F9;--surface:#FFF;--surface2:#F8FAFC;
+  --border:#E2E8F0;--border2:#CBD5E1;
+  --text:#0F172A;--text2:#475569;--text3:#94A3B8;
+  --r:12px;--rs:8px;--rxs:6px;
+  --shadow:0 1px 3px rgba(0,0,0,.08);
+  --shadow-md:0 4px 6px rgba(0,0,0,.07);
+  --shadow-lg:0 10px 15px rgba(0,0,0,.1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--text);font-size:14px;min-height:100vh}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:220px;background:var(--brand);flex-shrink:0;display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100;overflow-y:auto}
+.sidebar-logo{padding:1.25rem;border-bottom:1px solid rgba(255,255,255,.1)}
+.sidebar-logo p{font-size:10px;font-weight:500;letter-spacing:.08em;color:rgba(255,255,255,.4);text-transform:uppercase;margin-bottom:2px}
+.sidebar-logo h1{font-size:17px;font-weight:600;color:#fff}
+.sidebar-nav{padding:.75rem 0;flex:1}
+.nav-section{padding:0 .75rem;margin-bottom:1.25rem}
+.nav-label{font-size:10px;font-weight:600;letter-spacing:.08em;color:rgba(255,255,255,.35);text-transform:uppercase;padding:.4rem .5rem .2rem}
+.nav-item{display:flex;align-items:center;gap:9px;padding:7px 11px;border-radius:var(--rxs);cursor:pointer;color:rgba(255,255,255,.65);font-size:12px;font-weight:500;transition:all .15s;margin-bottom:1px}
+.nav-item:hover{background:rgba(255,255,255,.1);color:#fff}
+.nav-item.active{background:rgba(255,255,255,.18);color:#fff}
+.nav-item .icon{font-size:14px;width:18px;text-align:center}
+.sidebar-footer{padding:1rem 1.25rem;border-top:1px solid rgba(255,255,255,.1)}
+.sidebar-user{display:flex;align-items:center;gap:8px}
+.ava{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff}
+.sidebar-user-info p:first-child{font-size:12px;font-weight:500;color:#fff}
+.sidebar-user-info p:last-child{font-size:10px;color:rgba(255,255,255,.4)}
+.main{margin-left:220px;flex:1;min-width:0}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:.75rem 1.5rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;box-shadow:var(--shadow)}
+.topbar-title{font-size:15px;font-weight:600}
+.topbar-right{display:flex;align-items:center;gap:8px}
+.topbar-date{font-size:11px;color:var(--text3)}
+.btn-new{font-size:12px;font-weight:500;padding:6px 13px;border-radius:var(--rxs);border:none;background:var(--brand2);color:#fff;cursor:pointer;display:flex;align-items:center;gap:5px}
+.btn-new:hover{background:var(--brand)}
+.page{padding:1.25rem;display:none}
+.page.active{display:block}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem;box-shadow:var(--shadow)}
+.card h3{font-size:11px;font-weight:700;color:var(--text3);margin-bottom:.875rem;text-transform:uppercase;letter-spacing:.06em}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:1.25rem}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1rem;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.stat-card::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent,var(--brand2))}
+.stat-label{font-size:11px;color:var(--text3);margin-bottom:.4rem;font-weight:500}
+.stat-val{font-size:24px;font-weight:700;line-height:1}
+.stat-sub{font-size:10px;color:var(--text3);margin-top:.2rem}
+.stat-icon{position:absolute;top:.875rem;right:.875rem;font-size:18px;opacity:.15}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px}
+.grid7030{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:14px}
+.tag{font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;display:inline-block;white-space:nowrap}
+.tag-tere{background:var(--blue-light);color:var(--blue-txt)}
+.tag-vivi{background:var(--green-light);color:var(--green-txt)}
+.tag-simona{background:var(--purple-light);color:var(--purple-txt)}
+.tag-diario{background:#FFF0F0;color:#C0392B}
+.tag-semanal{background:#EFF6FF;color:#1D4ED8}
+.tag-quincenal{background:#FDF4FF;color:#7E22CE}
+.tag-mensual{background:#F0FDF4;color:#15803D}
+.tag-puntual{background:#FFFBEB;color:#92400E}
+.sbadge{font-size:10px;font-weight:500;padding:2px 8px;border-radius:20px;white-space:nowrap;border:1px solid transparent;display:inline-block}
+.s-pendiente{background:#FFF7ED;color:#C2410C;border-color:#FED7AA}
+.s-progreso,.s-en_progreso{background:#EFF6FF;color:#1D4ED8;border-color:#BFDBFE}
+.s-completada{background:#F0FDF4;color:#15803D;border-color:#BBF7D0}
+.s-bloqueada{background:#F5F3FF;color:#6D28D9;border-color:#DDD6FE}
+.s-activa{background:#ECFDF5;color:#065F46;border-color:#6EE7B7}
+.s-preparacion{background:#EFF6FF;color:#1D4ED8;border-color:#BFDBFE}
+.s-planning{background:#F8FAFC;color:#475569;border-color:#E2E8F0}
+.s-terminada{background:#F0FDF4;color:#15803D;border-color:#BBF7D0}
+.s-pausada{background:#FFF7ED;color:#92400E;border-color:#FED7AA}
+.sub-nav{display:flex;gap:4px;margin-bottom:1.25rem;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:5px;flex-wrap:wrap}
+.sub-tab{padding:6px 12px;border-radius:var(--rxs);font-size:12px;font-weight:500;color:var(--text2);cursor:pointer;transition:all .15s;white-space:nowrap}
+.sub-tab.active{background:var(--brand2);color:#fff}
+.sub-tab:hover:not(.active){background:var(--surface2)}
+.kanban-wrap{overflow-x:auto}
+.kanban{display:grid;grid-template-columns:repeat(4,minmax(230px,1fr));gap:10px;align-items:start;min-width:880px}
+.kanban-col{background:var(--surface2);border-radius:var(--r);padding:.875rem;border:1px solid var(--border);min-height:120px;transition:all .15s}
+.kanban-col.drag-over{border:2px dashed var(--brand2);background:var(--blue-light)}
+.kanban-col-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.875rem}
+.kanban-col-title{font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.05em}
+.kcount{font-size:11px;font-weight:600;padding:1px 7px;border-radius:10px}
+.kanban-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rs);padding:.75rem;margin-bottom:7px;cursor:grab;box-shadow:var(--shadow);transition:box-shadow .15s;user-select:none}
+.kanban-card:active{cursor:grabbing}
+.kanban-card.dragging{opacity:.35}
+.kanban-card:hover{box-shadow:var(--shadow-md)}
+.kcard-title{font-size:12px;font-weight:500;margin-bottom:.4rem;line-height:1.35}
+.kcard-meta{display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-bottom:.4rem}
+.kcard-actions{display:flex;gap:3px;flex-wrap:wrap;margin-top:5px;opacity:0;transition:opacity .15s}
+.kanban-card:hover .kcard-actions{opacity:1}
+.kdate{font-size:10px;color:var(--text3)}
+.kdate.vencida{color:var(--red-txt);font-weight:600}
+.move-btn{font-size:10px;padding:2px 6px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;color:var(--text2);font-weight:500;white-space:nowrap}
+.move-btn:hover{background:var(--brand2);color:#fff;border-color:var(--brand2)}
+.camp-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem;margin-bottom:10px;box-shadow:var(--shadow);transition:box-shadow .15s}
+.camp-card:hover{box-shadow:var(--shadow-md)}
+.camp-card.drag-target{border:2px dashed var(--brand2)}
+.camp-card.dragging{opacity:.35}
+.camp-nombre{font-size:14px;font-weight:600;margin-bottom:2px}
+.camp-desc{font-size:11px;color:var(--text3)}
+.camp-meta{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:.875rem;padding:.75rem;background:var(--surface2);border-radius:var(--rs)}
+.camp-meta-label{font-size:10px;color:var(--text3);font-weight:500;text-transform:uppercase;margin-bottom:2px}
+.camp-meta-val{font-size:12px;font-weight:600}
+.progress-bar{height:5px;background:#E2E8F0;border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;border-radius:3px;transition:width .4s}
+.check-item{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border)}
+.check-item:last-child{border-bottom:none}
+.check-box{width:14px;height:14px;border:1.5px solid var(--border2);border-radius:3px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9px;transition:all .15s;cursor:pointer}
+.check-box.done{background:var(--ok);border-color:var(--ok);color:#fff}
+.check-text{flex:1;color:var(--text2);font-size:12px}
+.check-text.done{text-decoration:line-through;color:var(--text3)}
+.check-edit{background:none;border:1px solid transparent;padding:1px 4px;border-radius:3px;font-size:12px;color:var(--text2);cursor:text;width:100%;font-family:inherit}
+.check-edit:focus{outline:none;border-color:var(--brand2);background:var(--blue-light)}
+.montu-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1rem;margin-bottom:8px;box-shadow:var(--shadow);display:flex;align-items:flex-start;gap:12px}
+.montu-stats{display:flex;gap:6px;margin-top:5px;flex-wrap:wrap}
+.montu-stat{font-size:10px;padding:2px 6px;border-radius:4px;background:var(--surface2);color:var(--text2)}
+.mat-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px}
+.mat-row:last-child{border-bottom:none}
+.mat-tipo{font-size:10px;font-weight:600;padding:2px 6px;border-radius:4px;white-space:nowrap}
+.tipo-foto{background:#EFF6FF;color:#1D4ED8}
+.tipo-video{background:#FDF4FF;color:#7E22CE}
+.tipo-pop{background:#FFF7ED;color:#C2410C}
+.tipo-digital{background:#F0FDF4;color:#15803D}
+.tipo-otro{background:#F8FAFC;color:#475569}
+.pdq-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px}
+.pdq-row:last-child{border-bottom:none}
+.pdq-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.cal-anual{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.cal-mes-mini{background:var(--surface);border:1px solid var(--border);border-radius:var(--rs);padding:.75rem;cursor:pointer;transition:all .15s}
+.cal-mes-mini:hover{border-color:var(--brand2);box-shadow:var(--shadow-md)}
+.cal-mes-mini.tiene-eventos{border-left:3px solid var(--brand2)}
+.cal-mes-mini h4{font-size:12px;font-weight:600;margin-bottom:.4rem}
+.cal-ev-dot{font-size:10px;color:var(--text3);padding:1px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cal-grid-mes{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cal-dia{min-height:70px;border:1px solid var(--border);border-radius:4px;padding:3px;background:var(--surface)}
+.cal-dia.hoy{border-color:var(--brand2);border-width:2px}
+.cal-dia.otro-mes{opacity:.4;background:var(--surface2)}
+.cal-dia-num{font-size:10px;font-weight:600;color:var(--text2);margin-bottom:2px}
+.cal-ev{font-size:9px;padding:1px 3px;border-radius:2px;margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.jose-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px}
+.jose-row:last-child{border-bottom:none}
+.modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:200;display:flex;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(3px)}
+.modal{background:var(--surface);border-radius:var(--r);width:100%;max-width:580px;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg)}
+.modal-header{padding:1rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--surface);z-index:1}
+.modal-header h2{font-size:14px;font-weight:600}
+.modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--text3);line-height:1}
+.modal-body{padding:1.25rem}
+.modal-footer{padding:.875rem 1.25rem;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;background:var(--surface2)}
+.field{display:flex;flex-direction:column;gap:4px;margin-bottom:11px}
+.field label{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.04em}
+.field input,.field select,.field textarea{font-size:13px;padding:7px 10px;border:1.5px solid var(--border);border-radius:var(--rxs);background:var(--surface);color:var(--text);outline:none;font-family:inherit;transition:border-color .15s}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--brand2)}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.field-row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.btn{font-size:12px;font-weight:500;padding:7px 14px;border-radius:var(--rxs);cursor:pointer;border:none}
+.btn-primary{background:var(--brand2);color:#fff}
+.btn-secondary{background:var(--surface);color:var(--text2);border:1.5px solid var(--border)}
+.btn-danger{background:var(--red-light);color:var(--red-txt)}
+.btn-icon{background:none;border:none;cursor:pointer;color:var(--text3);font-size:13px;padding:3px;border-radius:4px}
+.btn-icon:hover{background:var(--surface2);color:var(--text)}
+.fc{font-size:11px;padding:4px 10px;border-radius:20px;border:1.5px solid var(--border);background:var(--surface);color:var(--text2);cursor:pointer;font-weight:500;transition:all .15s}
+.fc.active{background:var(--brand);color:#fff;border-color:var(--brand)}
+.filter-row{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:1rem}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:8px}
+.section-header h2{font-size:17px;font-weight:700}
+.empty-state{text-align:center;padding:2rem;color:var(--text3);font-size:12px}
+.table{width:100%;border-collapse:collapse;font-size:12px}
+.table th{text-align:left;padding:7px 10px;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--border);background:var(--surface2)}
+.table td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:middle}
+.table tr:last-child td{border-bottom:none}
+.table tr:hover td{background:var(--surface2)}
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--text);color:#fff;padding:10px 18px;border-radius:var(--rs);font-size:13px;font-weight:500;opacity:0;transition:opacity .3s;pointer-events:none;z-index:3000;box-shadow:var(--shadow-lg)}
+.toast.show{opacity:1}
+.rendir-badge{font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;background:#FFF7ED;color:#C2410C;border:1px solid #FED7AA}
+@media(max-width:768px){.sidebar{display:none}.main{margin-left:0}.grid2,.grid3,.grid7030,.cal-anual{grid-template-columns:1fr}.camp-meta{grid-template-columns:1fr 1fr}}
+</style>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="sidebar-logo"><p>Marketing</p><h1>Vigahome</h1></div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">
+      <div class="nav-label">Principal</div>
+      <div class="nav-item active" onclick="goTo('home')"><span class="icon">🏠</span>Home</div>
+      <div class="nav-item" onclick="goTo('jose')"><span class="icon">👔</span>Para José</div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Trabajo</div>
+      <div class="nav-item" onclick="goTo('campanas')"><span class="icon">🚀</span>Campañas</div>
+      <div class="nav-item" onclick="goTo('brand')"><span class="icon">🎯</span>Brand — Tere</div>
+      <div class="nav-item" onclick="goTo('diseno')"><span class="icon">🎨</span>Diseño — Vivi</div>
+      <div class="nav-item" onclick="goTo('content')"><span class="icon">📱</span>Content — Simona</div>
+      <div class="nav-item" onclick="goTo('tareas')"><span class="icon">✅</span>Todas las tareas</div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Recursos</div>
+      <div class="nav-item" onclick="goTo('material')"><span class="icon">📦</span>Material gráfico</div>
+      <div class="nav-item" onclick="goTo('presupuesto')"><span class="icon">💰</span>Presupuesto</div>
+      <div class="nav-item" onclick="goTo('calendario')"><span class="icon">📅</span>Calendario</div>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="sidebar-user">
+      <div class="ava">T</div>
+      <div class="sidebar-user-info"><p>Tere</p><p>Brand Manager</p></div>
+    </div>
+  </div>
+</aside>
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="topbar-title">Home</div>
+    <div class="topbar-right">
+      <span class="topbar-date" id="topbar-date"></span>
+      <button class="btn-new" id="btn-new" onclick="abrirModalContextual()"><span>+</span><span id="btn-new-label">Nuevo</span></button>
+    </div>
+  </div>
+
+  <!-- HOME -->
+  <div class="page active" id="page-home">
+    <div class="stats-grid" id="home-stats"></div>
+    <div class="grid7030">
+      <div>
+        <div class="card" style="margin-bottom:14px"><h3>🚀 Campañas activas</h3><div id="home-campanas"></div></div>
+        <div class="card"><h3>⚠ Requieren atención</h3><div id="home-atencion"></div></div>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:14px"><h3>👥 Equipo</h3><div id="home-equipo"></div></div>
+        <div class="card"><h3>💰 Presupuesto</h3><div id="home-presup"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JOSE -->
+  <div class="page" id="page-jose">
+    <div class="section-header"><h2>👔 Para José</h2></div>
+    <div class="grid2" style="margin-bottom:14px">
+      <div class="card" style="border-left:4px solid var(--brand2)"><h3>📅 Esta semana</h3><div id="jose-semana"></div></div>
+      <div class="card" style="border-left:4px solid var(--green)"><h3>📆 Este mes</h3><div id="jose-mes"></div></div>
+    </div>
+    <div class="grid2" style="margin-bottom:14px">
+      <div class="card"><h3>✏ Necesita revisión</h3><div id="jose-revision"></div></div>
+      <div class="card"><h3>⏳ Pendiente José</h3><div id="jose-pendiente"></div></div>
+    </div>
+    <div class="card"><h3>🚀 Estado campañas</h3><div id="jose-campanas"></div></div>
+  </div>
+
+  <!-- CAMPAÑAS -->
+  <div class="page" id="page-campanas">
+    <div class="section-header"><h2>Campañas</h2><button class="btn-new" onclick="abrirModalCampana()">+ Nueva campaña</button></div>
+    <div class="filter-row">
+      <div class="fc active" onclick="setFC('todas',this)">Todas</div>
+      <div class="fc" onclick="setFC('activa',this)">Activas</div>
+      <div class="fc" onclick="setFC('preparacion',this)">En preparación</div>
+      <div class="fc" onclick="setFC('planning',this)">Planning</div>
+      <div class="fc" onclick="setFC('terminada',this)">Terminadas</div>
+    </div>
+    <div id="lista-campanas"></div>
+  </div>
+
+  <!-- BRAND -->
+  <div class="page" id="page-brand">
+    <div class="section-header"><h2>🎯 Brand — Tere</h2><button class="btn-new" onclick="abrirModalTareaPersona('Tere')">+ Nueva tarea</button></div>
+    <div class="sub-nav" id="tabs-brand">
+      <div class="sub-tab active" onclick="setSubTab('brand','todas',this)">Todas</div>
+      <div class="sub-tab" onclick="setSubTab('brand','Campañas',this)">Campañas</div>
+      <div class="sub-tab" onclick="setSubTab('brand','PDV',this)">PDV</div>
+      <div class="sub-tab" onclick="setSubTab('brand','Estrategia',this)">Estrategia</div>
+      <div class="sub-tab" onclick="setSubTab('brand','General',this)">Rutinas</div>
+    </div>
+    <div class="kanban-wrap"><div class="kanban" id="kanban-brand"></div></div>
+  </div>
+
+  <!-- DISEÑO -->
+  <div class="page" id="page-diseno">
+    <div class="section-header"><h2>🎨 Diseño — Vivi</h2><button class="btn-new" onclick="abrirModalTareaPersona('Vivi')">+ Nueva tarea</button></div>
+    <div class="sub-nav" id="tabs-diseno">
+      <div class="sub-tab active" onclick="setSubTab('diseno','todas',this)">Todas</div>
+      <div class="sub-tab" onclick="setSubTab('diseno','Digital',this)">Digital</div>
+      <div class="sub-tab" onclick="setSubTab('diseno','PDV',this)">PDV</div>
+      <div class="sub-tab" onclick="setSubTab('diseno','PDQ',this)">PDQs</div>
+      <div class="sub-tab" onclick="setSubTab('diseno','Mailings',this)">Mailings</div>
+    </div>
+    <div class="kanban-wrap"><div class="kanban" id="kanban-diseno"></div></div>
+    <div style="margin-top:1.25rem">
+      <div class="section-header"><h2 style="font-size:14px">📦 PDQs y Gancheras</h2><button class="btn-new" style="font-size:11px" onclick="abrirModalPDQ()">+ Agregar</button></div>
+      <div class="card"><div id="lista-pdq"></div></div>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="page" id="page-content">
+    <div class="section-header"><h2>📱 Content — Simona</h2><button class="btn-new" onclick="abrirModalTareaPersona('Simona')">+ Nueva tarea</button></div>
+    <div class="sub-nav" id="tabs-content">
+      <div class="sub-tab active" onclick="setSubTab('content','todas',this)">Todas</div>
+      <div class="sub-tab" onclick="setSubTab('content','RRSS',this)">RRSS</div>
+      <div class="sub-tab" onclick="setSubTab('content','Mailings',this)">Mailings</div>
+      <div class="sub-tab" onclick="setSubTab('content','Ads',this)">Ads</div>
+      <div class="sub-tab" onclick="setSubTab('content','Montu',this)">Montu</div>
+    </div>
+    <div class="kanban-wrap"><div class="kanban" id="kanban-content"></div></div>
+    <div style="margin-top:1.25rem">
+      <div class="section-header"><h2 style="font-size:14px">🎬 Montu — Creadores UGC</h2><button class="btn-new" style="font-size:11px" onclick="abrirModalMontu()">+ Creador</button></div>
+      <div id="lista-montu"></div>
+    </div>
+  </div>
+
+  <!-- TODAS -->
+  <div class="page" id="page-tareas">
+    <div class="section-header"><h2>Todas las tareas</h2><button class="btn-new" onclick="abrirModalTarea()">+ Nueva tarea</button></div>
+    <div class="filter-row">
+      <div class="fc active" onclick="setFT('todas',this)">Todas</div>
+      <div class="fc" onclick="setFT('Tere',this)">Tere</div>
+      <div class="fc" onclick="setFT('Vivi',this)">Vivi</div>
+      <div class="fc" onclick="setFT('Simona',this)">Simona</div>
+      <div class="fc" onclick="setFT('pendiente',this)">Pendientes</div>
+      <div class="fc" onclick="setFT('bloqueada',this)">Bloqueadas</div>
+      <div class="fc" onclick="setFT('revision',this)">Necesita revisión</div>
+      <div class="fc" onclick="setFT('jose',this)">Pendiente José</div>
+    </div>
+    <div class="kanban-wrap"><div class="kanban" id="kanban-all"></div></div>
+  </div>
+
+  <!-- MATERIAL -->
+  <div class="page" id="page-material">
+    <div class="section-header"><h2>Material gráfico</h2><button class="btn-new" onclick="abrirModalMaterial()">+ Agregar material</button></div>
+    <div class="filter-row" id="filter-mat">
+      <div class="fc active" onclick="setFM('todos',this)">Todos</div>
+      <div class="fc" onclick="setFM('Foto',this)">Foto</div>
+      <div class="fc" onclick="setFM('Video',this)">Video</div>
+      <div class="fc" onclick="setFM('POP',this)">POP</div>
+      <div class="fc" onclick="setFM('Pieza digital',this)">Digital</div>
+      <div class="fc" onclick="setFM('RRSS',this)">RRSS</div>
+      <div class="fc" onclick="setFM('Retail',this)">Retail</div>
+      <div class="fc" onclick="setFM('Ecommerce',this)">Ecommerce</div>
+    </div>
+    <div id="lista-material"></div>
+  </div>
+
+  <!-- PRESUPUESTO -->
+  <div class="page" id="page-presupuesto">
+    <div class="section-header">
+      <h2>Presupuesto 2026</h2>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <select id="sel-mes" onchange="renderPresupuesto()" style="font-size:12px;padding:6px 9px;border:1.5px solid var(--border);border-radius:var(--rxs);background:var(--surface)"><option value="">Todos los meses</option></select>
+        <button class="btn-new" onclick="abrirModalGasto()">+ Agregar gasto</button>
+      </div>
+    </div>
+    <div class="stats-grid" id="presup-kpis"></div>
+    <div class="grid2" style="margin-bottom:14px">
+      <div class="card"><h3>Gasto por categoría</h3><canvas id="ch-cat" height="200"></canvas></div>
+      <div class="card"><h3>Evolución mensual</h3><canvas id="ch-evol" height="200"></canvas></div>
+    </div>
+    <div class="card" style="margin-bottom:14px"><h3>Por categoría — detalle</h3><div id="presup-cats"></div></div>
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.875rem">
+        <h3 style="margin:0">Gastos registrados</h3>
+        <div style="display:flex;gap:6px;align-items:center">
+          <select id="fil-cat-presup" onchange="renderPresupuesto()" style="font-size:11px;padding:4px 8px;border:1px solid var(--border);border-radius:var(--rxs);background:var(--surface)">
+            <option value="">Todas las categorías</option>
+            <option>Agencias y Servicios</option><option>AON</option><option>Inversión Digital Clientes</option>
+            <option>Eventos Comerciales</option><option>Merchandising</option><option>Trade Marketing</option><option>Agencia Trade MKT</option>
+          </select>
+          <label style="font-size:11px;display:flex;align-items:center;gap:4px;cursor:pointer"><input type="checkbox" id="fil-rendir" onchange="renderPresupuesto()"> Por rendir</label>
+        </div>
+      </div>
+      <div id="lista-gastos"></div>
+    </div>
+  </div>
+
+  <!-- CALENDARIO -->
+  <div class="page" id="page-calendario">
+    <div class="section-header"><h2>Calendario 2026</h2><button class="btn-new" onclick="abrirModalEvento()">+ Agregar evento</button></div>
+    <div id="cal-anual-view"></div>
+    <div id="cal-mes-view" style="display:none">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:1rem">
+        <button class="btn btn-secondary" onclick="volverCalAnual()">← Volver</button>
+        <h2 id="cal-mes-titulo" style="font-size:16px;font-weight:700"></h2>
+      </div>
+      <div class="card">
+        <div class="cal-grid-mes" style="margin-bottom:6px">
+          <div style="font-size:10px;font-weight:600;color:var(--text3);text-align:center;padding:4px">Lun</div>
+          <div style="font-size:10px;font-weight:600;color:var(--text3);text-align:center;padding:4px">Mar</div>
+          <div style="font-size:10px;font-weight:600;color:var(--text3);text-align:center;padding:4px">Mié</div>
+          <div style="font-size:10px;font-weight:600;color:var(--text3);text-align:center;padding:4px">Jue</div>
+          <div style="font-size:10px;font-weight:600;color:var(--text3);text-align:center;padding:4px">Vie</div>
+          <div style="font-size:10px;font-weight:600;color:var(--text3);text-align:center;padding:4px">Sáb</div>
+          <div style="font-size:10px;font-weight:600;color:var(--text3);text-align:center;padding:4px">Dom</div>
+        </div>
+        <div class="cal-grid-mes" id="cal-grid-mes"></div>
+        <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap">
+          <span style="font-size:10px;color:var(--text3);display:flex;align-items:center;gap:3px"><span style="width:8px;height:8px;border-radius:2px;background:#1A5FA8;display:inline-block"></span>Efeméride</span>
+          <span style="font-size:10px;color:var(--text3);display:flex;align-items:center;gap:3px"><span style="width:8px;height:8px;border-radius:2px;background:#BA7517;display:inline-block"></span>Comercial</span>
+          <span style="font-size:10px;color:var(--text3);display:flex;align-items:center;gap:3px"><span style="width:8px;height:8px;border-radius:2px;background:#0F6E56;display:inline-block"></span>Campaña</span>
+          <span style="font-size:10px;color:var(--text3);display:flex;align-items:center;gap:3px"><span style="width:8px;height:8px;border-radius:2px;background:var(--blue-light);display:inline-block"></span>Tere</span>
+          <span style="font-size:10px;color:var(--text3);display:flex;align-items:center;gap:3px"><span style="width:8px;height:8px;border-radius:2px;background:var(--green-light);display:inline-block"></span>Vivi</span>
+          <span style="font-size:10px;color:var(--text3);display:flex;align-items:center;gap:3px"><span style="width:8px;height:8px;border-radius:2px;background:var(--purple-light);display:inline-block"></span>Simona</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<div id="modal-overlay" class="modal-overlay" style="display:none" onclick="if(event.target===this)cerrarModal()">
+  <div class="modal">
+    <div class="modal-header"><h2 id="modal-title"></h2><button class="modal-close" onclick="cerrarModal()">×</button></div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-footer" id="modal-footer"></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import{getFirestore,collection,addDoc,getDocs,updateDoc,deleteDoc,doc,query,orderBy}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+const app=initializeApp({apiKey:"AIzaSyDX1Gu65DJC_POPgDnssAT7e10LJD_ae_o",authDomain:"equipo-mkt.firebaseapp.com",projectId:"equipo-mkt",storageBucket:"equipo-mkt.firebasestorage.app",messagingSenderId:"861642824099",appId:"1:861642824099:web:a10865c33e632d85216216"});
+const db=getFirestore(app);
+let tareas=[],campanas=[],gastos=[],material=[],pdqs=[],montus=[],eventos=[];
+let filtroTareas="todas",filtroCamp="todas",filtroMaterial="todos";
+let subTabs={brand:"todas",diseno:"todas",content:"todas"};
+let calMesActual=null;
+let chCat=null,chEvol=null;
+let draggedTareaId=null,draggedCampId=null;
+let modalMode="",modalEditId="";
+const PPTO_TOTAL=266000000;
+const MESES=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+const TAREAS_DEFAULT=[
+  {persona:"Tere",frecuencia:"diario",categoria:"General",tarea:"Revisar urgentes de José y canales retail",descripcion:"Mails y WhatsApp de Easy/Sodimac.",estado:"pendiente",fecha_limite:null,proyecto:"General",necesita_revision:false,pendiente_jose:false},
+  {persona:"Tere",frecuencia:"semanal",categoria:"PDV",tarea:"Visitar 2 tiendas PDV",descripcion:"Registrar en dashboard PDV.",estado:"pendiente",fecha_limite:null,proyecto:"PDV",necesita_revision:false,pendiente_jose:false},
+  {persona:"Tere",frecuencia:"semanal",categoria:"General",tarea:"Reunión equipo — martes AM",descripcion:"Ordenar pendientes.",estado:"pendiente",fecha_limite:null,proyecto:"General",necesita_revision:false,pendiente_jose:false},
+  {persona:"Tere",frecuencia:"semanal",categoria:"Ads",tarea:"Revisar Meta Ads (CPA + performance)",descripcion:"Qué ad funciona, cuál pausar.",estado:"pendiente",fecha_limite:null,proyecto:"Ads",necesita_revision:false,pendiente_jose:false},
+  {persona:"Tere",frecuencia:"semanal",categoria:"PDV",tarea:"Sell-out Vessanti + Humbolt",descripcion:"Números de tiendas piloto.",estado:"pendiente",fecha_limite:null,proyecto:"PDV",necesita_revision:false,pendiente_jose:false},
+  {persona:"Tere",frecuencia:"semanal",categoria:"Perú",tarea:"Meet con Flori — Perú — miércoles PM",descripcion:"Videoconferencia semanal.",estado:"pendiente",fecha_limite:null,proyecto:"Perú",necesita_revision:false,pendiente_jose:false},
+  {persona:"Tere",frecuencia:"quincenal",categoria:"General",tarea:"Reunión de jefaturas",descripcion:"Cada dos semanas. Próxima: 14 julio.",estado:"pendiente",fecha_limite:"2026-07-14",proyecto:"General",necesita_revision:false,pendiente_jose:false},
+  {persona:"Tere",frecuencia:"mensual",categoria:"Estrategia",tarea:"Definir pilares del mes — día 20",descripcion:"Máximo 3 focos. Desbloquea a Simona y Vivi.",estado:"pendiente",fecha_limite:"2026-06-20",proyecto:"Estrategia",necesita_revision:false,pendiente_jose:false},
+  {persona:"Tere",frecuencia:"mensual",categoria:"Mailings",tarea:"Copy 8 mailings base activa",descripcion:"CM programa, Vivi diseña.",estado:"pendiente",fecha_limite:"2026-06-22",proyecto:"Mailings",necesita_revision:false,pendiente_jose:false},
+  {persona:"Tere",frecuencia:"mensual",categoria:"Montu",tarea:"Brief a Simona de productos a destacar en Montu",descripcion:"Siempre antes del día 5.",estado:"pendiente",fecha_limite:null,proyecto:"Montu",necesita_revision:false,pendiente_jose:false},
+  {persona:"Tere",frecuencia:"mensual",categoria:"PDV",tarea:"Reporte de visitas a tiendas",descripcion:"Consolidar hallazgos del mes.",estado:"pendiente",fecha_limite:"2026-06-30",proyecto:"PDV",necesita_revision:false,pendiente_jose:false},
+  {persona:"Tere",frecuencia:"mensual",categoria:"General",tarea:"Reporte mensual a José",descripcion:"Sell-out, métricas, estado proyectos.",estado:"pendiente",fecha_limite:"2026-06-30",proyecto:"General",necesita_revision:false,pendiente_jose:false},
+  {persona:"Tere",frecuencia:"puntual",categoria:"Campañas",tarea:"Brief completo campaña Agua de la Llave",descripcion:"4 mailings + 2 extra + 12 ads",estado:"pendiente",fecha_limite:"2026-06-08",proyecto:"Agua de la Llave",necesita_revision:false,pendiente_jose:false},
+  {persona:"Tere",frecuencia:"puntual",categoria:"Estrategia",tarea:"Water POV Vigahome",descripcion:"Manifiesto de marca 1 página.",estado:"pendiente",fecha_limite:"2026-06-27",proyecto:"Estrategia",necesita_revision:false,pendiente_jose:false},
+  {persona:"Tere",frecuencia:"puntual",categoria:"PDV",tarea:"Calendario ferias Chicureo + proyección 100 clientes",descripcion:"Espacio Urbano, Farmers Market.",estado:"pendiente",fecha_limite:"2026-06-10",proyecto:"PDV",necesita_revision:false,pendiente_jose:false},
+  {persona:"Vivi",frecuencia:"diario",categoria:"General",tarea:"Revisar cola de trabajo del día",descripcion:"Si algo va tarde, avisar ese mismo día.",estado:"pendiente",fecha_limite:null,proyecto:"General",necesita_revision:false,pendiente_jose:false},
+  {persona:"Vivi",frecuencia:"semanal",categoria:"PDV",tarea:"Material POP y PDV físico",descripcion:"Stoppers, cabeceras, material retail.",estado:"pendiente",fecha_limite:null,proyecto:"PDV",necesita_revision:false,pendiente_jose:false},
+  {persona:"Vivi",frecuencia:"mensual",categoria:"Mailings",tarea:"8 headers mailings base",descripcion:"Con pilares de Tere. Entregar antes del día 28.",estado:"pendiente",fecha_limite:"2026-06-27",proyecto:"Mailings",necesita_revision:false,pendiente_jose:false},
+  {persona:"Vivi",frecuencia:"mensual",categoria:"Ecommerce",tarea:"Actualización fichas ecommerce",descripcion:"vigahome.com + Meli + Falabella + Paris.",estado:"pendiente",fecha_limite:null,proyecto:"Ecommerce",necesita_revision:false,pendiente_jose:false},
+  {persona:"Vivi",frecuencia:"puntual",categoria:"PDQ",tarea:"Ganchera Filtro Ducha Vessanti",descripcion:"Para Easy. En producción.",estado:"en_progreso",fecha_limite:null,proyecto:"PDQ",necesita_revision:false,pendiente_jose:false},
+  {persona:"Vivi",frecuencia:"puntual",categoria:"PDQ",tarea:"Ganchera Filtro Grifo Vessanti",descripcion:"Para Easy. En producción.",estado:"en_progreso",fecha_limite:null,proyecto:"PDQ",necesita_revision:false,pendiente_jose:false},
+  {persona:"Vivi",frecuencia:"puntual",categoria:"PDQ",tarea:"PDQ Antisarro Calefont",descripcion:"Por iniciar.",estado:"pendiente",fecha_limite:null,proyecto:"PDQ",necesita_revision:false,pendiente_jose:false},
+  {persona:"Vivi",frecuencia:"puntual",categoria:"PDQ",tarea:"PDQ Canaletas para ferreterías",descripcion:"Por iniciar.",estado:"pendiente",fecha_limite:null,proyecto:"PDQ",necesita_revision:false,pendiente_jose:false},
+  {persona:"Vivi",frecuencia:"puntual",categoria:"PDQ",tarea:"PDQ filtros ducha — 70 tiendas",descripcion:"Esperando medidas de José. Entrada julio.",estado:"bloqueada",fecha_limite:"2026-07-01",proyecto:"PDQ",necesita_revision:false,pendiente_jose:true},
+  {persona:"Vivi",frecuencia:"puntual",categoria:"PDV",tarea:"Cabecera Sodimac Open Kennedy",descripcion:"Faltan medidas.",estado:"bloqueada",fecha_limite:null,proyecto:"PDV",necesita_revision:false,pendiente_jose:true},
+  {persona:"Vivi",frecuencia:"puntual",categoria:"Digital",tarea:"KV + gráficas Agua de la Llave",descripcion:"Banner + 8 gráficas + 6 mailings + 12 ads",estado:"pendiente",fecha_limite:"2026-06-13",proyecto:"Agua de la Llave",necesita_revision:false,pendiente_jose:false},
+  {persona:"Vivi",frecuencia:"puntual",categoria:"Digital",tarea:"KV + diseño mailings Clientes VIP",descripcion:"6 mailings + piezas RRSS",estado:"pendiente",fecha_limite:"2026-07-05",proyecto:"Clientes VIP",necesita_revision:false,pendiente_jose:false},
+  {persona:"Vivi",frecuencia:"puntual",categoria:"PDV",tarea:"Vendedor silencioso Vessanti + Humbolt",descripcion:"Siempre los dos juntos.",estado:"pendiente",fecha_limite:"2026-06-15",proyecto:"PDV",necesita_revision:false,pendiente_jose:false},
+  {persona:"Simona",frecuencia:"diario",categoria:"RRSS",tarea:"Revisar DM TikTok",descripcion:"Responder todos los DMs del día.",estado:"pendiente",fecha_limite:null,proyecto:"RRSS",necesita_revision:false,pendiente_jose:false},
+  {persona:"Simona",frecuencia:"diario",categoria:"RRSS",tarea:"Revisar DM Instagram",descripcion:"Responder comentarios y DMs. Máx 24h.",estado:"pendiente",fecha_limite:null,proyecto:"RRSS",necesita_revision:false,pendiente_jose:false},
+  {persona:"Simona",frecuencia:"diario",categoria:"Montu",tarea:"Revisar Montu",descripcion:"Revisar actividad de creadores.",estado:"pendiente",fecha_limite:null,proyecto:"Montu",necesita_revision:false,pendiente_jose:false},
+  {persona:"Simona",frecuencia:"diario",categoria:"RRSS",tarea:"Publicar stories del día",descripcion:"Según la grilla aprobada.",estado:"pendiente",fecha_limite:null,proyecto:"RRSS",necesita_revision:false,pendiente_jose:false},
+  {persona:"Simona",frecuencia:"semanal",categoria:"RRSS",tarea:"Programar publicaciones semana",descripcion:"IG + TikTok + LinkedIn.",estado:"pendiente",fecha_limite:null,proyecto:"RRSS",necesita_revision:false,pendiente_jose:false},
+  {persona:"Simona",frecuencia:"semanal",categoria:"Ads",tarea:"Revisar métricas paid ads",descripcion:"CPA Meta, CTR Google.",estado:"pendiente",fecha_limite:null,proyecto:"Ads",necesita_revision:false,pendiente_jose:false},
+  {persona:"Simona",frecuencia:"mensual",categoria:"RRSS",tarea:"Subir grilla IG + TikTok + LinkedIn",descripcion:"Grilla del mes completa programada.",estado:"pendiente",fecha_limite:null,proyecto:"RRSS",necesita_revision:false,pendiente_jose:false},
+  {persona:"Simona",frecuencia:"mensual",categoria:"Métricas",tarea:"Reporte mensual RRSS",descripcion:"Alcance, interacción, seguidores.",estado:"pendiente",fecha_limite:"2026-06-30",proyecto:"Métricas",necesita_revision:false,pendiente_jose:false},
+  {persona:"Simona",frecuencia:"mensual",categoria:"Mailings",tarea:"Planificación mensual mailings y banners",descripcion:"Estructura del mes con fechas y temas.",estado:"pendiente",fecha_limite:null,proyecto:"Mailings",necesita_revision:false,pendiente_jose:false},
+  {persona:"Simona",frecuencia:"mensual",categoria:"RRSS",tarea:"Fijar día de grabación de contenido",descripcion:"Coordinar con Tere el día del mes.",estado:"pendiente",fecha_limite:null,proyecto:"RRSS",necesita_revision:false,pendiente_jose:false},
+  {persona:"Simona",frecuencia:"mensual",categoria:"Mailings",tarea:"Mailing de cumpleaños interno",descripcion:"Preparar y enviar antes del fin de mes.",estado:"pendiente",fecha_limite:null,proyecto:"Mailings",necesita_revision:false,pendiente_jose:false},
+  {persona:"Simona",frecuencia:"mensual",categoria:"Mailings",tarea:"8 mailings — programar y enviar",descripcion:"Con piezas de Vivi y copy de Tere.",estado:"pendiente",fecha_limite:"2026-06-30",proyecto:"Mailings",necesita_revision:false,pendiente_jose:false},
+  {persona:"Simona",frecuencia:"mensual",categoria:"Montu",tarea:"Brief mensual a Montu",descripcion:"Productos, formatos y mensajes del mes.",estado:"pendiente",fecha_limite:"2026-06-26",proyecto:"Montu",necesita_revision:false,pendiente_jose:false},
+  {persona:"Simona",frecuencia:"mensual",categoria:"RRSS",tarea:"Borrador grilla mes siguiente — día 23",descripcion:"Con pilares de Tere.",estado:"pendiente",fecha_limite:"2026-06-23",proyecto:"RRSS",necesita_revision:false,pendiente_jose:false},
+  {persona:"Simona",frecuencia:"puntual",categoria:"Ads",tarea:"Terminar edición videos ads",descripcion:"Listos antes del 15 jun.",estado:"en_progreso",fecha_limite:"2026-06-13",proyecto:"Agua de la Llave",necesita_revision:false,pendiente_jose:false},
+  {persona:"Simona",frecuencia:"puntual",categoria:"RRSS",tarea:"Grabar TikTok con tendencias",descripcion:"Mínimo 2 videos por semana.",estado:"pendiente",fecha_limite:null,proyecto:"TikTok",necesita_revision:false,pendiente_jose:false},
+];
+const CAMPANAS_DEFAULT=[
+  {nombre:"Volvamos a tomar agua de la llave",descripcion:"Campaña principal jun-jul 2026",estado:"activa",fecha_inicio:"2026-06-15",fecha_fin:"2026-07-15",presupuesto:500000,responsable:"Tere",color:"#1A5FA8",orden:0,checklist:[{texto:"Brief completo campaña",done:false,quien:"Tere"},{texto:"Copy 4 mailings + 2 extra + 12 ads",done:false,quien:"Tere"},{texto:"KV campaña",done:true,quien:"Vivi"},{texto:"Edición videos ads",done:false,quien:"Simona"},{texto:"Gráficas RRSS (8 piezas)",done:false,quien:"Vivi"},{texto:"Diseño 6 mailings",done:false,quien:"Vivi"},{texto:"Programar grilla 4 semanas",done:false,quien:"Simona"},{texto:"Activar ads Meta",done:false,quien:"Simona"}]},
+  {nombre:"El Chico de Sodimac — Joaquín",descripcion:"Alianza influencer 6 meses. $700.000/mes. Jun-Jul: Osmosis Inversa.",estado:"activa",fecha_inicio:"2026-06-01",fecha_fin:"2026-11-30",presupuesto:4200000,responsable:"Tere",color:"#E24B4A",orden:1,checklist:[{texto:"Contrato firmado",done:true,quien:"Tere"},{texto:"Junio: Osmosis Inversa — publicar Reel",done:false,quien:"Joaquín"},{texto:"Junio: Historias Q&A",done:false,quien:"Joaquín"},{texto:"Julio: Osmosis Inversa — publicar Reel",done:false,quien:"Joaquín"},{texto:"Julio: Historias Q&A",done:false,quien:"Joaquín"},{texto:"Agosto: definir producto",done:false,quien:"Tere"},{texto:"Septiembre: definir producto",done:false,quien:"Tere"},{texto:"Octubre: definir producto",done:false,quien:"Tere"},{texto:"Noviembre: definir producto",done:false,quien:"Tere"}]},
+  {nombre:"Clientes VIP / VigaFRIENDS",descripcion:"Campaña fidelización julio 2026",estado:"planning",fecha_inicio:"2026-07-01",fecha_fin:"2026-08-15",presupuesto:300000,responsable:"Tere",color:"#533AB7",orden:2,checklist:[{texto:"Brief campaña 6 semanas",done:false,quien:"Tere"},{texto:"BBDD segmentada en Zoho",done:false,quien:"Santi"},{texto:"Loyalty VigaFRIENDS en web",done:false,quien:"Santi"},{texto:"KV campaña VIP",done:false,quien:"Vivi"},{texto:"6 mailings + 2 WhatsApp",done:false,quien:"Simona"}]},
+  {nombre:"Repuestos Osmosis",descripcion:"Reactivación 513 clientes sin repuesto",estado:"planning",fecha_inicio:"2026-07-08",fecha_fin:"2026-07-31",presupuesto:150000,responsable:"Tere",color:"#0F6E56",orden:3,checklist:[{texto:"BBDD 513 clientes sin repuesto",done:false,quien:"Santi"},{texto:"Copy 3 mails + 2 WA + guión llamada",done:false,quien:"Tere"},{texto:"Diseño 3 mailings",done:false,quien:"Vivi"},{texto:"Activar secuencia",done:false,quien:"Simona"}]},
+  {nombre:"Autolavable Manual",descripcion:"Lanzamiento agosto 2026",estado:"planning",fecha_inicio:"2026-08-01",fecha_fin:"2026-08-31",presupuesto:400000,responsable:"Tere",color:"#BA7517",orden:4,checklist:[{texto:"Estructura campaña",done:false,quien:"Tere"},{texto:"Confirmar video instalación Sodimac",done:false,quien:"Tere"},{texto:"KV + gráficas campaña",done:false,quien:"Vivi"},{texto:"Nuevo precio $42.990 — ok José",done:false,quien:"José"}]},
+];
+const PDQS_DEFAULT=[
+  {nombre:"Ganchera Filtro Ducha Vessanti",tipo:"Ganchera",cadena:"Easy",tiendas:null,estado:"en_progreso",nota:"En producción con Vivi.",productos:"Filtro Ducha Vessanti"},
+  {nombre:"Ganchera Filtro Grifo Vessanti",tipo:"Ganchera",cadena:"Easy",tiendas:null,estado:"en_progreso",nota:"En producción con Vivi.",productos:"Filtro Grifo Vessanti"},
+  {nombre:"PDQ Antisarro Calefont",tipo:"PDQ",cadena:"",tiendas:null,estado:"pendiente",nota:"Por iniciar.",productos:"Antisarro Calefont"},
+  {nombre:"PDQ Canaletas para ferreterías",tipo:"PDQ",cadena:"Ferreterías",tiendas:null,estado:"pendiente",nota:"Por iniciar.",productos:"Canaletas"},
+  {nombre:"PDQ Filtros Ducha",tipo:"PDQ",cadena:"Sodimac",tiendas:70,estado:"bloqueado",nota:"Esperando medidas de José. Entrada julio.",productos:"Filtro Ducha Blanco + Cromado"},
+  {nombre:"PDQ Humbolt",tipo:"PDQ",cadena:"Sodimac",tiendas:null,estado:"bloqueado",nota:"Confirmar productos con José.",productos:"Por definir"},
+  {nombre:"PDQ Alice",tipo:"PDQ",cadena:"Sodimac",tiendas:null,estado:"en_progreso",nota:"En revisión.",productos:"Alice"},
+];
+const MONTUS_DEFAULT=[
+  {nombre:"Joaquín (El Chico del Sodimac)",plataforma:"TikTok / IG",seguidores:"669.9K TikTok",estado:"activo",mes_actual:"Junio - Julio",producto_mes:"Osmosis Inversa",formato:"Reel + Historias + Q&A",monto:700000,drive:""},
+  {nombre:"Maestro Benja",plataforma:"TikTok",seguidores:"669.9K TikTok",estado:"en_negociacion",mes_actual:"Agosto",producto_mes:"Autolavable Manual",formato:"TikTok instalación",monto:0,drive:""},
+];
+const EVENTOS_DEFAULT=[
+  {nombre:"Día Mundial del Agua",fecha:"2026-03-22",tipo:"efeméride",color:"#1A5FA8"},
+  {nombre:"Día del Medio Ambiente",fecha:"2026-06-05",tipo:"efeméride",color:"#0F6E56"},
+  {nombre:"Día Mundial Saneamiento",fecha:"2026-11-19",tipo:"efeméride",color:"#1A5FA8"},
+  {nombre:"Día del Padre",fecha:"2026-06-21",tipo:"comercial",color:"#BA7517"},
+  {nombre:"Día del Niño",fecha:"2026-10-11",tipo:"comercial",color:"#533AB7"},
+  {nombre:"Cyber Monday Chile",fecha:"2026-06-01",tipo:"comercial",color:"#E24B4A"},
+  {nombre:"Fiestas Patrias",fecha:"2026-09-18",tipo:"comercial",color:"#C0392B"},
+  {nombre:"Black Friday",fecha:"2026-11-27",tipo:"comercial",color:"#1a1a1a"},
+  {nombre:"Navidad",fecha:"2026-12-25",tipo:"comercial",color:"#E24B4A"},
+  {nombre:"Lanzamiento Agua de la Llave",fecha:"2026-06-15",tipo:"campaña",color:"#1A5FA8"},
+  {nombre:"Lanzamiento Clientes VIP",fecha:"2026-07-01",tipo:"campaña",color:"#533AB7"},
+  {nombre:"Lanzamiento Autolavable",fecha:"2026-08-01",tipo:"campaña",color:"#BA7517"},
+  {nombre:"Reunión Jefaturas",fecha:"2026-06-16",tipo:"interno",color:"#475569"},
+  {nombre:"Reunión Jefaturas",fecha:"2026-07-14",tipo:"interno",color:"#475569"},
+];
+const CATEGORIAS_PRESUP=[
+  {grupo:"Agencias y Servicios",items:["Agencia Creativa + RRSS + SEO + SEM","Zoho Licencias","Fotos y Videos","VAMBE AI"]},
+  {grupo:"AON",items:["Google y Meta","Montu","TikTok"]},
+  {grupo:"Inversión Digital Clientes",items:["Sodimac","Easy"]},
+  {grupo:"Eventos Comerciales",items:["Feria Easy","Feria Vendedores Sodimac Los Almendros","Feria Constructor Sodimac","Programa CES - Agencia Gonzalez","Innovamat / Expo Ferretera","Viajes Zona Norte","Feria Clientes Ferreteros"]},
+  {grupo:"Merchandising",items:["Lapices","Bolsas","Catalogos VH","Cuaderno Academia VH","Stickers","Folleteria Canal Horeca / Constructora"]},
+  {grupo:"Trade Marketing",items:["Mesas Clinicas","Pendones","Manteles","Toldo","Impresiones Lineales","Impresiones Cabeceras","Exhibiciones PDQ Sodimac","Exhibiciones PDQ Easy","Gancheras Sodimac","Catalogo Especialista","Ventas por sell out","Muebles clientes nuevos","Insumos gestion punto de venta"]},
+  {grupo:"Agencia Trade MKT",items:["Puente Sur - Sodimac y Easy","Integral 360 - Walmart","Agencia Promotoras (PK Group)"]},
+];
+function generarGastosFijos(){
+  const meses=["2026-01","2026-02","2026-03","2026-04","2026-05"];
+  const fijos=[
+    {categoria:"Agencias y Servicios",descripcion:"Zoho Licencias",monto:300000},
+    {categoria:"Agencias y Servicios",descripcion:"VAMBE AI",monto:30000},
+    {categoria:"AON",descripcion:"Google y Meta",monto:2000000},
+    {categoria:"AON",descripcion:"Montu",monto:60000},
+  ];
+  const r=[];
+  meses.forEach(mes=>fijos.forEach(f=>r.push({...f,fecha:mes+"-01",campana:"",mes,por_rendir:false,created_at:new Date().toISOString()})));
+  return r;
+}
+
+async function cargarTodo(){
+  const[sT,sC,sG,sM,sP,sMo,sEv]=await Promise.all([
+    getDocs(query(collection(db,"tareas_v4"),orderBy("persona"))),
+    getDocs(query(collection(db,"campanas_v4"),orderBy("orden"))),
+    getDocs(collection(db,"gastos_v4")),
+    getDocs(collection(db,"material_v4")),
+    getDocs(collection(db,"pdqs_v4")),
+    getDocs(collection(db,"montus_v4")),
+    getDocs(collection(db,"eventos_v4")),
+  ]);
+  tareas=sT.docs.map(d=>({id:d.id,...d.data()}));
+  campanas=sC.docs.map(d=>({id:d.id,...d.data()}));
+  gastos=sG.docs.map(d=>({id:d.id,...d.data()}));
+  material=sM.docs.map(d=>({id:d.id,...d.data()}));
+  pdqs=sP.docs.map(d=>({id:d.id,...d.data()}));
+  montus=sMo.docs.map(d=>({id:d.id,...d.data()}));
+  eventos=sEv.docs.map(d=>({id:d.id,...d.data()}));
+  if(!tareas.length){for(const t of TAREAS_DEFAULT){const r=await addDoc(collection(db,"tareas_v4"),{...t,created_at:new Date().toISOString()});tareas.push({id:r.id,...t})}}
+  if(!campanas.length){for(const c of CAMPANAS_DEFAULT){const r=await addDoc(collection(db,"campanas_v4"),{...c,created_at:new Date().toISOString()});campanas.push({id:r.id,...c})}}
+  if(!pdqs.length){for(const p of PDQS_DEFAULT){const r=await addDoc(collection(db,"pdqs_v4"),{...p,created_at:new Date().toISOString()});pdqs.push({id:r.id,...p})}}
+  if(!montus.length){for(const m of MONTUS_DEFAULT){const r=await addDoc(collection(db,"montus_v4"),{...m,created_at:new Date().toISOString()});montus.push({id:r.id,...m})}}
+  if(!eventos.length){for(const e of EVENTOS_DEFAULT){const r=await addDoc(collection(db,"eventos_v4"),{...e,created_at:new Date().toISOString()});eventos.push({id:r.id,...e})}}
+  if(!gastos.length){const fg=generarGastosFijos();for(const g of fg){const r=await addDoc(collection(db,"gastos_v4"),g);gastos.push({id:r.id,...g})}}
+  renderAll();
+}
+
+function renderAll(){
+  renderHome();renderJose();
+  renderKanban("brand","Tere",null);
+  renderKanban("diseno","Vivi",null);
+  renderKanban("content","Simona",null);
+  renderKanban("all","all",null);
+  renderCampanas();renderPDQs();renderMontus();renderMaterial();
+  renderCalendarioAnual();poblarMeses();renderPresupuesto();
+}
+
+function renderHome(){
+  const hoy=new Date().toISOString().split("T")[0];
+  const atrasadas=tareas.filter(t=>t.fecha_limite&&t.fecha_limite<hoy&&t.estado!=="completada");
+  const pendientes=tareas.filter(t=>["pendiente","en_progreso"].includes(t.estado));
+  const completadas=tareas.filter(t=>t.estado==="completada");
+  const activas=campanas.filter(c=>c.estado==="activa");
+  const totalGastos=gastos.reduce((a,g)=>a+(g.monto||0),0);
+  const pptoDisp=PPTO_TOTAL-totalGastos;
+  document.getElementById("home-stats").innerHTML=[
+    {label:"Campañas activas",val:activas.length,sub:"en curso",icon:"🚀",a:"var(--brand2)"},
+    {label:"Tareas pendientes",val:pendientes.length,sub:completadas.length+" completadas",icon:"✅",a:"var(--amber)"},
+    {label:"Atrasadas",val:atrasadas.length,sub:"requieren atención",icon:"⚠️",a:atrasadas.length?"var(--red)":"var(--ok)"},
+    {label:"Presupuesto disponible",val:"$"+Math.round(pptoDisp/1000000)+"M",sub:"de $266M anuales",icon:"💰",a:"var(--green)"},
+  ].map(s=>`<div class="stat-card" style="--accent:${s.a}"><div class="stat-icon">${s.icon}</div><div class="stat-label">${s.label}</div><div class="stat-val">${s.val}</div><div class="stat-sub">${s.sub}</div></div>`).join("");
+  const camp_activas=[...campanas].filter(c=>c.estado==="activa").sort((a,b)=>(a.orden||0)-(b.orden||0));
+  document.getElementById("home-campanas").innerHTML=camp_activas.length?camp_activas.map(c=>{
+    const tot=c.checklist?.length||0,dn=c.checklist?.filter(x=>x.done).length||0,pct=tot?Math.round(dn/tot*100):0;
+    return`<div style="padding:9px 0;border-bottom:1px solid var(--border)"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:12px;font-weight:500">${c.nombre}</span><span style="font-size:11px;color:var(--text3)">${pct}%</span></div><div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${c.color||"var(--brand2)"}"></div></div></div>`;
+  }).join(""):`<div class="empty-state">Sin campañas activas</div>`;
+  const aten=[...atrasadas,...tareas.filter(t=>t.estado==="bloqueada")].slice(0,6);
+  document.getElementById("home-atencion").innerHTML=aten.length?aten.map(t=>`<div style="display:flex;align-items:center;gap:6px;padding:7px 0;border-bottom:1px solid var(--border)"><span class="tag tag-${(t.persona||"").toLowerCase()}">${t.persona}</span><span style="flex:1;font-size:12px;font-weight:500">${t.tarea}</span><span class="sbadge ${t.estado==="bloqueada"?"s-bloqueada":"s-pendiente"}">${t.estado==="bloqueada"?"Bloqueada":"Atrasada"}</span></div>`).join(""):`<div class="empty-state">✓ Todo al día</div>`;
+  document.getElementById("home-equipo").innerHTML=["Tere","Vivi","Simona"].map(p=>{
+    const pt=tareas.filter(t=>t.persona===p),pc=pt.filter(t=>t.estado==="completada").length;
+    const pct=pt.length?Math.round(pc/pt.length*100):0;
+    const col=p==="Tere"?"var(--brand2)":p==="Vivi"?"var(--green)":"var(--purple)";
+    const pen=pt.filter(t=>["pendiente","en_progreso"].includes(t.estado)).length;
+    return`<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:12px;font-weight:500">${p}</span><span style="font-size:11px;color:var(--text3)">${pen} pendientes</span></div><div class="progress-bar" style="height:6px"><div class="progress-fill" style="width:${pct}%;background:${col}"></div></div></div>`;
+  }).join("");
+  const pctU=Math.round(totalGastos/PPTO_TOTAL*100);
+  document.getElementById("home-presup").innerHTML=`
+    <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span style="color:var(--text3)">Gastado 2026</span><span style="font-weight:600">$${totalGastos.toLocaleString("es-CL")}</span></div>
+    <div class="progress-bar" style="height:8px;margin-bottom:6px"><div class="progress-fill" style="width:${Math.min(pctU,100)}%;background:${pctU>80?"var(--red)":"var(--brand2)"}"></div></div>
+    <div style="font-size:11px;color:var(--text3);margin-bottom:10px">${pctU}% del presupuesto anual</div>
+    <div style="display:flex;justify-content:space-between;font-size:12px;padding:5px 0;border-top:1px solid var(--border)"><span style="color:var(--text2)">Disponible</span><span style="font-weight:700;color:var(--green)">$${pptoDisp.toLocaleString("es-CL")}</span></div>`;
+}
+
+function renderJose(){
+  const hoy=new Date();
+  const hoyStr=hoy.toISOString().split("T")[0];
+  const lunes=new Date(hoy);lunes.setDate(hoy.getDate()-((hoy.getDay()+6)%7));
+  const domingo=new Date(lunes);domingo.setDate(lunes.getDate()+6);
+  const lunesStr=lunes.toISOString().split("T")[0];
+  const domingoStr=domingo.toISOString().split("T")[0];
+  const mesCur=hoy.toISOString().substring(0,7);
+  const rJRow=t=>`<div class="jose-row"><span class="tag tag-${(t.persona||"").toLowerCase()}">${t.persona}</span><span style="flex:1;font-size:12px;font-weight:500">${t.tarea}</span><span class="sbadge s-${t.estado}">${t.estado}</span>${t.fecha_limite?`<span style="font-size:10px;color:var(--text3)">${t.fecha_limite}</span>`:""}</div>`;
+  const semana=tareas.filter(t=>t.fecha_limite&&t.fecha_limite>=lunesStr&&t.fecha_limite<=domingoStr);
+  const mes=tareas.filter(t=>t.fecha_limite&&t.fecha_limite.startsWith(mesCur)&&t.estado!=="completada");
+  const rev=tareas.filter(t=>t.necesita_revision);
+  const pj=tareas.filter(t=>t.pendiente_jose);
+  document.getElementById("jose-semana").innerHTML=semana.length?semana.map(rJRow).join(""):`<div class="empty-state">Sin entregas esta semana</div>`;
+  document.getElementById("jose-mes").innerHTML=mes.length?mes.slice(0,8).map(rJRow).join(""):`<div class="empty-state">Sin pendientes este mes</div>`;
+  document.getElementById("jose-revision").innerHTML=rev.length?rev.map(rJRow).join(""):`<div class="empty-state">Sin revisiones pendientes</div>`;
+  document.getElementById("jose-pendiente").innerHTML=pj.length?pj.map(rJRow).join(""):`<div class="empty-state">Sin pendientes para José</div>`;
+  document.getElementById("jose-campanas").innerHTML=`<table class="table"><thead><tr><th>Campaña</th><th>Estado</th><th>Avance</th><th>Fecha fin</th></tr></thead><tbody>${[...campanas].sort((a,b)=>(a.orden||0)-(b.orden||0)).map(c=>{
+    const tot=c.checklist?.length||0,dn=c.checklist?.filter(x=>x.done).length||0,pct=tot?Math.round(dn/tot*100):0;
+    return`<tr><td><strong>${c.nombre}</strong><div style="font-size:11px;color:var(--text3)">${c.descripcion||""}</div></td><td><span class="sbadge s-${c.estado}">${c.estado}</span></td><td><div style="min-width:80px"><div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${c.color||"var(--brand2)"}"></div></div><span style="font-size:10px;color:var(--text3)">${dn}/${tot} — ${pct}%</span></div></td><td style="font-size:12px;color:var(--text3)">${c.fecha_fin||"—"}</td></tr>`;
+  }).join("")}</tbody></table>`;
+}
+
+const COLS=[
+  {key:"pendiente",label:"Pendiente",bg:"#F1F5F9",tc:"#475569"},
+  {key:"en_progreso",label:"En progreso",bg:"#DBEAFE",tc:"#1D4ED8"},
+  {key:"completada",label:"Completada",bg:"#DCFCE7",tc:"#15803D"},
+  {key:"bloqueada",label:"Bloqueada",bg:"#EDE9FE",tc:"#6D28D9"},
+];
+
+function renderKanban(boardId,persona,subFiltro){
+  const el=document.getElementById("kanban-"+boardId);if(!el)return;
+  const hoy=new Date().toISOString().split("T")[0];
+  let lista=persona==="all"?[...tareas]:tareas.filter(t=>t.persona===persona);
+  const sub=subFiltro!=null?subFiltro:(subTabs[boardId]||"todas");
+  if(sub!=="todas") lista=lista.filter(t=>t.categoria===sub||t.proyecto===sub);
+  if(boardId==="all"){
+    if(["Tere","Vivi","Simona"].includes(filtroTareas)) lista=lista.filter(t=>t.persona===filtroTareas);
+    else if(filtroTareas==="pendiente") lista=lista.filter(t=>["pendiente","en_progreso"].includes(t.estado));
+    else if(filtroTareas==="bloqueada") lista=lista.filter(t=>t.estado==="bloqueada");
+    else if(filtroTareas==="revision") lista=lista.filter(t=>t.necesita_revision);
+    else if(filtroTareas==="jose") lista=lista.filter(t=>t.pendiente_jose);
+  }
+  el.innerHTML=COLS.map(col=>{
+    const items=lista.filter(t=>t.estado===col.key);
+    return`<div class="kanban-col" data-col="${col.key}" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="dropCard(event,'${col.key}','${boardId}')">
+      <div class="kanban-col-header"><span class="kanban-col-title">${col.label}</span><span class="kcount" style="background:${col.bg};color:${col.tc}">${items.length}</span></div>
+      ${items.map(t=>{
+        const ven=t.fecha_limite&&t.fecha_limite<hoy&&t.estado!=="completada";
+        const others=COLS.filter(c=>c.key!==col.key);
+        return`<div class="kanban-card" draggable="true" data-id="${t.id}" ondragstart="dragStart(event,'${t.id}')" ondragend="dragEnd(event)">
+          ${t.necesita_revision?`<div style="font-size:9px;font-weight:600;color:var(--amber-txt);margin-bottom:3px">✏ Necesita revisión</div>`:""}
+          ${t.pendiente_jose?`<div style="font-size:9px;font-weight:600;color:var(--purple-txt);margin-bottom:3px">⏳ Pendiente José</div>`:""}
+          <div class="kcard-title">${t.tarea}</div>
+          <div class="kcard-meta">
+            <span class="tag tag-${(t.persona||"").toLowerCase()}">${t.persona}</span>
+            <span class="tag tag-${t.frecuencia}">${t.frecuencia}</span>
+            ${t.proyecto&&t.proyecto!=="General"?`<span class="tag" style="background:var(--surface2);color:var(--text3)">${t.proyecto}</span>`:""}
+          </div>
+          ${t.fecha_limite?`<div class="kdate ${ven?"vencida":""}">${ven?"⚠ ":"📅 "}${t.fecha_limite}</div>`:""}
+          <div class="kcard-actions">
+            ${others.map(s=>`<button class="move-btn" onclick="moverTarea('${t.id}','${s.key}')">${s.label}</button>`).join("")}
+            <button class="btn-icon" onclick="editarTarea('${t.id}')" style="margin-left:auto" title="Editar">✏</button>
+          </div>
+        </div>`;
+      }).join("")}
+    </div>`;
+  }).join("");
+}
+
+function renderAllKanbans(){
+  renderKanban("brand","Tere",null);
+  renderKanban("diseno","Vivi",null);
+  renderKanban("content","Simona",null);
+  renderKanban("all","all",null);
+}
+
+window.dragStart=function(e,id){draggedTareaId=id;setTimeout(()=>e.target.classList.add("dragging"),0);e.dataTransfer.effectAllowed="move"}
+window.dragEnd=function(e){e.target.classList.remove("dragging");document.querySelectorAll(".kanban-col").forEach(c=>c.classList.remove("drag-over"))}
+window.dropCard=async function(e,estado,boardId){
+  e.preventDefault();document.querySelectorAll(".kanban-col").forEach(c=>c.classList.remove("drag-over"));
+  if(!draggedTareaId)return;
+  const t=tareas.find(x=>x.id===draggedTareaId);
+  if(!t||t.estado===estado){draggedTareaId=null;return}
+  await updateDoc(doc(db,"tareas_v4",draggedTareaId),{estado});
+  tareas=tareas.map(x=>x.id===draggedTareaId?{...x,estado}:x);
+  renderAllKanbans();renderHome();renderJose();showToast("→ "+estado.replace("_"," "));
+  draggedTareaId=null;
+}
+window.moverTarea=async function(id,estado){
+  await updateDoc(doc(db,"tareas_v4",id),{estado});
+  tareas=tareas.map(t=>t.id===id?{...t,estado}:t);
+  renderAllKanbans();renderHome();renderJose();showToast("→ "+estado.replace("_"," "));
+}
+
+function renderCampanas(){
+  const lista=filtroCamp==="todas"?[...campanas].sort((a,b)=>(a.orden||0)-(b.orden||0)):campanas.filter(c=>c.estado===filtroCamp).sort((a,b)=>(a.orden||0)-(b.orden||0));
+  document.getElementById("lista-campanas").innerHTML=lista.length?lista.map(c=>{
+    const tot=c.checklist?.length||0,dn=c.checklist?.filter(x=>x.done).length||0,pct=tot?Math.round(dn/tot*100):0;
+    const dias=c.fecha_fin?Math.ceil((new Date(c.fecha_fin)-new Date())/(864e5)):null;
+    return`<div class="camp-card" draggable="true" data-cid="${c.id}" ondragstart="dragCampStart(event,'${c.id}')" ondragend="dragCampEnd(event)" ondragover="event.preventDefault();this.classList.add('drag-target')" ondragleave="this.classList.remove('drag-target')" ondrop="dropCamp(event,'${c.id}')">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:.875rem">
+        <div><div style="display:flex;align-items:center;gap:7px;margin-bottom:2px"><div style="width:9px;height:9px;border-radius:50%;background:${c.color||"var(--brand2)"}"></div><div class="camp-nombre">${c.nombre}</div></div><div class="camp-desc">${c.descripcion||""}</div></div>
+        <div style="display:flex;gap:5px;align-items:center;flex-shrink:0"><span class="sbadge s-${c.estado}">${c.estado}</span><button class="btn-icon" onclick="editarCampana('${c.id}')">✏</button></div>
+      </div>
+      <div class="camp-meta">
+        <div><div class="camp-meta-label">Responsable</div><div class="camp-meta-val">${c.responsable||"—"}</div></div>
+        <div><div class="camp-meta-label">Inicio</div><div class="camp-meta-val">${c.fecha_inicio||"—"}</div></div>
+        <div><div class="camp-meta-label">Fin</div><div class="camp-meta-val">${c.fecha_fin||"—"}</div></div>
+        <div><div class="camp-meta-label">${dias!==null?(dias>=0?"Días restantes":"Vencida"):"Presupuesto"}</div><div class="camp-meta-val" style="color:${dias!==null&&dias<7?"var(--red)":"inherit"}">${dias!==null?Math.abs(dias)+" días":"$"+(c.presupuesto||0).toLocaleString("es-CL")}</div></div>
+      </div>
+      <div style="margin-bottom:.875rem"><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text3);margin-bottom:3px"><span>${dn}/${tot} entregables</span><span>${pct}%</span></div><div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${c.color||"var(--brand2)"}"></div></div></div>
+      <div style="border-top:1px solid var(--border);padding-top:.75rem">
+        ${(c.checklist||[]).map((item,i)=>`<div class="check-item">
+          <div class="check-box ${item.done?"done":""}" onclick="toggleCheck('${c.id}',${i})">${item.done?"✓":""}</div>
+          <input class="check-edit" value="${(item.texto||"").replace(/"/g,"&quot;")}" onchange="editCheckItem('${c.id}',${i},this.value)" onclick="event.stopPropagation()"/>
+          <span style="font-size:10px;color:var(--text3);white-space:nowrap;flex-shrink:0">${item.quien||""}</span>
+        </div>`).join("")}
+        <button style="font-size:11px;color:var(--brand2);background:none;border:none;cursor:pointer;margin-top:5px" onclick="addCheckItem('${c.id}')">+ Agregar entregable</button>
+      </div>
+    </div>`;
+  }).join(""):`<div class="empty-state">Sin campañas con este filtro</div>`;
+}
+
+window.dragCampStart=function(e,id){draggedCampId=id;setTimeout(()=>e.currentTarget.classList.add("dragging"),0)}
+window.dragCampEnd=function(e){e.currentTarget.classList.remove("dragging");document.querySelectorAll(".camp-card").forEach(c=>c.classList.remove("drag-target"))}
+window.dropCamp=async function(e,targetId){
+  e.preventDefault();document.querySelectorAll(".camp-card").forEach(c=>c.classList.remove("drag-target"));
+  if(!draggedCampId||draggedCampId===targetId)return;
+  const from=campanas.find(c=>c.id===draggedCampId),to=campanas.find(c=>c.id===targetId);
+  if(!from||!to)return;
+  const tmpO=from.orden;
+  await updateDoc(doc(db,"campanas_v4",from.id),{orden:to.orden});
+  await updateDoc(doc(db,"campanas_v4",to.id),{orden:tmpO});
+  campanas=campanas.map(c=>c.id===from.id?{...c,orden:to.orden}:c.id===to.id?{...c,orden:tmpO}:c);
+  draggedCampId=null;renderCampanas();
+}
+window.toggleCheck=async function(campId,idx){
+  const c=campanas.find(x=>x.id===campId);if(!c)return;
+  const cl=[...(c.checklist||[])];cl[idx]={...cl[idx],done:!cl[idx].done};
+  await updateDoc(doc(db,"campanas_v4",campId),{checklist:cl});
+  campanas=campanas.map(x=>x.id===campId?{...x,checklist:cl}:x);renderCampanas();renderHome();renderJose();
+}
+window.editCheckItem=async function(campId,idx,val){
+  const c=campanas.find(x=>x.id===campId);if(!c)return;
+  const cl=[...(c.checklist||[])];cl[idx]={...cl[idx],texto:val};
+  await updateDoc(doc(db,"campanas_v4",campId),{checklist:cl});
+  campanas=campanas.map(x=>x.id===campId?{...x,checklist:cl}:x);
+}
+window.addCheckItem=async function(campId){
+  const c=campanas.find(x=>x.id===campId);if(!c)return;
+  const cl=[...(c.checklist||[]),{texto:"Nuevo entregable",done:false,quien:""}];
+  await updateDoc(doc(db,"campanas_v4",campId),{checklist:cl});
+  campanas=campanas.map(x=>x.id===campId?{...x,checklist:cl}:x);renderCampanas();
+}
+
+function renderPDQs(){
+  const el=document.getElementById("lista-pdq");if(!el)return;
+  const cols={bloqueado:"var(--red-txt)",en_progreso:"var(--amber-txt)",completado:"var(--ok)",pendiente:"var(--text3)"};
+  const sb={bloqueado:"s-bloqueada",en_progreso:"s-progreso",completado:"s-completada",pendiente:"s-pendiente"};
+  el.innerHTML=pdqs.length?pdqs.map(p=>`<div class="pdq-row">
+    <div class="pdq-dot" style="background:${cols[p.estado]||"var(--text3)"}"></div>
+    <div style="flex:1"><span style="font-size:12px;font-weight:600">${p.nombre}</span>${p.cadena?`<span style="font-size:10px;color:var(--text3);margin-left:6px">${p.cadena}</span>`:""}${p.tiendas?`<span style="font-size:10px;color:var(--text3);margin-left:4px">· ${p.tiendas} tiendas</span>`:""}
+    <div style="font-size:11px;color:var(--text3)">${p.productos||""} — ${p.nota||""}</div></div>
+    <span class="sbadge ${sb[p.estado]||"s-pendiente"}">${p.estado}</span>
+    <button class="btn-icon" onclick="editarPDQ('${p.id}')">✏</button>
+  </div>`).join(""):`<div class="empty-state">Sin PDQs registrados</div>`;
+}
+
+function renderMontus(){
+  const el=document.getElementById("lista-montu");if(!el)return;
+  const sb={activo:"s-activa",en_negociacion:"s-planning",pausado:"s-pausada",terminado:"s-terminada"};
+  el.innerHTML=montus.length?montus.map(m=>`<div class="montu-card">
+    <div style="width:38px;height:38px;border-radius:50%;background:var(--purple-light);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">🎬</div>
+    <div style="flex:1"><div style="font-size:13px;font-weight:600;margin-bottom:2px">${m.nombre}</div>
+    <div style="font-size:11px;color:var(--text3)">${m.plataforma||""} · ${m.seguidores||""}</div>
+    <div class="montu-stats">
+      <span class="montu-stat">📅 ${m.mes_actual||"—"}</span>
+      <span class="montu-stat">📦 ${m.producto_mes||"—"}</span>
+      <span class="montu-stat">🎥 ${m.formato||"—"}</span>
+      ${m.monto?`<span class="montu-stat">💰 $${m.monto.toLocaleString("es-CL")}/mes</span>`:""}
+      ${m.drive?`<a href="${m.drive}" target="_blank" style="font-size:10px;color:var(--brand2)">📁 Drive</a>`:""}
+    </div></div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+      <span class="sbadge ${sb[m.estado]||"s-pendiente"}">${m.estado}</span>
+      <button class="btn-icon" onclick="editarMontu('${m.id}')">✏</button>
+    </div>
+  </div>`).join(""):`<div class="empty-state">Sin creadores registrados</div>`;
+}
+
+function renderMaterial(){
+  const el=document.getElementById("lista-material");if(!el)return;
+  let lista=[...material].sort((a,b)=>(b.fecha_pedido||"").localeCompare(a.fecha_pedido||""));
+  const fm=filtroMaterial;
+  if(fm!=="todos"){
+    const tiposList=["Foto","Video","POP","Pieza digital","Otro"];
+    if(tiposList.includes(fm)) lista=lista.filter(m=>m.tipo===fm);
+    else lista=lista.filter(m=>m.canal===fm);
+  }
+  const porProd={};lista.forEach(m=>{if(!porProd[m.producto])porProd[m.producto]=[];porProd[m.producto].push(m)});
+  const tCls={Foto:"tipo-foto",Video:"tipo-video",POP:"tipo-pop","Pieza digital":"tipo-digital",Otro:"tipo-otro"};
+  el.innerHTML=Object.keys(porProd).length?Object.entries(porProd).map(([prod,items])=>`
+    <div class="card" style="margin-bottom:10px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem">
+        <div><div style="font-size:13px;font-weight:600">${prod}</div><div style="font-size:11px;color:var(--text3)">${items.length} pieza${items.length!==1?"s":""}</div></div>
+        <button style="font-size:11px;color:var(--brand2);background:none;border:none;cursor:pointer" onclick="abrirModalMaterialProducto('${prod}')">+ Agregar</button>
+      </div>
+      <table class="table"><thead><tr><th>Tipo</th><th>Canal</th><th>Descripción</th><th>Solicitado</th><th>Pedido</th><th>Entrega</th><th>Año</th><th>Drive</th><th></th></tr></thead>
+      <tbody>${items.map(m=>`<tr>
+        <td><span class="mat-tipo ${tCls[m.tipo]||"tipo-otro"}">${m.tipo||"—"}</span></td>
+        <td style="color:var(--text3)">${m.canal||"—"}</td>
+        <td style="font-weight:500;max-width:160px">${m.descripcion||""}</td>
+        <td style="color:var(--text3)">${m.solicitado_por||"—"}</td>
+        <td style="color:var(--text3);white-space:nowrap">${m.fecha_pedido||"—"}</td>
+        <td style="color:var(--text3);white-space:nowrap">${m.fecha_entrega||"—"}</td>
+        <td style="color:var(--text3)">${m.anio||"—"}</td>
+        <td>${m.drive?`<a href="${m.drive}" target="_blank" style="font-size:11px;color:var(--brand2)">📁</a>`:"—"}</td>
+        <td style="white-space:nowrap"><button class="btn-icon" onclick="editarMaterial('${m.id}')">✏</button><button class="btn-icon" onclick="borrarMaterial('${m.id}')">🗑</button></td>
+      </tr>`).join("")}</tbody></table>
+    </div>`).join(""):`<div class="empty-state">Sin material registrado</div>`;
+}
+
+function renderCalendarioAnual(){
+  const el=document.getElementById("cal-anual-view");if(!el)return;
+  const tCol={efeméride:"#1A5FA8",comercial:"#BA7517",campaña:"#0F6E56",interno:"#475569"};
+  el.innerHTML=`<div class="cal-anual">${MESES.map((mes,mi)=>{
+    const evs=eventos.filter(e=>{if(!e.fecha)return false;const d=new Date(e.fecha+"T12:00:00");return d.getMonth()===mi&&d.getFullYear()===2026});
+    return`<div class="cal-mes-mini ${evs.length?"tiene-eventos":""}" onclick="abrirMes(${mi})">
+      <h4>${mes} 2026</h4>
+      ${evs.slice(0,3).map(e=>`<div class="cal-ev-dot" style="color:${e.color||tCol[e.tipo]||"var(--text3)"}">· ${e.nombre}</div>`).join("")}
+      ${evs.length>3?`<div class="cal-ev-dot" style="color:var(--text3)">+${evs.length-3} más</div>`:""}
+      ${!evs.length?`<div class="cal-ev-dot">Sin eventos</div>`:""}
+    </div>`;
+  }).join("")}</div>`;
+}
+
+window.abrirMes=function(mes){
+  calMesActual=mes;
+  document.getElementById("cal-anual-view").style.display="none";
+  document.getElementById("cal-mes-view").style.display="block";
+  document.getElementById("cal-mes-titulo").textContent=MESES[mes]+" 2026";
+  renderCalendarioMes(mes);
+}
+
+window.volverCalAnual=function(){
+  calMesActual=null;
+  document.getElementById("cal-anual-view").style.display="block";
+  document.getElementById("cal-mes-view").style.display="none";
+}
+
+function renderCalendarioMes(mes){
+  const hoyStr=new Date().toISOString().split("T")[0];
+  const primer=(new Date(2026,mes,1).getDay()+6)%7;
+  const ultimo=new Date(2026,mes+1,0).getDate();
+  const dias=[];
+  for(let i=primer;i>0;i--){const d=new Date(2026,mes,1-i);dias.push({fecha:d.toISOString().split("T")[0],num:d.getDate(),otro:true})}
+  for(let i=1;i<=ultimo;i++){const d=new Date(2026,mes,i);dias.push({fecha:d.toISOString().split("T")[0],num:i,otro:false})}
+  while(dias.length%7){const last=new Date(dias[dias.length-1].fecha+"T12:00:00");last.setDate(last.getDate()+1);dias.push({fecha:last.toISOString().split("T")[0],num:last.getDate(),otro:true})}
+  const pCol={Tere:"#E6F1FB",Vivi:"#E1F5EE",Simona:"#EEEDFE"};
+  const tCol={efeméride:"#1A5FA8",comercial:"#BA7517",campaña:"#0F6E56",interno:"#475569"};
+  document.getElementById("cal-grid-mes").innerHTML=dias.map(d=>{
+    const tars=tareas.filter(t=>t.fecha_limite===d.fecha);
+    const evs=eventos.filter(e=>e.fecha===d.fecha);
+    const isH=d.fecha===hoyStr;
+    return`<div class="cal-dia ${isH?"hoy":""} ${d.otro?"otro-mes":""}">
+      <div class="cal-dia-num" style="color:${isH?"var(--brand2)":"var(--text2)"}">${d.num}</div>
+      ${evs.map(e=>`<div class="cal-ev" style="background:${e.color||tCol[e.tipo]||"#888"}22;color:${e.color||tCol[e.tipo]||"#888"};border-left:2px solid ${e.color||tCol[e.tipo]||"#888"}" title="${e.nombre}">${e.nombre}</div>`).join("")}
+      ${tars.map(t=>{const v=t.estado!=="completada"&&d.fecha<hoyStr;return`<div class="cal-ev" style="background:${v?"var(--red-light)":pCol[t.persona]||"#eee"};color:${v?"var(--red-txt)":"var(--text2)"}" title="${t.persona}: ${t.tarea}">${t.tarea}</div>`}).join("")}
+    </div>`;
+  }).join("");
+}
+
+window.renderPresupuesto=function(){
+  const mesFil=document.getElementById("sel-mes")?.value||"";
+  const catFil=document.getElementById("fil-cat-presup")?.value||"";
+  const soloR=document.getElementById("fil-rendir")?.checked||false;
+  let lista=[...gastos].sort((a,b)=>(b.fecha||"").localeCompare(a.fecha||""));
+  if(mesFil) lista=lista.filter(g=>g.fecha?.startsWith(mesFil));
+  if(catFil) lista=lista.filter(g=>g.categoria===catFil);
+  if(soloR) lista=lista.filter(g=>g.por_rendir);
+  const totalG=gastos.reduce((a,g)=>a+(g.monto||0),0);
+  const pptoD=PPTO_TOTAL-totalG;
+  const pctU=Math.round(totalG/PPTO_TOTAL*100);
+  document.getElementById("presup-kpis").innerHTML=[
+    {label:"Presupuesto anual",val:"$266.000.000",icon:"💼",a:"var(--brand2)"},
+    {label:"Gastado total",val:"$"+totalG.toLocaleString("es-CL"),icon:"📤",a:"var(--red)"},
+    {label:"Disponible",val:"$"+pptoD.toLocaleString("es-CL"),icon:"✅",a:"var(--green)"},
+    {label:"% Ejecutado",val:pctU+"%",icon:"📊",a:pctU>80?"var(--red)":"var(--amber)"},
+  ].map(s=>`<div class="stat-card" style="--accent:${s.a}"><div class="stat-icon">${s.icon}</div><div class="stat-label">${s.label}</div><div class="stat-val" style="font-size:18px">${s.val}</div></div>`).join("");
+  const porCat={};gastos.forEach(g=>{porCat[g.categoria]=(porCat[g.categoria]||0)+(g.monto||0)});
+  const catColors=["#1A5FA8","#E24B4A","#0F6E56","#BA7517","#533AB7","#888","#2E86C1"];
+  if(chCat){chCat.destroy();chCat=null}
+  const elCat=document.getElementById("ch-cat");
+  if(elCat&&Object.keys(porCat).length) chCat=new Chart(elCat,{type:"doughnut",data:{labels:Object.keys(porCat),datasets:[{data:Object.values(porCat),backgroundColor:catColors,borderWidth:0}]},options:{plugins:{legend:{position:"bottom",labels:{font:{size:10},padding:6}}}}});
+  if(chEvol){chEvol.destroy();chEvol=null}
+  const gpM={};gastos.forEach(g=>{if(g.mes)gpM[g.mes]=(gpM[g.mes]||0)+(g.monto||0)});
+  const mo=Object.keys(gpM).sort();
+  const elE=document.getElementById("ch-evol");
+  if(elE&&mo.length) chEvol=new Chart(elE,{type:"bar",data:{labels:mo,datasets:[{label:"Gasto mensual",data:mo.map(m=>gpM[m]),backgroundColor:"#1A5FA820",borderColor:"#1A5FA8",borderWidth:2,borderRadius:4}]},options:{plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>"$"+(v/1000).toFixed(0)+"K"}}}}});
+  document.getElementById("presup-cats").innerHTML=CATEGORIAS_PRESUP.map(grupo=>{
+    const gT=gastos.filter(g=>g.categoria===grupo.grupo).reduce((a,g)=>a+(g.monto||0),0);
+    return`<div style="margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:600;margin-bottom:4px;padding-bottom:4px;border-bottom:1px solid var(--border)"><span>${grupo.grupo}</span><span>$${gT.toLocaleString("es-CL")}</span></div>
+      ${grupo.items.map(item=>{
+        const iT=gastos.filter(g=>g.descripcion===item).reduce((a,g)=>a+(g.monto||0),0);
+        return`<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px"><span style="flex:1;color:var(--text2)">${item}</span><span style="font-weight:600;min-width:80px;text-align:right">$${iT.toLocaleString("es-CL")}</span></div>`;
+      }).join("")}
+    </div>`;
+  }).join("");
+  document.getElementById("lista-gastos").innerHTML=lista.length?`<table class="table"><thead><tr><th>Fecha</th><th>Categoría</th><th>Item</th><th>Campaña</th><th>Monto</th><th></th><th></th></tr></thead><tbody>${lista.map(g=>`<tr>
+    <td style="color:var(--text3);white-space:nowrap">${g.fecha||""}</td>
+    <td><span class="tag" style="background:var(--surface2);color:var(--text2)">${g.categoria||""}</span></td>
+    <td style="font-weight:500">${g.descripcion||""}</td>
+    <td style="color:var(--text3)">${g.campana||""}</td>
+    <td style="font-weight:600;white-space:nowrap">$${(g.monto||0).toLocaleString("es-CL")}</td>
+    <td>${g.por_rendir?`<span class="rendir-badge">Por rendir</span>`:""}</td>
+    <td style="white-space:nowrap"><button class="btn-icon" onclick="editarGastoFn('${g.id}')">✏</button><button class="btn-icon" onclick="borrarGasto('${g.id}')">🗑</button></td>
+  </tr>`).join("")}</tbody></table>`:`<div class="empty-state">Sin gastos con este filtro</div>`;
+}
+
+function poblarMeses(){
+  const meses=new Set(gastos.map(g=>g.mes||g.fecha?.substring(0,7)).filter(Boolean));
+  const sel=document.getElementById("sel-mes");if(!sel)return;
+  const v=sel.value;
+  sel.innerHTML=`<option value="">Todos los meses</option>`+[...meses].sort().reverse().map(m=>`<option value="${m}">${m}</option>`).join("");
+  sel.value=v;
+}
+
+// ── MODAL HELPERS ──
+function abrirModal(title,body,footer){
+  document.getElementById("modal-title").textContent=title;
+  document.getElementById("modal-body").innerHTML=body;
+  document.getElementById("modal-footer").innerHTML=footer;
+  document.getElementById("modal-overlay").style.display="flex";
+}
+window.cerrarModal=function(){document.getElementById("modal-overlay").style.display="none";modalMode="";modalEditId=""}
+
+// ── TAREA ──
+function frmTarea(t={}){
+  const cats=["General","RRSS","Ads","Mailings","PDV","PDQ","Campañas","Digital","Estrategia","Montu","Ecommerce","Métricas","TikTok","Perú"];
+  const frecs=["diario","semanal","quincenal","mensual","trimestral","puntual"];
+  const estados=["pendiente","en_progreso","completada","bloqueada"];
+  const campOpts=campanas.map(c=>`<option value="${c.nombre}" ${t.proyecto===c.nombre?"selected":""}>${c.nombre}</option>`).join("");
+  return`<div class="field-row">
+    <div class="field"><label>Persona</label><select id="m-per">${["","Tere","Vivi","Simona"].map(p=>`<option value="${p}" ${t.persona===p?"selected":""}>${p||"Seleccionar"}</option>`).join("")}</select></div>
+    <div class="field"><label>Frecuencia</label><select id="m-frec">${frecs.map(f=>`<option value="${f}" ${t.frecuencia===f?"selected":""}>${f}</option>`).join("")}</select></div>
+  </div>
+  <div class="field-row">
+    <div class="field"><label>Proyecto / Campaña</label><input id="m-proy" value="${t.proyecto||""}" list="dl-camp"/><datalist id="dl-camp">${campOpts}</datalist></div>
+    <div class="field"><label>Categoría</label><select id="m-cat">${cats.map(c=>`<option value="${c}" ${t.categoria===c?"selected":""}>${c}</option>`).join("")}</select></div>
+  </div>
+  <div class="field"><label>Tarea</label><input id="m-tar" value="${(t.tarea||"").replace(/"/g,"&quot;")}" placeholder="Descripción corta"/></div>
+  <div class="field"><label>Detalle</label><textarea id="m-desc" rows="2">${t.descripcion||""}</textarea></div>
+  <div class="field-row">
+    <div class="field"><label>Fecha límite</label><input type="date" id="m-fecha" value="${t.fecha_limite||""}"/></div>
+    <div class="field"><label>Estado</label><select id="m-est">${estados.map(s=>`<option value="${s}" ${t.estado===s?"selected":""}>${s}</option>`).join("")}</select></div>
+  </div>
+  <div style="display:flex;gap:16px;margin-top:4px">
+    <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer"><input type="checkbox" id="m-rev" ${t.necesita_revision?"checked":""}> Necesita revisión</label>
+    <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer"><input type="checkbox" id="m-jose" ${t.pendiente_jose?"checked":""}> Pendiente José</label>
+  </div>`;
+}
+window.abrirModalTarea=function(){modalMode="tarea";modalEditId="";abrirModal("Nueva tarea",frmTarea(),`<button class="btn btn-secondary" onclick="cerrarModal()">Cancelar</button><button class="btn btn-primary" onclick="guardarTarea()">Guardar</button>`)}
+window.abrirModalTareaPersona=function(p){abrirModalTarea();setTimeout(()=>{const el=document.getElementById("m-per");if(el)el.value=p},50)}
+window.editarTarea=function(id){const t=tareas.find(x=>x.id===id);if(!t)return;modalMode="tarea";modalEditId=id;abrirModal("Editar tarea",frmTarea(t),`<button class="btn btn-danger" onclick="borrarTarea('${id}')">Eliminar</button><div style="flex:1"></div><button class="btn btn-secondary" onclick="cerrarModal()">Cancelar</button><button class="btn btn-primary" onclick="guardarTarea()">Guardar</button>`)}
+window.guardarTarea=async function(){
+  const data={persona:document.getElementById("m-per").value,frecuencia:document.getElementById("m-frec").value,categoria:document.getElementById("m-cat").value,proyecto:document.getElementById("m-proy").value,tarea:document.getElementById("m-tar").value,descripcion:document.getElementById("m-desc").value,estado:document.getElementById("m-est").value,fecha_limite:document.getElementById("m-fecha").value||null,necesita_revision:document.getElementById("m-rev").checked,pendiente_jose:document.getElementById("m-jose").checked};
+  if(!data.tarea||!data.persona){showToast("Completa persona y tarea");return}
+  try{
+    if(modalEditId){await updateDoc(doc(db,"tareas_v4",modalEditId),data);tareas=tareas.map(t=>t.id===modalEditId?{...t,...data}:t)}
+    else{const r=await addDoc(collection(db,"tareas_v4"),{...data,created_at:new Date().toISOString()});tareas.push({id:r.id,...data})}
+    showToast("✓ Guardado");cerrarModal();renderAllKanbans();renderHome();renderJose();
+  }catch(e){showToast("Error: "+e.message)}
+}
+window.borrarTarea=async function(id){if(!confirm("¿Eliminar esta tarea?"))return;await deleteDoc(doc(db,"tareas_v4",id));tareas=tareas.filter(t=>t.id!==id);showToast("Eliminada");cerrarModal();renderAllKanbans();renderHome();renderJose()}
+
+// ── CAMPAÑA ──
+function frmCampana(c={}){
+  const estados=["planning","preparacion","activa","pausada","terminada"];
+  return`<div class="field"><label>Nombre</label><input id="mc-nom" value="${(c.nombre||"").replace(/"/g,"&quot;")}" placeholder="Nombre campaña"/></div>
+  <div class="field"><label>Descripción</label><input id="mc-desc" value="${(c.descripcion||"").replace(/"/g,"&quot;")}"/></div>
+  <div class="field-row3">
+    <div class="field"><label>Estado</label><select id="mc-est">${estados.map(s=>`<option value="${s}" ${c.estado===s?"selected":""}>${s}</option>`).join("")}</select></div>
+    <div class="field"><label>Responsable</label><select id="mc-resp">${["Tere","Vivi","Simona"].map(p=>`<option ${c.responsable===p?"selected":""}>${p}</option>`).join("")}</select></div>
+    <div class="field"><label>Color</label><input type="color" id="mc-col" value="${c.color||"#1A5FA8"}" style="height:37px;padding:3px"/></div>
+  </div>
+  <div class="field-row">
+    <div class="field"><label>Fecha inicio</label><input type="date" id="mc-ini" value="${c.fecha_inicio||""}"/></div>
+    <div class="field"><label>Fecha fin</label><input type="date" id="mc-fin" value="${c.fecha_fin||""}"/></div>
+  </div>
+  <div class="field"><label>Presupuesto (CLP)</label><input type="number" id="mc-pres" value="${c.presupuesto||""}" min="0" placeholder="Ej: 500000"/></div>`;
+}
+window.abrirModalCampana=function(){modalMode="campana";modalEditId="";abrirModal("Nueva campaña",frmCampana(),`<button class="btn btn-secondary" onclick="cerrarModal()">Cancelar</button><button class="btn btn-primary" onclick="guardarCampana()">Guardar</button>`)}
+window.editarCampana=function(id){const c=campanas.find(x=>x.id===id);if(!c)return;modalMode="campana";modalEditId=id;abrirModal("Editar campaña",frmCampana(c),`<button class="btn btn-danger" onclick="borrarCampana('${id}')">Eliminar</button><div style="flex:1"></div><button class="btn btn-secondary" onclick="cerrarModal()">Cancelar</button><button class="btn btn-primary" onclick="guardarCampana()">Guardar</button>`)}
+window.guardarCampana=async function(){
+  const data={nombre:document.getElementById("mc-nom").value,descripcion:document.getElementById("mc-desc").value,estado:document.getElementById("mc-est").value,responsable:document.getElementById("mc-resp").value,color:document.getElementById("mc-col").value,fecha_inicio:document.getElementById("mc-ini").value||null,fecha_fin:document.getElementById("mc-fin").value||null,presupuesto:parseInt(document.getElementById("mc-pres").value)||0};
+  if(!data.nombre){showToast("Ponle nombre a la campaña");return}
+  try{
+    if(modalEditId){await updateDoc(doc(db,"campanas_v4",modalEditId),data);campanas=campanas.map(c=>c.id===modalEditId?{...c,...data}:c)}
+    else{const ord=campanas.length;const r=await addDoc(collection(db,"campanas_v4"),{...data,checklist:[],orden:ord,created_at:new Date().toISOString()});campanas.push({id:r.id,...data,checklist:[],orden:ord})}
+    showToast("✓ Campaña guardada");cerrarModal();renderCampanas();renderHome();renderJose();
+  }catch(e){showToast("Error: "+e.message)}
+}
+window.borrarCampana=async function(id){if(!confirm("¿Eliminar campaña?"))return;await deleteDoc(doc(db,"campanas_v4",id));campanas=campanas.filter(c=>c.id!==id);showToast("Eliminada");cerrarModal();renderCampanas();renderHome();renderJose()}
+
+// ── PDQ ──
+window.abrirModalPDQ=function(){modalMode="pdq";modalEditId="";abrirModal("Nuevo PDQ / Ganchera",`
+  <div class="field-row"><div class="field"><label>Nombre</label><input id="mp-nom" placeholder="Ej: PDQ Filtros Ducha"/></div><div class="field"><label>Tipo</label><select id="mp-tipo"><option>PDQ</option><option>Ganchera</option><option>Cabecera</option><option>Otro</option></select></div></div>
+  <div class="field-row"><div class="field"><label>Cadena</label><input id="mp-cadena" placeholder="Sodimac / Easy / Ferreterías"/></div><div class="field"><label>N° tiendas</label><input type="number" id="mp-tiendas" min="0"/></div></div>
+  <div class="field"><label>Productos a exhibir</label><input id="mp-prod" placeholder="Ej: Filtro Ducha Blanco + Cromado"/></div>
+  <div class="field"><label>Estado</label><select id="mp-est"><option value="pendiente">Pendiente</option><option value="en_progreso">En progreso</option><option value="bloqueado">Bloqueado</option><option value="completado">Completado</option></select></div>
+  <div class="field"><label>Nota</label><textarea id="mp-nota" rows="2" placeholder="Ej: Esperando medidas de José..."></textarea></div>
+`,`<button class="btn btn-secondary" onclick="cerrarModal()">Cancelar</button><button class="btn btn-primary" onclick="guardarPDQ()">Guardar</button>`)}
+window.editarPDQ=function(id){const p=pdqs.find(x=>x.id===id);if(!p)return;modalMode="pdq";modalEditId=id;abrirModal("Editar PDQ / Ganchera",`
+  <div class="field-row"><div class="field"><label>Nombre</label><input id="mp-nom" value="${(p.nombre||"").replace(/"/g,"&quot;")}"/></div><div class="field"><label>Tipo</label><select id="mp-tipo">${["PDQ","Ganchera","Cabecera","Otro"].map(t=>`<option ${p.tipo===t?"selected":""}>${t}</option>`).join("")}</select></div></div>
+  <div class="field-row"><div class="field"><label>Cadena</label><input id="mp-cadena" value="${p.cadena||""}"/></div><div class="field"><label>N° tiendas</label><input type="number" id="mp-tiendas" value="${p.tiendas||""}" min="0"/></div></div>
+  <div class="field"><label>Productos</label><input id="mp-prod" value="${(p.productos||"").replace(/"/g,"&quot;")}"/></div>
+  <div class="field"><label>Estado</label><select id="mp-est">${["pendiente","en_progreso","bloqueado","completado"].map(s=>`<option value="${s}" ${p.estado===s?"selected":""}>${s}</option>`).join("")}</select></div>
+  <div class="field"><label>Nota</label><textarea id="mp-nota" rows="2">${p.nota||""}</textarea></div>
+`,`<button class="btn btn-danger" onclick="borrarPDQ('${id}')">Eliminar</button><div style="flex:1"></div><button class="btn btn-secondary" onclick="cerrarModal()">Cancelar</button><button class="btn btn-primary" onclick="guardarPDQ()">Guardar</button>`)}
+window.guardarPDQ=async function(){
+  const data={nombre:document.getElementById("mp-nom").value,tipo:document.getElementById("mp-tipo").value,cadena:document.getElementById("mp-cadena").value,tiendas:parseInt(document.getElementById("mp-tiendas").value)||null,productos:document.getElementById("mp-prod").value,estado:document.getElementById("mp-est").value,nota:document.getElementById("mp-nota").value};
+  if(!data.nombre){showToast("Ponle nombre");return}
+  try{
+    if(modalEditId){await updateDoc(doc(db,"pdqs_v4",modalEditId),data);pdqs=pdqs.map(p=>p.id===modalEditId?{...p,...data}:p)}
+    else{const r=await addDoc(collection(db,"pdqs_v4"),{...data,created_at:new Date().toISOString()});pdqs.push({id:r.id,...data})}
+    showToast("✓ Guardado");cerrarModal();renderPDQs();
+  }catch(e){showToast("Error: "+e.message)}
+}
+window.borrarPDQ=async function(id){if(!confirm("¿Eliminar?"))return;await deleteDoc(doc(db,"pdqs_v4",id));pdqs=pdqs.filter(p=>p.id!==id);showToast("Eliminado");cerrarModal();renderPDQs()}
+
+// ── MONTU MODAL ──
+window.abrirModalMontu=function(){modalMode="montu";modalEditId="";abrirModal("Nuevo creador UGC",`
+  <div class="field"><label>Nombre</label><input id="mm-nom" placeholder="Ej: Joaquín (El Chico del Sodimac)"/></div>
+  <div class="field-row"><div class="field"><label>Plataforma</label><input id="mm-plat" placeholder="TikTok / IG"/></div><div class="field"><label>Seguidores</label><input id="mm-seg" placeholder="669.9K TikTok"/></div></div>
+  <div class="field-row"><div class="field"><label>Estado</label><select id="mm-est"><option value="activo">Activo</option><option value="en_negociacion">En negociación</option><option value="pausado">Pausado</option><option value="terminado">Terminado</option></select></div><div class="field"><label>Monto/mes (CLP)</label><input type="number" id="mm-monto" placeholder="700000" min="0"/></div></div>
+  <div class="field-row"><div class="field"><label>Mes actual</label><input id="mm-mes" placeholder="Junio"/></div><div class="field"><label>Producto del mes</label><input id="mm-prod" placeholder="Alice"/></div></div>
+  <div class="field"><label>Formato acordado</label><input id="mm-formato" placeholder="Reel + Historias + Q&A"/></div>
+  <div class="field"><label>Link Drive</label><input id="mm-drive" placeholder="https://drive.google.com/..."/></div>
+`,`<button class="btn btn-secondary" onclick="cerrarModal()">Cancelar</button><button class="btn btn-primary" onclick="guardarMontu()">Guardar</button>`)}
+window.editarMontu=function(id){const m=montus.find(x=>x.id===id);if(!m)return;modalMode="montu";modalEditId=id;abrirModal("Editar creador",`
+  <div class="field"><label>Nombre</label><input id="mm-nom" value="${(m.nombre||"").replace(/"/g,"&quot;")}"/></div>
+  <div class="field-row"><div class="field"><label>Plataforma</label><input id="mm-plat" value="${m.plataforma||""}"/></div><div class="field"><label>Seguidores</label><input id="mm-seg" value="${m.seguidores||""}"/></div></div>
+  <div class="field-row"><div class="field"><label>Estado</label><select id="mm-est">${["activo","en_negociacion","pausado","terminado"].map(s=>`<option value="${s}" ${m.estado===s?"selected":""}>${s}</option>`).join("")}</select></div><div class="field"><label>Monto/mes</label><input type="number" id="mm-monto" value="${m.monto||""}" min="0"/></div></div>
+  <div class="field-row"><div class="field"><label>Mes actual</label><input id="mm-mes" value="${m.mes_actual||""}"/></div><div class="field"><label>Producto del mes</label><input id="mm-prod" value="${m.producto_mes||""}"/></div></div>
+  <div class="field"><label>Formato</label><input id="mm-formato" value="${m.formato||""}"/></div>
+  <div class="field"><label>Link Drive</label><input id="mm-drive" value="${m.drive||""}"/></div>
+`,`<button class="btn btn-danger" onclick="borrarMontu('${id}')">Eliminar</button><div style="flex:1"></div><button class="btn btn-secondary" onclick="cerrarModal()">Cancelar</button><button class="btn btn-primary" onclick="guardarMontu()">Guardar</button>`)}
+window.guardarMontu=async function(){
+  const data={nombre:document.getElementById("mm-nom").value,plataforma:document.getElementById("mm-plat").value,seguidores:document.getElementById("mm-seg").value,estado:document.getElementById("mm-est").value,monto:parseInt(document.getElementById("mm-monto").value)||0,mes_actual:document.getElementById("mm-mes").value,producto_mes:document.getElementById("mm-prod").value,formato:document.getElementById("mm-formato").value,drive:document.getElementById("mm-drive").value};
+  if(!data.nombre){showToast("Ponle nombre");return}
+  try{
+    if(modalEditId){await updateDoc(doc(db,"montus_v4",modalEditId),data);montus=montus.map(m=>m.id===modalEditId?{...m,...data}:m)}
+    else{const r=await addDoc(collection(db,"montus_v4"),{...data,created_at:new Date().toISOString()});montus.push({id:r.id,...data})}
+    showToast("✓ Guardado");cerrarModal();renderMontus();
+  }catch(e){showToast("Error: "+e.message)}
+}
+window.borrarMontu=async function(id){if(!confirm("¿Eliminar?"))return;await deleteDoc(doc(db,"montus_v4",id));montus=montus.filter(m=>m.id!==id);showToast("Eliminado");cerrarModal();renderMontus()}
+
+// ── MATERIAL MODAL ──
+const PROD_LIST=["Filtro Ducha Blanco","Filtro Ducha Cromado","Alice","Filtro Grifo","Jarra Color","ONE Osmosis","Autolavable Manual","Quitasarro","Ablandador Arriendo","Pack Triple","Antisarro Calefont","Filtro Ducha Vessanti","Filtro Grifo Vessanti"];
+function frmMaterial(m={}){
+  return`<div class="field-row"><div class="field"><label>Producto</label><input id="mmat-prod" value="${(m.producto||"").replace(/"/g,"&quot;")}" list="dl-prod" placeholder="Ej: Alice, ONE..."/><datalist id="dl-prod">${PROD_LIST.map(p=>`<option value="${p}"></option>`).join("")}</datalist></div>
+  <div class="field"><label>Año</label><input id="mmat-anio" value="${m.anio||2026}" type="number" min="2020" max="2030"/></div></div>
+  <div class="field-row3">
+    <div class="field"><label>Tipo</label><select id="mmat-tipo">${["Foto","Video","POP","Pieza digital","Otro"].map(t=>`<option ${m.tipo===t?"selected":""}>${t}</option>`).join("")}</select></div>
+    <div class="field"><label>Canal</label><select id="mmat-canal">${["RRSS","Retail","Ecommerce","Todos"].map(c=>`<option ${m.canal===c?"selected":""}>${c}</option>`).join("")}</select></div>
+    <div class="field"><label>Solicitado por</label><select id="mmat-sol">${["Tere","Vivi","Simona","José"].map(p=>`<option ${m.solicitado_por===p?"selected":""}>${p}</option>`).join("")}</select></div>
+  </div>
+  <div class="field"><label>Descripción</label><input id="mmat-desc" value="${(m.descripcion||"").replace(/"/g,"&quot;")}" placeholder="Ej: Foto producto cocina blanca..."/></div>
+  <div class="field-row">
+    <div class="field"><label>Fecha pedido</label><input type="date" id="mmat-pedido" value="${m.fecha_pedido||new Date().toISOString().split("T")[0]}"/></div>
+    <div class="field"><label>Fecha entrega</label><input type="date" id="mmat-entrega" value="${m.fecha_entrega||""}"/></div>
+  </div>
+  <div class="field"><label>Link Drive</label><input id="mmat-drive" value="${m.drive||""}" placeholder="https://drive.google.com/..."/></div>`;
+}
+window.abrirModalMaterial=function(prod=""){modalMode="material";modalEditId="";abrirModal("Agregar material gráfico",frmMaterial({producto:prod}),`<button class="btn btn-secondary" onclick="cerrarModal()">Cancelar</button><button class="btn btn-primary" onclick="guardarMaterial()">Guardar</button>`)}
+window.abrirModalMaterialProducto=function(p){abrirModalMaterial(p)}
+window.editarMaterial=function(id){const m=material.find(x=>x.id===id);if(!m)return;modalMode="material";modalEditId=id;abrirModal("Editar material",frmMaterial(m),`<button class="btn btn-danger" onclick="borrarMaterial('${id}')">Eliminar</button><div style="flex:1"></div><button class="btn btn-secondary" onclick="cerrarModal()">Cancelar</button><button class="btn btn-primary" onclick="guardarMaterial()">Guardar</button>`)}
+window.guardarMaterial=async function(){
+  const data={producto:document.getElementById("mmat-prod").value,anio:parseInt(document.getElementById("mmat-anio").value)||2026,tipo:document.getElementById("mmat-tipo").value,canal:document.getElementById("mmat-canal").value,solicitado_por:document.getElementById("mmat-sol").value,descripcion:document.getElementById("mmat-desc").value,fecha_pedido:document.getElementById("mmat-pedido").value||null,fecha_entrega:document.getElementById("mmat-entrega").value||null,drive:document.getElementById("mmat-drive").value};
+  if(!data.producto){showToast("Selecciona un producto");return}
+  try{
+    if(modalEditId){await updateDoc(doc(db,"material_v4",modalEditId),data);material=material.map(m=>m.id===modalEditId?{...m,...data}:m)}
+    else{const r=await addDoc(collection(db,"material_v4"),{...data,created_at:new Date().toISOString()});material.push({id:r.id,...data})}
+    showToast("✓ Material guardado");cerrarModal();renderMaterial();
+  }catch(e){showToast("Error: "+e.message)}
+}
+window.borrarMaterial=async function(id){if(!confirm("¿Eliminar?"))return;await deleteDoc(doc(db,"material_v4",id));material=material.filter(m=>m.id!==id);showToast("Eliminado");cerrarModal();renderMaterial()}
+
+// ── GASTO MODAL ──
+function frmGasto(g={}){
+  const catOpts=["Agencias y Servicios","AON","Inversión Digital Clientes","Eventos Comerciales","Merchandising","Trade Marketing","Agencia Trade MKT","Otro"].map(c=>`<option value="${c}" ${g.categoria===c?"selected":""}>${c}</option>`).join("");
+  const campOpts=campanas.map(c=>`<option value="${c.nombre}" ${g.campana===c.nombre?"selected":""}>${c.nombre}</option>`).join("");
+  return`<div class="field-row">
+    <div class="field"><label>Fecha</label><input type="date" id="mg-f" value="${g.fecha||new Date().toISOString().split("T")[0]}"/></div>
+    <div class="field"><label>Monto (CLP)</label><input type="number" id="mg-m" value="${g.monto||""}" min="0" placeholder="Ej: 420000"/></div>
+  </div>
+  <div class="field-row">
+    <div class="field"><label>Categoría</label><select id="mg-catg">${catOpts}</select></div>
+    <div class="field"><label>Item específico</label><input id="mg-desc" value="${(g.descripcion||"").replace(/"/g,"&quot;")}" placeholder="Ej: Zoho Licencias"/></div>
+  </div>
+  <div class="field"><label>Campaña (opcional)</label><input id="mg-camp" value="${g.campana||""}" list="dl-camp2"/><datalist id="dl-camp2">${campOpts}</datalist></div>
+  <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;margin-top:6px"><input type="checkbox" id="mg-rendir" ${g.por_rendir?"checked":""}> Por rendir</label>`;
+}
+window.abrirModalGasto=function(){modalMode="gasto";modalEditId="";abrirModal("Nuevo gasto",frmGasto(),`<button class="btn btn-secondary" onclick="cerrarModal()">Cancelar</button><button class="btn btn-primary" onclick="guardarGasto()">Guardar</button>`)}
+window.editarGastoFn=function(id){const g=gastos.find(x=>x.id===id);if(!g)return;modalMode="gasto";modalEditId=id;abrirModal("Editar gasto",frmGasto(g),`<button class="btn btn-danger" onclick="borrarGasto('${id}')">Eliminar</button><div style="flex:1"></div><button class="btn btn-secondary" onclick="cerrarModal()">Cancelar</button><button class="btn btn-primary" onclick="guardarGasto()">Guardar</button>`)}
+window.guardarGasto=async function(){
+  const fecha=document.getElementById("mg-f").value;
+  const data={fecha,monto:parseInt(document.getElementById("mg-m").value)||0,categoria:document.getElementById("mg-catg").value,descripcion:document.getElementById("mg-desc").value,campana:document.getElementById("mg-camp").value,mes:fecha?.substring(0,7)||"",por_rendir:document.getElementById("mg-rendir").checked};
+  try{
+    if(modalEditId){await updateDoc(doc(db,"gastos_v4",modalEditId),data);gastos=gastos.map(g=>g.id===modalEditId?{...g,...data}:g)}
+    else{const r=await addDoc(collection(db,"gastos_v4"),{...data,created_at:new Date().toISOString()});gastos.push({id:r.id,...data})}
+    showToast("✓ Gasto guardado");cerrarModal();poblarMeses();renderPresupuesto();renderHome();
+  }catch(e){showToast("Error: "+e.message)}
+}
+window.borrarGasto=async function(id){if(!confirm("¿Eliminar?"))return;await deleteDoc(doc(db,"gastos_v4",id));gastos=gastos.filter(g=>g.id!==id);showToast("Eliminado");cerrarModal();poblarMeses();renderPresupuesto();renderHome()}
+
+// ── EVENTO MODAL ──
+window.abrirModalEvento=function(){modalMode="evento";modalEditId="";abrirModal("Nuevo evento / fecha importante",`
+  <div class="field"><label>Nombre</label><input id="mev-nom" placeholder="Ej: Lanzamiento Autolavable"/></div>
+  <div class="field-row">
+    <div class="field"><label>Fecha</label><input type="date" id="mev-fecha"/></div>
+    <div class="field"><label>Tipo</label><select id="mev-tipo"><option value="comercial">Comercial</option><option value="campaña">Campaña</option><option value="efeméride">Efeméride</option><option value="interno">Interno</option></select></div>
+  </div>
+  <div class="field"><label>Color</label><input type="color" id="mev-color" value="#1A5FA8" style="height:37px;padding:3px"/></div>
+`,`<button class="btn btn-secondary" onclick="cerrarModal()">Cancelar</button><button class="btn btn-primary" onclick="guardarEvento()">Guardar</button>`)}
+window.guardarEvento=async function(){
+  const data={nombre:document.getElementById("mev-nom").value,fecha:document.getElementById("mev-fecha").value,tipo:document.getElementById("mev-tipo").value,color:document.getElementById("mev-color").value};
+  if(!data.nombre||!data.fecha){showToast("Completa nombre y fecha");return}
+  try{
+    const r=await addDoc(collection(db,"eventos_v4"),{...data,created_at:new Date().toISOString()});
+    eventos.push({id:r.id,...data});showToast("✓ Evento guardado");cerrarModal();renderCalendarioAnual();if(calMesActual!==null)renderCalendarioMes(calMesActual);
+  }catch(e){showToast("Error: "+e.message)}
+}
+
+// ── NAVEGACIÓN ──
+const PAGE_TITLES={home:"Home",jose:"Para José",campanas:"Campañas",brand:"Brand — Tere",diseno:"Diseño — Vivi",content:"Content — Simona",tareas:"Todas las tareas",material:"Material gráfico",presupuesto:"Presupuesto 2026",calendario:"Calendario 2026"};
+const BTN_LABELS={home:"Nueva tarea",campanas:"Nueva campaña",brand:"Nueva tarea",diseno:"Nueva tarea",content:"Nueva tarea",tareas:"Nueva tarea",material:"Agregar material",presupuesto:"Agregar gasto",calendario:"Agregar evento"};
+
+window.goTo=function(page){
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  document.getElementById("page-"+page)?.classList.add("active");
+  document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));
+  document.querySelector(`.nav-item[onclick="goTo('${page}')"]`)?.classList.add("active");
+  document.getElementById("topbar-title").textContent=PAGE_TITLES[page]||page;
+  document.getElementById("btn-new-label").textContent=BTN_LABELS[page]||"Nuevo";
+  document.getElementById("btn-new").style.display=page==="jose"?"none":"flex";
+  if(page==="presupuesto"){poblarMeses();renderPresupuesto()}
+  if(page==="jose") renderJose();
+}
+window.abrirModalContextual=function(){
+  const p=document.querySelector(".page.active")?.id?.replace("page-","");
+  if(p==="campanas") abrirModalCampana();
+  else if(p==="presupuesto") abrirModalGasto();
+  else if(p==="material") abrirModalMaterial();
+  else if(p==="calendario") abrirModalEvento();
+  else abrirModalTarea();
+}
+window.setFC=function(f,btn){filtroCamp=f;document.querySelectorAll("#page-campanas .fc").forEach(b=>b.classList.remove("active"));btn.classList.add("active");renderCampanas()}
+window.setFT=function(f,btn){filtroTareas=f;document.querySelectorAll("#page-tareas .fc").forEach(b=>b.classList.remove("active"));btn.classList.add("active");renderKanban("all","all",null)}
+window.setFM=function(f,btn){filtroMaterial=f;document.querySelectorAll("#filter-mat .fc").forEach(b=>b.classList.remove("active"));btn.classList.add("active");renderMaterial()}
+window.setSubTab=function(page,sub,btn){
+  subTabs[page]=sub;
+  document.querySelectorAll(`#tabs-${page} .sub-tab`).forEach(b=>b.classList.remove("active"));
+  btn.classList.add("active");
+  const persona=page==="brand"?"Tere":page==="diseno"?"Vivi":"Simona";
+  renderKanban(page,persona,sub==="todas"?null:sub);
+}
+
+function showToast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2500)}
+
+document.getElementById("topbar-date").textContent=new Date().toLocaleDateString("es-CL",{weekday:"long",day:"numeric",month:"long"});
+await cargarTodo();
+</script>
+</body>
+</html>
