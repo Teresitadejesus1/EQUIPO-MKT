@@ -1177,10 +1177,15 @@ if(!D._seeded_v3){
     D.budget.expenses.push({id:'pdq_vessanti_01',name:'CartonTrade — PDQ Filtros Vessanti (Grifo, Ducha y Repuestos)',amount:1849500,area:'Punto de Venta',date:'2026-07-28',category:'PDQ',recurrence:'puntual',notes:'50 unidades × $36.990 neto. Cot. N°4294. CartonTrade. Pago: 50% anticipo + saldo contra entrega. APROBADO.',_v5:true});
     dirty=true;
   }
-  // Eliminar herramientas que no son de Viga Home (Klaviyo, App Sorteos, Komo.com)
-  ['bgtm03','bgtm05','bgtm07'].forEach(id=>{
+  // Eliminar herramientas que no son de Viga Home (Klaviyo, App Sorteos, Komo.com, Canva)
+  ['bgtm03','bgtm05','bgtm07','bgtm08'].forEach(id=>{
     const e=D.budget.expenses.find(x=>x.id===id);
     if(e&&!e._v5){e.amount=0;e.name='[NO APLICA] '+e.name;e.notes='Eliminado: no corresponde a gasto Viga Home';e._v5=true;dirty=true;}
+  });
+  // bgt15/bgt16: Cyber Monday y lanzamientos → incluidos en promedio mensual bgtm01+bgtm02
+  ['bgt15','bgt16'].forEach(id=>{
+    const e=D.budget.expenses.find(x=>x.id===id);
+    if(e&&!e._v5){e.notes='Incluido dentro del promedio mensual de Google Ads (bgtm01) y Meta Ads (bgtm02) — los meses de mayor gasto ya están reflejados en el promedio.';e._v5=true;dirty=true;}
   });
   // bgtm04 Montu: no es mensual fijo — se elimina y se registran facturas reales por mes
   const montu=D.budget.expenses.find(e=>e.id==='bgtm04');
