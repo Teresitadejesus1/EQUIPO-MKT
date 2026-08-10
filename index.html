@@ -5023,6 +5023,13 @@ _syncDot.onclick=()=>forcePushToFirebase();
 document.querySelector('.hdr-right').prepend(_syncDot);
 
 function applyRemoteMigrations(){
+  // Firebase convierte arrays a objetos al leer snap.val() — normalizar de vuelta a arrays
+  if(D.budget&&D.budget.expenses&&!Array.isArray(D.budget.expenses))D.budget.expenses=Object.values(D.budget.expenses);
+  if(D.tasks&&!Array.isArray(D.tasks))D.tasks=Object.values(D.tasks);
+  if(D.projects&&!Array.isArray(D.projects))D.projects=Object.values(D.projects);
+  if(D.pdqs&&!Array.isArray(D.pdqs))D.pdqs=Object.values(D.pdqs);
+  if(D.material&&!Array.isArray(D.material))D.material=Object.values(D.material);
+  if(D.comercial&&!Array.isArray(D.comercial))D.comercial=Object.values(D.comercial);
   if(!D.pdqs)D.pdqs=[];
   if(!D.material)D.material=[];
   if(!D.comercial)D.comercial=[];
@@ -5171,7 +5178,8 @@ _fbRef.on('value',snap=>{
       // Compare localStorage vs Firebase — prefer whichever has more expenses (more recent)
       const _localRaw=localStorage.getItem('viga-v4');
       const _localData=_localRaw?JSON.parse(_localRaw):null;
-      const _remoteCount=(remote.budget&&remote.budget.expenses)?remote.budget.expenses.length:0;
+      const _remoteExp=remote.budget&&remote.budget.expenses;
+      const _remoteCount=_remoteExp?(Array.isArray(_remoteExp)?_remoteExp.length:Object.keys(_remoteExp).length):0;
       const _localCount=(_localData&&_localData.budget&&_localData.budget.expenses)?_localData.budget.expenses.length:0;
       if(_localData&&_localCount>_remoteCount){
         // localStorage tiene más datos (más reciente) — usarlo y subir a Firebase
