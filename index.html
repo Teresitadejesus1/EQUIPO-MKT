@@ -1123,6 +1123,84 @@ if(!D._seeded_v3){
   if(dirty)save();
 })();
 
+// Migración v4: montos reales ads + limpieza placeholders + notas confirmadas (corre después de migrateExpMeta)
+(function migrateV4(){
+  if(!D.budget||!D.budget.expenses)return;
+  let dirty=false;
+  // Eliminar placeholders ⚠ ya cubiertos por gastos reales identificados
+  const DEL=['bgt1','bgt3','bgt5','bgt6','bgt7','bgt8','bgt9','bgt11','bgt12','bgt13','bgt14'];
+  const prev=D.budget.expenses.length;
+  D.budget.expenses=D.budget.expenses.filter(e=>!DEL.includes(e.id));
+  if(D.budget.expenses.length!==prev)dirty=true;
+  // bgt4: Pasto sintético → monto y fecha confirmados
+  const bgt4=D.budget.expenses.find(e=>e.id==='bgt4');
+  if(bgt4&&!bgt4._v4){bgt4.amount=70000;bgt4.date='2026-04-28';bgt4.name='Pasto sintético Chilemat';bgt4.notes='Confirmado $70.000 — misma fecha que Harry Plotter (28 abr 2026)';bgt4._v4=true;dirty=true;}
+  // bgtm01: Google Ads — promedio mensual real ene-jul 2026
+  const gads=D.budget.expenses.find(e=>e.id==='bgtm01');
+  if(gads&&!gads._v4){gads.name='Google Ads';gads.amount=1414086;gads.notes='Promedio mensual real ene–jul 2026 (Looker Studio). Ene $1.099.817 | Feb $1.196.594 | Mar $1.352.407 | Abr $1.333.591 | May $982.732 | Jun $1.462.522 | Jul $1.470.942';gads._v4=true;dirty=true;}
+  // bgtm02: Meta Ads — promedio mensual real ene-jul 2026
+  const mads=D.budget.expenses.find(e=>e.id==='bgtm02');
+  if(mads&&!mads._v4){mads.name='Meta Ads (Facebook)';mads.amount=995259;mads.notes='Promedio mensual real ene–jul 2026 (Looker Studio). Ene $889.649 | Feb $786.406 | Mar $842.496 | Abr $930.140 | May $1.065.656 | Jun $1.452.552 | Jul $999.914';mads._v4=true;dirty=true;}
+  // Harry Plotter: especificar que son Vinilos Chilemat (corre después de _v2, no lo sobreescribe)
+  const a16=D.budget.expenses.find(e=>e.id==='exp_abr_16');
+  if(a16&&!a16._v4){a16.notes=(a16.notes||'')+' — Vinilos Chilemat';a16._v4=true;dirty=true;}
+  // Hanna Instruments: agregar referencia Premios Feria Sodimac
+  ['exp_abr_08','exp_abr_09'].forEach(id=>{const e=D.budget.expenses.find(x=>x.id===id);if(e&&!e._v4){e.notes=(e.notes||'')+' — Premios Feria Sodimac';e._v4=true;dirty=true;}});
+  // Puzlespa: agregar referencia Gráfica + implementación Sodimac
+  const puz=D.budget.expenses.find(e=>e.id==='exp_may_01');
+  if(puz&&!puz._v4){puz.notes=(puz.notes||'')+' — Gráfica + implementación Sodimac';puz._v4=true;dirty=true;}
+  // Simple Print $376.500: agregar referencia Gráfica + implementación Chilemat
+  const spr=D.budget.expenses.find(e=>e.id==='exp_mar_03');
+  if(spr&&!spr._v4){spr.notes=(spr.notes||'')+' — Gráfica + implementación Chilemat';spr._v4=true;dirty=true;}
+  if(dirty)save();
+})();
+
+// Migración v5: nuevos PDQs aprobados + corrección double-counting ads + fix fecha bgtm
+(function migrateV5(){
+  if(!D.budget||!D.budget.expenses)return;
+  let dirty=false;
+  // fix_ads_media: eliminar double-counting (bgtm01+bgtm02 ya registran el gasto real)
+  const fam=D.budget.expenses.find(e=>e.id==='fix_ads_media');
+  if(fam&&!fam._v5){fam.amount=0;fam.notes='ANULADO — reemplazado por bgtm01 (Google Ads) y bgtm02 (Meta Ads) con montos reales';fam._v5=true;dirty=true;}
+  // bgtm01 y bgtm02: corregir fecha de inicio a enero 2026 para cálculo correcto YTD
+  const gads=D.budget.expenses.find(e=>e.id==='bgtm01');
+  if(gads&&!gads._v5){gads.date='2026-01-01';gads._v5=true;dirty=true;}
+  const mads=D.budget.expenses.find(e=>e.id==='bgtm02');
+  if(mads&&!mads._v5){mads.date='2026-01-01';mads._v5=true;dirty=true;}
+  // PDQ Canaletas y Accesorios — CartonTrade Cot. N°4243
+  if(!D.budget.expenses.find(e=>e.id==='pdq_canaletas_01')){
+    D.budget.expenses.push({id:'pdq_canaletas_01',name:'CartonTrade — PDQ Canaletas y Accesorios',amount:3093000,area:'Punto de Venta',date:'2026-07-02',category:'PDQ',recurrence:'puntual',notes:'50 unidades × $61.860 neto. Cot. N°4243. CartonTrade. Pago: 50% anticipo + saldo contra entrega. APROBADO.',_v5:true});
+    dirty=true;
+  }
+  // PDQ Filtros Grifo, Ducha y Repuestos Vessanti — CartonTrade Cot. N°4294
+  if(!D.budget.expenses.find(e=>e.id==='pdq_vessanti_01')){
+    D.budget.expenses.push({id:'pdq_vessanti_01',name:'CartonTrade — PDQ Filtros Vessanti (Grifo, Ducha y Repuestos)',amount:1849500,area:'Punto de Venta',date:'2026-07-28',category:'PDQ',recurrence:'puntual',notes:'50 unidades × $36.990 neto. Cot. N°4294. CartonTrade. Pago: 50% anticipo + saldo contra entrega. APROBADO.',_v5:true});
+    dirty=true;
+  }
+  // Eliminar herramientas que no son de Viga Home (Klaviyo, App Sorteos, Komo.com)
+  ['bgtm03','bgtm05','bgtm07'].forEach(id=>{
+    const e=D.budget.expenses.find(x=>x.id===id);
+    if(e&&!e._v5){e.amount=0;e.name='[NO APLICA] '+e.name;e.notes='Eliminado: no corresponde a gasto Viga Home';e._v5=true;dirty=true;}
+  });
+  // bgtm04 Montu: no es mensual fijo — se elimina y se registran facturas reales por mes
+  const montu=D.budget.expenses.find(e=>e.id==='bgtm04');
+  if(montu&&!montu._v5){montu.amount=0;montu.name='[NO APLICA] Montu';montu.notes='No es mensual fijo. Ver gastos reales: montu_may_2026, montu_jun_2026';montu._v5=true;dirty=true;}
+  // Montu facturas reales mayo 2026
+  if(!D.budget.expenses.find(e=>e.id==='montu_may_2026')){
+    D.budget.expenses.push({id:'montu_may_2026',name:'Montu — Influencers Mayo 2026',amount:266784,area:'Digital',date:'2026-05-29',category:'Influencers',recurrence:'puntual',notes:'Facturas Montu mayo 2026: Fact.2074 $154.454 + Fact.2081 $112.330. Plataforma influencer marketing.',_v5:true});
+    dirty=true;
+  }
+  // Montu facturas reales junio 2026
+  if(!D.budget.expenses.find(e=>e.id==='montu_jun_2026')){
+    D.budget.expenses.push({id:'montu_jun_2026',name:'Montu — Influencers Junio 2026',amount:161477,area:'Digital',date:'2026-06-30',category:'Influencers',recurrence:'puntual',notes:'Facturas Montu junio 2026: Fact.2187 $56.166 + Fact.2274 $35.104 + Fact.2103 $28.083 + Fact.2314 $42.124. Pendiente cartera: Romina Santis $84.247 + Yasna Freire $42.124.',_v5:true});
+    dirty=true;
+  }
+  // bgtm06 Vambei: $25.000/mes (provisional)
+  const vambei=D.budget.expenses.find(e=>e.id==='bgtm06');
+  if(vambei&&!vambei._v5){vambei.name='Vambei';vambei.amount=25000;vambei.date='2026-01-01';vambei.notes='$25.000/mes provisional. Ajustar cuando se confirme monto real.';vambei._v5=true;dirty=true;}
+  if(dirty)save();
+})();
+
 // ensure piece/content buckets exist for all areas/types
 D.areas.forEach(a=>{if(!D.disPieces[aKey(a)])D.disPieces[aKey(a)]=[];});
 D.contentTypes.forEach(t=>{if(!D.contentItems[cKey(t)])D.contentItems[cKey(t)]=[];});
@@ -4999,6 +5077,13 @@ function applyRemoteMigrations(){
     {id:'exp_jun_02',name:'Publicidad Exterior',amount:59000,  area:'PDV',         date:'2026-06-15',category:'Materiales',          recurrence:'puntual',notes:'SIN INFORMACION',_v2:true},
     {id:'exp_jun_03',name:'Gráfica Jory',       amount:45000,  area:'PDV',         date:'2026-06-18',category:'Impresión',            recurrence:'puntual',notes:'VOLANTES',_v2:true},
     {id:'exp_jun_04',name:'Gráfica Jory',       amount:65000,  area:'PDV',         date:'2026-06-18',category:'Impresión',            recurrence:'puntual',notes:'PENDON',_v2:true},
+    // AGOSTO
+    {id:'exp_ago_01',name:'Stand Feria Chicureo (junio)',amount:70000,  area:'Activaciones',date:'2026-08-03',category:'Ferias/Eventos',       recurrence:'puntual',notes:'',_v2:true},
+    {id:'exp_ago_02',name:'Antisarro Calefont',          amount:2448500,area:'PDV',         date:'2026-08-03',category:'Materiales',           recurrence:'puntual',notes:'PDQ: Antisarro Calefont — 50 unidades',_v2:true},
+    {id:'exp_ago_03',name:'Filtro Ducha',                amount:3698000,area:'PDV',         date:'2026-08-03',category:'Trade Marketing',       recurrence:'puntual',notes:'PDQ: Filtro Ducha — 100 unidades',_v2:true},
+    {id:'exp_ago_04',name:'Canaletas',                   amount:2474400,area:'',            date:'2026-08-03',category:'Materiales',           recurrence:'puntual',notes:'PDQ: Canaletas — 40 unidades',_v2:true},
+    {id:'exp_ago_05',name:'Humboldt',                    amount:4748800,area:'PDV',         date:'2026-08-03',category:'Trade Marketing',       recurrence:'puntual',notes:'PDQ: Humboldt — 70 unidades',_v2:true},
+    {id:'exp_ago_06',name:'lineales',                    amount:60000,  area:'PDV',         date:'2026-08-03',category:'Trade Marketing',       recurrence:'puntual',notes:'revisar gasto',_v2:true},
   ];
   _re.forEach(b=>{
     const idx=D.budget.expenses.findIndex(x=>x.id===b.id);
