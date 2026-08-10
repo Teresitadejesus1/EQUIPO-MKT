@@ -1206,6 +1206,15 @@ if(!D._seeded_v3){
   if(dirty)save();
 })();
 
+// Migración v6: eliminar definitivamente herramientas que no son de Viga Home
+(function migrateV6(){
+  if(!D.budget||!D.budget.expenses)return;
+  const DEL=['bgtm03','bgtm04','bgtm05','bgtm07','bgtm08'];
+  const prev=D.budget.expenses.length;
+  D.budget.expenses=D.budget.expenses.filter(e=>!DEL.includes(e.id));
+  if(D.budget.expenses.length!==prev)save();
+})();
+
 // ensure piece/content buckets exist for all areas/types
 D.areas.forEach(a=>{if(!D.disPieces[aKey(a)])D.disPieces[aKey(a)]=[];});
 D.contentTypes.forEach(t=>{if(!D.contentItems[cKey(t)])D.contentItems[cKey(t)]=[];});
