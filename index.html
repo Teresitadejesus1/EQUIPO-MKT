@@ -1237,6 +1237,23 @@ if(!D._seeded_v3){
 })();
 
 // Migración v6: eliminar definitivamente herramientas que no son de Viga Home
+// Migración v9: nuevos gastos reales (clínicas Easy, bolígrafos, video psicólogo, exhibidor, arriendo, lineales, Planable)
+(function migrateV9(){
+  if(!D.budget||!D.budget.expenses)return;
+  let dirty=false;
+  const NEW=[
+    {id:'easy_clinicas_01',name:'Activación Clínicas Easy — Promotoras',amount:103040,area:'Trade',date:'2026-06-18',category:'Activaciones',recurrence:'puntual',notes:'S/IVA. Promotora $42.000 + Implementación $50.000 + Markup agencia 12% $11.040. Coord. Pablo Órdenes.'},
+    {id:'bullet_boligrafos_01',name:'Bolígrafos Promocionales — Bullet Ltda',amount:860000,area:'Trade',date:'2026-06-23',category:'Material Promocional',recurrence:'puntual',notes:'Cot. N°26062312. 1.000 u. escritura azul $350/u ($350.000) + 1.000 u. push negro $510/u ($510.000). Total neto $860.000 + IVA.'},
+    {id:'video_psicologo_01',name:'Video Publicitario Psicólogo — Actores y Producción',amount:507374,area:'Digital',date:'2026-07-20',category:'Contenido',recurrence:'puntual',notes:'3 BHE julio 2026: Horacio Cabezas —actor $94.395 + Margarita Hardessen —actriz $235.988 + Bastian Gallardo —contenido digital $176.991. Total honorarios brutos.'},
+    {id:'exhibidor_ablandador_01',name:'Exhibidor Ablandador — Panel Araña 3 Cuerpos',amount:400000,area:'Trade',date:'2026-08-01',category:'Material POP',recurrence:'puntual',notes:'Panel araña 3 cuerpos (2.27×2.27) con tela más laterales de 30 cm. Mobiliario para exposición.'},
+    {id:'arriendo_exhibidor_01',name:'Arriendo Espacio Exhibidor Ablandador',amount:1000000,area:'Trade',date:'2026-09-01',category:'Arriendo',recurrence:'mensual',notes:'Arriendo mensual espacio para exhibición ablandador. Inicia septiembre 2026.'},
+    {id:'lineales_01',name:'Impresión Lineales / Vendedores Silenciosos',amount:234000,area:'Trade',date:'2026-08-01',category:'Material POP',recurrence:'puntual',notes:'Impresión vendedores silenciosos para lineal. Material punto de venta.'},
+    {id:'planable_anual_01',name:'Planable — Suscripción Anual',amount:550000,area:'Digital',date:'2026-01-01',category:'Herramientas',recurrence:'puntual',notes:'Suscripción anual plataforma de gestión de contenidos Planable.'},
+  ];
+  NEW.forEach(e=>{if(!D.budget.expenses.find(x=>x.id===e.id)){D.budget.expenses.push(e);dirty=true;}});
+  if(dirty)save();
+})();
+
 (function migrateV6(){
   if(!D.budget||!D.budget.expenses)return;
   const DEL=['bgtm03','bgtm04','bgtm05','bgtm07','bgtm08'];
