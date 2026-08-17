@@ -1268,6 +1268,13 @@ if(!D._seeded_v3){
   if(dirty)save();
 })();
 
+// Migración v12: corregir Agencia Trade Marketing — $3.200.000/mes (monto real)
+(function migrateV12(){
+  if(!D.budget||!D.budget.expenses)return;
+  const e=D.budget.expenses.find(x=>x.id==='fix_trade_mkt');
+  if(e&&!e._v12){e.amount=3200000;e.notes='Pago mensual fijo Agencia Trade Marketing. $3.200.000/mes.';e._v12=true;save();}
+})();
+
 // Migración v6: eliminar definitivamente herramientas que no son de Viga Home
 // Migración v9: nuevos gastos reales (clínicas Easy, bolígrafos, video psicólogo, exhibidor, arriendo, lineales, Planable)
 (function migrateV9(){
