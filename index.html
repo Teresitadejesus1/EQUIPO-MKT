@@ -1155,6 +1155,23 @@ if(!D._seeded_v3){
   if(dirty)save();
 })();
 
+// Migración v8: inversión Mercado Libre ene–jul 2026 (montos netos sin IVA)
+(function migrateV8(){
+  if(!D.budget||!D.budget.expenses)return;
+  let dirty=false;
+  const MELI=[
+    {id:'meli_ene_2026', name:'Mercado Libre — Inversión Enero 2026',  amount:14277,   area:'Digital', date:'2026-01-31', category:'Ecommerce', recurrence:'puntual', notes:'Neto sin IVA. Mantenimiento MiPagina $14.277. Total bruto: $16.990.'},
+    {id:'meli_feb_2026', name:'Mercado Libre — Inversión Febrero 2026', amount:292850,  area:'Digital', date:'2026-02-28', category:'Ecommerce', recurrence:'puntual', notes:'Neto sin IVA. Product Ads $119.999 | Asesoría Comercial $158.574 | Mantenimiento $14.277. Total bruto: $348.492.'},
+    {id:'meli_mar_2026', name:'Mercado Libre — Inversión Marzo 2026',   amount:595346,  area:'Digital', date:'2026-03-31', category:'Ecommerce', recurrence:'puntual', notes:'Neto sin IVA. Display Ads $149.560 | Product Ads $272,933 | Asesoría $158.574 | Mantenimiento $14.277. Total bruto: $708.462.'},
+    {id:'meli_abr_2026', name:'Mercado Libre — Inversión Abril 2026',   amount:819666,  area:'Digital', date:'2026-04-30', category:'Ecommerce', recurrence:'puntual', notes:'Neto sin IVA. Product Ads $646.813 | Asesoría $158.574 | Mantenimiento $14.277. Total bruto: $975.402.'},
+    {id:'meli_may_2026', name:'Mercado Libre — Inversión Mayo 2026',    amount:904011,  area:'Digital', date:'2026-05-31', category:'Ecommerce', recurrence:'puntual', notes:'Neto sin IVA. Product Ads $731.159 | Asesoría $158.574 | Mantenimiento $14.277. Total bruto: $1.075.773.'},
+    {id:'meli_jun_2026', name:'Mercado Libre — Inversión Junio 2026',   amount:998066,  area:'Digital', date:'2026-06-30', category:'Ecommerce', recurrence:'puntual', notes:'Neto sin IVA. Product Ads $825.213 | Asesoría $158.574 | Mantenimiento $14.277. Total bruto: $1.187.698.'},
+    {id:'meli_jul_2026', name:'Mercado Libre — Inversión Julio 2026',   amount:1003309, area:'Digital', date:'2026-07-31', category:'Ecommerce', recurrence:'puntual', notes:'Neto sin IVA. Display Ads $11.685 | Product Ads $818.771 | Asesoría $158.574 | Mantenimiento $14.277. Total bruto: $1.193.938.'},
+  ];
+  MELI.forEach(e=>{if(!D.budget.expenses.find(x=>x.id===e.id)){D.budget.expenses.push(e);dirty=true;}});
+  if(dirty)save();
+})();
+
 // Migración v5: nuevos PDQs aprobados + corrección double-counting ads + fix fecha bgtm
 (function migrateV5(){
   if(!D.budget||!D.budget.expenses)return;
