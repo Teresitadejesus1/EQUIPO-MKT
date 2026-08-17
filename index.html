@@ -1236,6 +1236,25 @@ if(!D._seeded_v3){
   if(dirty)save();
 })();
 
+// Migración v10: seed canjes 2026 (datos reales de campañas Montu y otros)
+(function migrateV10(){
+  if(!D.canjes)D.canjes=[];
+  let dirty=false;
+  const CANJES=[
+    {id:'canje_mar_01',mes:'2026-03',descripcion:'Campaña Montu — Filtros Ducha Plateado',producto:'Pack 3u Filtro Agua Ducha Plateado',cantidad:3,costo_venta:49990,costo_real:0,notas:'$149.970 total · 3 personas × $49.990. SKU PACK3FILDUPL.'},
+    {id:'canje_mar_02',mes:'2026-03',descripcion:'Campaña Montu — No Más Sarro Lavavajillas',producto:'Pack Antisarro Lavadora/Lavavajillas',cantidad:4,costo_venta:26990,costo_real:0,notas:'$107.960 total · 4 personas × $26.990.'},
+    {id:'canje_mar_03',mes:'2026-03',descripcion:'Canje Montu — Jarras',producto:'Pack Filtro Ducha + Jarra',cantidad:4,costo_venta:29990,costo_real:0,notas:'$119.960 total · 4 personas × $29.990.'},
+    {id:'canje_abr_01',mes:'2026-04',descripcion:'Lauri Turri — Osmosis Inversa con Instalación',producto:'Osmosis Inversa + Instalación RM',cantidad:1,costo_venta:169990,costo_real:0,notas:'Shopify: Osmosis Inversa con instalación en RM $169.990.'},
+    {id:'canje_jun_01',mes:'2026-06',descripcion:'Campaña Autolavable — 1 unidad',producto:'Filtro de Agua Autolavable Manual',cantidad:1,costo_venta:42990,costo_real:0,notas:'$42.990 · 1 filtro autolavable.'},
+    {id:'canje_jun_02',mes:'2026-06',descripcion:'Campaña Autolavable — 2 unidades',producto:'Filtro de Agua Autolavable Manual',cantidad:2,costo_venta:42990,costo_real:0,notas:'$85.980 total · 2 × $42.990.'},
+    {id:'canje_jun_03',mes:'2026-06',descripcion:'Segunda Campaña Filtro Ducha',producto:'Pack 3u Filtro Agua Ducha Plateado',cantidad:1,costo_venta:49990,costo_real:0,notas:'Cantidad por confirmar. $49.990 c/u.'},
+    {id:'canje_jul_01',mes:'2026-07',descripcion:'Comiéndome al Mundo — Jarra + Repuestos',producto:'Jarra Purificadora + Repuestos pack 2',cantidad:1,costo_venta:31980,costo_real:0,notas:'Jarra $18.990 + Repuestos pack 2 $12.990 = $31.980 retail.'},
+    {id:'canje_ago_01',mes:'2026-08',descripcion:'Sebatimm — Filtro Autolavable',producto:'Filtro de Agua Autolavable Manual',cantidad:1,costo_venta:42990,costo_real:0,notas:'Incluye honorario en efectivo de $30.000 (registrar como gasto separado).'},
+  ];
+  CANJES.forEach(c=>{if(!D.canjes.find(x=>x.id===c.id)){D.canjes.push(c);dirty=true;}});
+  if(dirty)save();
+})();
+
 // Migración v6: eliminar definitivamente herramientas que no son de Viga Home
 // Migración v9: nuevos gastos reales (clínicas Easy, bolígrafos, video psicólogo, exhibidor, arriendo, lineales, Planable)
 (function migrateV9(){
