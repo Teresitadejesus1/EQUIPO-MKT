@@ -3469,6 +3469,136 @@ function expToMonthBars(e,curYear){
   }
   return bars;
 }
+// ─── Canjes ──────────────────────────────────────────────────────────────────
+function rCanjes(){
+  const el=document.getElementById('v-pre');
+  if(!el)return;
+  if(!D.canjes)D.canjes=[];
+  const canjes=D.canjes;
+  const now=new Date();
+  const curYear=now.getFullYear();
+  const MESES_FULL=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const totalVenta=canjes.reduce((s,c)=>s+Number(c.costo_venta||0)*Number(c.cantidad||1),0);
+  const totalReal=canjes.reduce((s,c)=>s+Number(c.costo_real||0)*Number(c.cantidad||1),0);
+  const totalDiff=totalVenta-totalReal;
+  const byMonth={};
+  canjes.forEach(c=>{const m=c.mes||'Sin mes';if(!byMonth[m])byMonth[m]=[];byMonth[m].push(c);});
+  const months=Object.keys(byMonth).sort().reverse();
+  let h=`
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px">
+    <div>
+      <h3 style="margin:0;font-size:16px;font-weight:800">🎁 Registro de Canjes</h3>
+      <div style="font-size:11px;color:var(--muted);margin-top:2px">${canjes.length} canjes registrados</div>
+    </div>
+    <button class="btn btn-ghost btn-sm" onclick="preView='gastos';rPre()">← Volver a gastos</button>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px">
+    <div class="pre-kpi" style="border-color:#f9a8d4">
+      <div class="pre-kpi-label">Costo de venta (retail)</div>
+      <div class="pre-kpi-val" style="color:#db2777">${fmt$(totalVenta)}</div>
+      <div class="pre-kpi-sub">Valor de mercado entregado en canjes</div>
+    </div>
+    <div class="pre-kpi" style="border-color:#fcd34d">
+      <div class="pre-kpi-label">Costo real para Viga Home</div>
+      <div class="pre-kpi-val" style="color:#d97706">${fmt$(totalReal)}</div>
+      <div class="pre-kpi-sub">Lo que realmente costó producirlo</div>
+    </div>
+    <div class="pre-kpi" style="border-color:#86efac">
+      <div class="pre-kpi-label">Ahorro vs retail</div>
+      <div class="pre-kpi-val" style="color:#059669">${fmt$(totalDiff)}</div>
+      <div class="pre-kpi-sub">${totalVenta>0?'Canjeamos a '+Math.round(totalReal/totalVenta*100)+'% del precio retail':'—'}</div>
+    </div>
+  </div>
+  <div class="pre-section" style="margin-bottom:14px">
+    <h4 style="margin:0 0 10px">+ Agregar canje</h4>
+    <div style="display:grid;grid-template-columns:2fr 2fr 1fr;gap:8px;margin-bottom:8px">
+      <div><label style="font-size:10px;font-weight:700;color:var(--muted);display:block;margin-bottom:3px">Descripción / Influencer *</label><input id="cj-desc" class="fld" placeholder="@fulana — kit filtros"/></div>
+      <div><label style="font-size:10px;font-weight:700;color:var(--muted);display:block;margin-bottom:3px">Producto</label><input id="cj-prod" class="fld" placeholder="Ej: Kit Ablandador Premium"/></div>
+      <div><label style="font-size:10px;font-weight:700;color:var(--muted);display:block;margin-bottom:3px">Mes</label><input id="cj-mes" class="fld" type="month" value="${curYear}-${String(now.getMonth()+1).padStart(2,'0')}"/></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 2fr;gap:8px;margin-bottom:8px">
+      <div><label style="font-size:10px;font-weight:700;color:var(--muted);display:block;margin-bottom:3px">Cantidad</label><input id="cj-qty" class="fld" type="number" value="1" min="1"/></div>
+      <div><label style="font-size:10px;font-weight:700;color:var(--muted);display:block;margin-bottom:3px">Costo venta ($)</label><input id="cj-venta" class="fld" type="number" placeholder="Precio retail"/></div>
+      <div><label style="font-size:10px;font-weight:700;color:var(--muted);display:block;margin-bottom:3px">Costo real ($)</label><input id="cj-real" class="fld" type="number" placeholder="Costo para VH"/></div>
+      <div><label style="font-size:10px;font-weight:700;color:var(--muted);display:block;margin-bottom:3px">Notas</label><input id="cj-notas" class="fld" placeholder="Opcional"/></div>
+    </div>
+    <button class="btn btn-primary btn-sm" onclick="saveCanjeEntry()">Guardar canje</button>
+  </div>`;
+  if(!canjes.length){h+=`<div class="empty"><div class="empty-icon">🎁</div><p>Sin canjes registrados aún.</p></div>`;}
+  else{
+    months.forEach(mes=>{
+      const items=byMonth[mes];
+      const mesVenta=items.reduce((s,c)=>s+Number(c.costo_venta||0)*Number(c.cantidad||1),0);
+      const mesReal=items.reduce((s,c)=>s+Number(c.costo_real||0)*Number(c.cantidad||1),0);
+      const parts=mes.split('-');
+      const mesLabel=parts[1]?MESES_FULL[Number(parts[1])-1]:mes;
+      h+=`<div class="pre-section" style="margin-bottom:12px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <h4 style="margin:0">${mesLabel} ${parts[0]||''} <span style="font-weight:400;font-size:10px;color:var(--muted);text-transform:none">(${items.length} canje${items.length!==1?'s':''})</span></h4>
+          <div style="font-size:11px;font-weight:700">
+            <span style="color:#db2777">Retail: ${fmt$(mesVenta)}</span>
+            <span style="color:var(--muted);margin:0 8px">·</span>
+            <span style="color:#d97706">Real: ${fmt$(mesReal)}</span>
+          </div>
+        </div>
+        <table class="exp-table"><thead><tr>
+          <th>Descripción / Influencer</th><th>Producto</th>
+          <th style="text-align:center">Qty</th>
+          <th style="text-align:right">Costo venta</th>
+          <th style="text-align:right">Costo real</th>
+          <th style="text-align:right">% Retail</th>
+          <th></th>
+        </tr></thead><tbody>`;
+      items.forEach(c=>{
+        const qty=Number(c.cantidad||1);
+        const vtotal=Number(c.costo_venta||0)*qty;
+        const rtotal=Number(c.costo_real||0)*qty;
+        const pct=vtotal>0?Math.round(rtotal/vtotal*100):0;
+        h+=`<tr>
+          <td><span style="font-weight:600">${esc(c.descripcion||'—')}</span>${c.notas?'<br><span style="font-size:10px;color:var(--muted)">'+esc(c.notas)+'</span>':''}</td>
+          <td style="color:var(--muted);font-size:11px">${esc(c.producto||'—')}</td>
+          <td style="text-align:center">${qty}</td>
+          <td style="text-align:right;color:#db2777;font-weight:700">${fmt$(vtotal)}</td>
+          <td style="text-align:right;color:#d97706;font-weight:700">${fmt$(rtotal)}</td>
+          <td style="text-align:right"><span style="padding:2px 7px;border-radius:99px;font-size:10px;font-weight:700;background:${pct<50?'#dcfce7':pct<80?'#fef9c3':'#fee2e2'};color:${pct<50?'#059669':pct<80?'#92400e':'#b91c1c'}">${pct}%</span></td>
+          <td style="text-align:right"><button style="background:none;border:none;cursor:pointer;color:var(--alta);font-size:13px;padding:2px 6px" onclick="deleteCanje('${c.id}')">✕</button></td>
+        </tr>`;
+      });
+      h+=`</tbody></table></div>`;
+    });
+    h+=`<div style="display:flex;justify-content:flex-end;gap:20px;padding:10px 16px;background:var(--bg);border-radius:8px;border:1.5px solid var(--border);font-size:12px;font-weight:700">
+      <span>Total retail: <span style="color:#db2777">${fmt$(totalVenta)}</span></span>
+      <span>Total real: <span style="color:#d97706">${fmt$(totalReal)}</span></span>
+      <span>Ahorro: <span style="color:#059669">${fmt$(totalDiff)}</span></span>
+    </div>`;
+  }
+  el.innerHTML=h;
+}
+function saveCanjeEntry(){
+  const desc=(document.getElementById('cj-desc')?.value||'').trim();
+  if(!desc){alert('La descripción es obligatoria');return;}
+  if(!D.canjes)D.canjes=[];
+  const now=new Date();
+  D.canjes.push({
+    id:'canje_'+Date.now(),
+    mes:document.getElementById('cj-mes')?.value||now.toISOString().substring(0,7),
+    descripcion:desc,
+    producto:(document.getElementById('cj-prod')?.value||'').trim(),
+    cantidad:Number(document.getElementById('cj-qty')?.value||1),
+    costo_venta:Number(document.getElementById('cj-venta')?.value||0),
+    costo_real:Number(document.getElementById('cj-real')?.value||0),
+    notas:(document.getElementById('cj-notas')?.value||'').trim()
+  });
+  save();
+  rCanjes();
+}
+function deleteCanje(id){
+  if(!confirm('¿Eliminar este canje?'))return;
+  D.canjes=(D.canjes||[]).filter(c=>c.id!==id);
+  save();
+  rCanjes();
+}
+
 function rPreAnalisis(b,exps){
   const el=document.getElementById('v-pre');
   if(!el)return;
@@ -3810,8 +3940,9 @@ function rPreAnalisis(b,exps){
 function rPre(){
   const b=D.budget;
   const exps=b.expenses||[];
-  // Vista de análisis
+  // Vistas alternativas
   if(preView==='analisis'){rPreAnalisis(b,exps);return;}
+  if(preView==='canjes'){rCanjes();return;}
 
   const now=new Date();
   const curMonth=now.getMonth();
@@ -4096,6 +4227,7 @@ function rPre(){
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
       <h4 style="margin:0">🧾 Registro de gastos <span style="font-weight:400;text-transform:none;font-size:11px;color:var(--muted)">(${exps.length} registros)</span></h4>
       <div style="display:flex;gap:8px">
+        <button onclick="preView='canjes';rPre()" style="padding:5px 12px;border-radius:8px;background:linear-gradient(135deg,#db2777,#f97316);color:#fff;border:none;cursor:pointer;font-size:11px;font-weight:600">🎁 Canjes</button>
         <button onclick="preView='analisis';rPre()" style="padding:5px 12px;border-radius:8px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border:none;cursor:pointer;font-size:11px;font-weight:600">📊 Análisis</button>
         <button class="btn btn-primary btn-sm" onclick="toggleExpForm()">+ Agregar gasto</button>
       </div>
@@ -5077,9 +5209,11 @@ function applyRemoteMigrations(){
   if(D.pdqs&&!Array.isArray(D.pdqs))D.pdqs=Object.values(D.pdqs);
   if(D.material&&!Array.isArray(D.material))D.material=Object.values(D.material);
   if(D.comercial&&!Array.isArray(D.comercial))D.comercial=Object.values(D.comercial);
+  if(D.canjes&&!Array.isArray(D.canjes))D.canjes=Object.values(D.canjes);
   if(!D.pdqs)D.pdqs=[];
   if(!D.material)D.material=[];
   if(!D.comercial)D.comercial=[];
+  if(!D.canjes)D.canjes=[];
   if(!D.areas)D.areas=['Digital','Punto de Venta','Packaging','Oficina','Comercial'];
   if(!D.areas.includes('Comercial'))D.areas.push('Comercial');
   if(!D.contentTypes)D.contentTypes=['Redes Sociales','Email / Newsletter','Web','Campañas Pagadas'];
