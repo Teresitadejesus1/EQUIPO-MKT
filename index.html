@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/> 
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Dashboard · Viga Home</title>
 <style>
 :root{
@@ -1283,6 +1283,14 @@ if(!D._seeded_v3){
   if(D.pdqs){const pp=D.pdqs.length;D.pdqs=D.pdqs.filter(p=>!p.fecha||!p.fecha.startsWith('2025'));if(D.pdqs.length!==pp)dirty=true;const pdq5=D.pdqs.find(p=>p.id==='pdq5');if(pdq5&&pdq5.estado!=='Mandado'){pdq5.estado='Mandado';pdq5.notas='PDQ ordenado y pagado. Expense registrado en ago-26.';dirty=true;}}
   D._migrV14deleted=BORRAR;
   if(dirty)save();
+})();
+
+/// Migración v15: agregar honorario Sebatimm efectivo (canje_ago_01)
+(function migrateV15(){
+  if(!D.budget||!D.budget.expenses)return;
+  if(D.budget.expenses.find(e=>e.id==='sebatimm_honorario_01'))return;
+  D.budget.expenses.push({id:'sebatimm_honorario_01',name:'Sebatimm — Honorario efectivo',amount:30000,area:'Activaciones',date:'2026-08-01',category:'Influencers',recurrence:'puntual',notes:'Honorario en efectivo acordado con Sebatimm para canje filtro autolavable (canje_ago_01).'});
+  save();
 })();
 
 /// Migración v13: canje costo_real = costo_venta para todos excepto canje_jun_03
@@ -4185,6 +4193,20 @@ function rPre(){
       <div class="pre-kpi-label">🗂 PDQs comprometidos</div>
       <div class="pre-kpi-val" style="color:#7c3aed">${pdqTotal>0?fmt$(pdqTotal):'—'}</div>
       <div class="pre-kpi-sub">${pdqWithCost.length} PDQ${pdqWithCost.length!==1?'s':''} con costo definido${pdqTotalPlanned>0?` · ${fmt$(pdqTotalPlanned)} por ejecutar`:''}</div>
+    </div>
+  </div>
+
+    <!-- IVA / NETO ROW -->
+  <div class="pre-grid" style="grid-template-columns:1fr 1fr;margin-bottom:18px">
+    <div class="pre-kpi" style="border-color:#d1fae5">
+      <div class="pre-kpi-label">💧 Proyección anual — Neto (líquido)</div>
+      <div class="pre-kpi-val" style="color:#059669">${fmt$(Math.round(projected))}</div>
+      <div class="pre-kpi-sub">Montos netos registrados en sistema · sin IVA</div>
+    </div>
+    <div class="pre-kpi" style="border-color:#fde68a">
+      <div class="pre-kpi-label">🧾 Proyección anual — Con IVA (19%)</div>
+      <div class="pre-kpi-val" style="color:#d97706">${fmt$(Math.round(projected*1.19))}</div>
+      <div class="pre-kpi-sub">+ ${fmt$(Math.round(projected*0.19))} IVA estimado · referencial</div>
     </div>
   </div>
 
