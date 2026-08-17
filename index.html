@@ -1268,6 +1268,21 @@ if(!D._seeded_v3){
   if(dirty)save();
 })();
 
+/// Migración v13: canje costo_real = costo_venta para todos excepto canje_jun_03
+(function migrateV13(){
+  if(!D.canjes||!Array.isArray(D.canjes))return;
+  const actualizar=['canje_mar_01','canje_mar_02','canje_mar_03','canje_abr_01','canje_jun_01','canje_jun_02','canje_jul_01','canje_ago_01'];
+  let dirty=false;
+  D.canjes.forEach(c=>{
+    if(actualizar.includes(c.id)&&!c._v13){
+      c.costo_real=c.costo_venta;
+      c._v13=true;
+      dirty=true;
+    }
+  });
+  if(dirty)save();
+})();
+
 // Migración v12: Trade Marketing $3.2M/mes + eliminar Canaletas duplicado (exp_ago_04)
 (function migrateV12(){
   if(!D.budget||!D.budget.expenses)return;
