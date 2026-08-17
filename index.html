@@ -3985,7 +3985,7 @@ function rPre(){
   });
   const pdqNoDateTotal=pdqNoDate.reduce((s,p)=>s+Number(p.costo_total||p.costo||0),0);
   const pdqFutureTotal=pdqWithCost.filter(p=>{
-    if(!p.fecha)return true;
+    if(!p.fecha)return false; // sin fecha = no se asume como gasto futuro definido
     const d=new Date(p.fecha+'T12:00');
     return d.getFullYear()===curYear&&d.getMonth()>=curMonth;
   }).reduce((s,p)=>s+Number(p.costo_total||p.costo||0),0);
@@ -4010,7 +4010,7 @@ function rPre(){
   const digitalPuntuales={length:mesesTranscurridos}; // solo para mostrar meses en la UI
 
   // ── Gasto fijo mensual (herramientas recurrentes, excl. Digital que lo calculamos por tendencia) ──
-  const monthlyFixed=exps.filter(e=>e.recurrence==='mensual').reduce((s,e)=>s+Number(e.amount||0),0);
+  const monthlyFixed=exps.filter(e=>e.recurrence==='mensual'&&e.area!=='Digital'&&e.category!=='Pauta digital').reduce((s,e)=>s+Number(e.amount||0),0);
 
   // ── Proyección realista fin de año ────────────────────────────────────────
   // = Real YTD + (Digital promedio × meses restantes) + (fijos mensuales × meses restantes) + PDQs futuros
@@ -4027,9 +4027,12 @@ function rPre(){
   const byMonth=Array(12).fill(0);
   exps.forEach(e=>{const bars=expToMonthBars(e,curYear);bars.forEach((v,i)=>byMonth[i]+=v);});
   pdqByMonth.forEach((v,i)=>byMonth[i]+=v);
-  // projected future months: real data + Digital trend + monthly fixed tools
+  // projected future months: solo gastos puntuales futuros + tendencia mensual (evitar doble conteo de recurrentes)
   const monthlyProjected=avgMonthlyDigital+monthlyFixed;
-  const byMonthProj=byMonth.map((v,i)=>i>curMonth?v+monthlyProjected:v);
+  const byMonthPuntual=Array(12).fill(0);
+  exps.forEach(e=>{if((e.recurrence||'puntual')==='puntual'&&e.date){const d=new Date(e.date+'T12:00');if(d.getFullYear()===curYear)byMonthPuntual[d.getMonth()]+=Number(e.amount||0);}});
+  pdqByMonth.forEach((v,i)=>{if(i>curMonth)byMonthPuntual[i]+=v;});
+  const byMonthProj=byMonth.map((v,i)=>i>curMonth?byMonthPuntual[i]+monthlyProjected:v);
   const maxM=Math.max(...byMonthProj,monthlyBudget,1);
 
   // by category
@@ -4205,7 +4208,7 @@ function rPre(){
       💡 <strong>Promedio Digital mensual:</strong> ${fmt$(avgMonthlyDigital)} calculado sobre ${digitalPuntuales.length} mes${digitalPuntuales.length!==1?'es':''} completo${digitalPuntuales.length!==1?'s':''} (Ene–${MESES[curMonth-1]||MESES[0]}). Incluido como gasto mensual fijo en la proyección para ${monthsLeft} meses restantes.
     </div>`:''}
     ${pdqNoDate.length>0?`<div style="font-size:11px;color:#92400e;background:#fffbeb;border-radius:6px;padding:8px 12px;margin-top:6px">
-      ⚠ ${pdqNoDate.length} PDQ${pdqNoDate.length!==1?'s':''} sin fecha planificada (${pdqNoDate.map(p=>p.nombre).join(', ')}) — ${fmt$(pdqNoDateTotal)} incluidos en proyección. Asígnales fecha en la pestaña PDQs para verlos en el gráfico.
+      ⚠ ${pdqNoDate.length} PDQ${pdqNoDate.length!==1?'s':''} sin fecha (${pdqNoDate.map(p=>p.nombre).join(', ')}) — ${fmt$(pdqNoDateTotal)} pendientes, NO incluidos en proyección. Asígnales fecha en la pestaña PDQs cuando se confirmen.
     </div>`:''}
   </div>
 
