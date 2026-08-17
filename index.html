@@ -4029,9 +4029,17 @@ function rPre(){
   // Promedio mensual basado en los datos reales registrados (r26_dig_*)
   // Digital mensual: suma TODOS los gastos con area='Digital' usando expTotalContrib / meses transcurridos
   const digitalExps=exps.filter(e=>e.area==='Digital'||e.category==='Pauta digital');
+  const mesesTranscurridos=curMonth+1; // ago=7 → 8 meses (ene-ago)
+  // MeLi: promedio últimos 2 meses completados (ritmo actual más representativo)
+  const meliExps=digitalExps.filter(e=>e.id&&e.id.startsWith('meli_'));
+  const meliLast2=meliExps.filter(e=>{if(!e.date)return false;const m=new Date(e.date+'T12:00').getMonth();return m>=curMonth-2&&m<curMonth;});
+  const avgMeli=meliLast2.length>0?Math.round(meliLast2.reduce((s,e)=>s+Number(e.amount||0),0)/meliLast2.length):0;
+  // Resto digital: promedio histórico completo
+  const nonMeliExps=digitalExps.filter(e=>!e.id||!e.id.startsWith('meli_'));
+  const nonMeliTotal=nonMeliExps.reduce((s,e)=>s+expTotalContrib(e,curYear,curMonth),0);
+  const avgNonMeliDigital=mesesTranscurridos>0?Math.round(nonMeliTotal/mesesTranscurridos):0;
+  const avgMonthlyDigital=avgNonMeliDigital+avgMeli;
   const digitalTotal=digitalExps.reduce((s,e)=>s+expTotalContrib(e,curYear,curMonth),0);
-  const mesesTranscurridos=curMonth+1; // julio=6 → 7 meses (ene-jul)
-  const avgMonthlyDigital=mesesTranscurridos>0?Math.round(digitalTotal/mesesTranscurridos):0;
   const digitalPuntuales={length:mesesTranscurridos}; // solo para mostrar meses en la UI
 
   // ── // ── Gasto fijo mensual: no-digital + digital futuro (no en promedio histórico aún) ──
@@ -4139,7 +4147,7 @@ function rPre(){
     <div class="pre-kpi" style="border-color:#bfdbfe">
       <div class="pre-kpi-label">🔁 Digital mensual (tendencia)</div>
       <div class="pre-kpi-val" style="color:#1d4ed8">${avgMonthlyDigital>0?fmt$(avgMonthlyDigital):'—'}</div>
-      <div class="pre-kpi-sub">${avgMonthlyDigital>0?`${fmt$(digitalTotal)} total ÷ ${mesesTranscurridos} meses · ${fmt$(futureDigital)} proyectado`:'Sin datos aún'}</div>
+      <div class="pre-kpi-sub">${avgMonthlyDigital>0?`MeLi últ.2m ${fmt$(avgMeli)} + resto histórico ${fmt$(avgNonMeliDigital)} · ${fmt$(futureDigital)} proyectado`:'Sin datos aún'}</div>
     </div>
     <div class="pre-kpi" style="border-color:${pdqTotal>0?'#c4b5fd':'var(--border)'}">
       <div class="pre-kpi-label">🗂 PDQs comprometidos</div>
@@ -4237,7 +4245,7 @@ function rPre(){
       </div>
     </div>
     ${avgMonthlyDigital>0?`<div style="font-size:11px;color:var(--muted);background:#eff6ff;border-radius:6px;padding:8px 12px">
-      💡 <strong>Promedio Digital mensual:</strong> ${fmt$(avgMonthlyDigital)} calculado sobre ${digitalPuntuales.length} mes${digitalPuntuales.length!==1?'es':''} completo${digitalPuntuales.length!==1?'s':''} (Ene–${MESES[curMonth-1]||MESES[0]}). Incluido como gasto mensual fijo en la proyección para ${monthsLeft} meses restantes.
+      💡 <strong>Digital mensual proyectado:</strong> ${fmt$(avgMonthlyDigital)} = MeLi prom. últimos 2 meses <strong>${fmt$(avgMeli)}</strong> + resto digital histórico ${fmt$(avgNonMeliDigital)}. Total proyectado: ${fmt$(futureDigital)} para ${monthsLeft} meses.
     </div>`:''}
     ${pdqNoDate.length>0?`<div style="font-size:11px;color:#92400e;background:#fffbeb;border-radius:6px;padding:8px 12px;margin-top:6px">
       ⚠ ${pdqNoDate.length} PDQ${pdqNoDate.length!==1?'s':''} sin fecha (${pdqNoDate.map(p=>p.nombre).join(', ')}) — ${fmt$(pdqNoDateTotal)} pendientes, NO incluidos en proyección. Asígnales fecha en la pestaña PDQs cuando se confirmen.
