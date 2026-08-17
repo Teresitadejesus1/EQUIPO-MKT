@@ -1255,6 +1255,19 @@ if(!D._seeded_v3){
   if(dirty)save();
 })();
 
+// Migración v11: ads canaletas + Sodimac Media + Norte Digital comisión sep–dic 2026
+(function migrateV11(){
+  if(!D.budget||!D.budget.expenses)return;
+  let dirty=false;
+  const NEW=[
+    {id:'ads_canaletas_01',name:'Pauta Ads — Lanzamiento PDQ Canaletas',amount:500000,area:'Digital',date:'2026-08-01',category:'Pauta digital',recurrence:'puntual',notes:'$500.000 inversión en ads para lanzamiento PDQ Canaletas.'},
+    {id:'sodimac_media_01',name:'Sodimac Media — Pauta Retail',amount:700000,area:'Digital',date:'2026-09-01',category:'Pauta digital',recurrence:'mensual',notes:'$700.000/mes inversión en Sodimac Media. Inicia septiembre 2026 hasta fin de año.'},
+    {id:'norte_dig_sodimac_01',name:'Norte Digital — Comisión 23% Sodimac Media',amount:161000,area:'Digital',date:'2026-09-01',category:'Agencias',recurrence:'mensual',notes:'23% sobre $700.000 Sodimac Media. Inicia septiembre 2026.'},
+  ];
+  NEW.forEach(e=>{if(!D.budget.expenses.find(x=>x.id===e.id)){D.budget.expenses.push(e);dirty=true;}});
+  if(dirty)save();
+})();
+
 // Migración v6: eliminar definitivamente herramientas que no son de Viga Home
 // Migración v9: nuevos gastos reales (clínicas Easy, bolígrafos, video psicólogo, exhibidor, arriendo, lineales, Planable)
 (function migrateV9(){
@@ -4009,8 +4022,15 @@ function rPre(){
   const avgMonthlyDigital=mesesTranscurridos>0?Math.round(digitalTotal/mesesTranscurridos):0;
   const digitalPuntuales={length:mesesTranscurridos}; // solo para mostrar meses en la UI
 
-  // ── Gasto fijo mensual (herramientas recurrentes, excl. Digital que lo calculamos por tendencia) ──
-  const monthlyFixed=exps.filter(e=>e.recurrence==='mensual'&&e.area!=='Digital'&&e.category!=='Pauta digital').reduce((s,e)=>s+Number(e.amount||0),0);
+  // ── // ── Gasto fijo mensual: no-digital + digital futuro (no en promedio histórico aún) ──
+  const monthlyFixed=exps.filter(e=>{
+    if(e.recurrence!=='mensual')return false;
+    const isDigital=e.area==='Digital'||e.category==='Pauta digital';
+    if(!isDigital)return true;
+    if(!e.date)return false;
+    const sd=new Date(e.date+'T12:00');
+    return sd>now; // digital que empieza después de hoy: no está en avgMonthlyDigital
+  }).reduce((s,e)=>s+Number(e.amount||0),0);
 
   // ── Proyección realista fin de año ────────────────────────────────────────
   // = Real YTD + (Digital promedio × meses restantes) + (fijos mensuales × meses restantes) + PDQs futuros
