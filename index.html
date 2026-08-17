@@ -1206,6 +1206,19 @@ if(!D._seeded_v3){
   if(dirty)save();
 })();
 
+// Migración v7: corregir montos PDQs (Canaletas 50u, Vessanti precio actualizado Cot.4315)
+(function migrateV7(){
+  if(!D.budget||!D.budget.expenses)return;
+  let dirty=false;
+  // pdq_canaletas_01: ya está correcto ($3.093.000, 50u) — solo asegurar notas
+  const can=D.budget.expenses.find(e=>e.id==='pdq_canaletas_01');
+  if(can&&!can._v7){can.name='CartonTrade — PDQ Canaletas y Accesorios';can.amount=3093000;can.notes='50 unidades × $61.860 neto. Cot. N°4243. CartonTrade. APROBADO.';can._v7=true;dirty=true;}
+  // pdq_vessanti_01: actualizar a Cot. 4315 (40.870/u → $2.043.500 total)
+  const ves=D.budget.expenses.find(e=>e.id==='pdq_vessanti_01');
+  if(ves&&!ves._v7){ves.name='CartonTrade — PDQ Filtros Grifo, Ducha y Repuestos Vessanti';ves.amount=2043500;ves.date='2026-08-14';ves.notes='50 unidades × $40.870 neto. Cot. N°4315 CartonTrade (14 ago 2026). Reemplaza Cot.4294 ($36.990/u). APROBADO.';ves._v7=true;dirty=true;}
+  if(dirty)save();
+})();
+
 // Migración v6: eliminar definitivamente herramientas que no son de Viga Home
 (function migrateV6(){
   if(!D.budget||!D.budget.expenses)return;
@@ -5136,18 +5149,18 @@ function applyRemoteMigrations(){
   // Migración costos PDQ — corre DESPUÉS de Firebase, agrega o actualiza los 6 PDQs confirmados
   if(!D.pdqs)D.pdqs=[];
   const _ALLPDQ=[
-    {id:'pdq2',nombre:'Antisarro Calefont',cantidad:50, costo_unit:48970,costo_total:2448500,costo:2448500,montaje:36,estado:'Por definir',a_cargo:'José',notas:'Esperando cantidad final (Andrés)',_costsSet:true,_costsV2:true},
-    {id:'pdq3',nombre:'Canaletas',          cantidad:20, costo_unit:61860,costo_total:1237200,costo:1237200,montaje:3, estado:'En diseño',  a_cargo:'Vivi', notas:'Ajustando diseño interno',         _costsSet:true,_costsV2:true},
-    {id:'pdq4',nombre:'Filtro Ducha',       cantidad:100,costo_unit:36980,costo_total:3698000,costo:3698000,montaje:72,estado:'Bloqueado',   a_cargo:'José',notas:'Debemos confirmar presupuesto',    _costsSet:true,_costsV2:true},
-    {id:'pdq5',nombre:'Humboldt',           cantidad:70, costo_unit:67840,costo_total:4748800,costo:4748800,montaje:84,estado:'Por definir', a_cargo:'Álvaro',notas:'Esperando cotización (Álvaro)', _costsSet:true,_costsV2:true},
-    {id:'pdq8',nombre:'Vessanti Ducha',     cantidad:50, costo_unit:31690,costo_total:1584500,costo:1584500,montaje:48,estado:'Pendiente',   a_cargo:'Tere', notas:'Pendiente pedir cotización',      _costsSet:true,_costsV2:true},
-    {id:'pdq9',nombre:'Vessanti Grifo',     cantidad:50, costo_unit:29780,costo_total:1489000,costo:1489000,montaje:32,estado:'Pendiente',   a_cargo:'Tere', notas:'Pendiente pedir cotización',      _costsSet:true,_costsV2:true},
+    {id:'pdq2',nombre:'Antisarro Calefont',                           cantidad:50, costo_unit:48970,costo_total:2448500,costo:2448500,montaje:36,estado:'Por definir',a_cargo:'José',  notas:'Esperando cantidad final (Andrés)',                                    _costsSet:true,_costsV2:true,_costsV3:true},
+    {id:'pdq3',nombre:'Canaletas y Accesorios',                       cantidad:50, costo_unit:61860,costo_total:3093000,costo:3093000,montaje:3, estado:'Aprobado',   a_cargo:'Vivi',  notas:'50 unidades × $61.860 neto. Cot. N°4243 CartonTrade. APROBADO.',       _costsSet:true,_costsV2:true,_costsV3:true},
+    {id:'pdq4',nombre:'Filtro Ducha',                                 cantidad:100,costo_unit:36980,costo_total:3698000,costo:3698000,montaje:72,estado:'Bloqueado',   a_cargo:'José',  notas:'Debemos confirmar presupuesto',                                       _costsSet:true,_costsV2:true,_costsV3:true},
+    {id:'pdq5',nombre:'Humboldt',                                     cantidad:70, costo_unit:67840,costo_total:4748800,costo:4748800,montaje:84,estado:'Por definir', a_cargo:'Álvaro',notas:'Esperando cotización (Álvaro)',                                      _costsSet:true,_costsV2:true,_costsV3:true},
+    {id:'pdq8',nombre:'Filtros Grifo, Ducha y Repuestos Vessanti',    cantidad:50, costo_unit:40870,costo_total:2043500,costo:2043500,montaje:48,estado:'Aprobado',   a_cargo:'Tere',  notas:'50 unidades × $40.870 neto. Cot. N°4315 CartonTrade (14 ago 2026). APROBADO. Reemplaza Cot.4294.',_costsSet:true,_costsV2:true,_costsV3:true},
+    {id:'pdq9',nombre:'Vessanti Grifo [consolidado en pdq8]',         cantidad:0,  costo_unit:0,    costo_total:0,     costo:0,     montaje:0, estado:'Cancelado',   a_cargo:'Tere',  notas:'Consolidado en PDQ Filtros Grifo, Ducha y Repuestos Vessanti (pdq8). Cot.4315.', _costsSet:true,_costsV2:true,_costsV3:true},
   ];
   let _pdqDirty=false;
   _ALLPDQ.forEach(seed=>{
     const idx=D.pdqs.findIndex(p=>p.id===seed.id);
     if(idx===-1){D.pdqs.push(seed);_pdqDirty=true;}
-    else if(!Number(D.pdqs[idx].costo_total)||!D.pdqs[idx]._costsV2){Object.assign(D.pdqs[idx],seed);_pdqDirty=true;}
+    else if(!D.pdqs[idx]._costsV3){Object.assign(D.pdqs[idx],seed);_pdqDirty=true;}
   });
   if(_pdqDirty)save();
 }
