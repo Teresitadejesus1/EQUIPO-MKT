@@ -1068,7 +1068,7 @@ if(!D._seeded_v3){
   const FIXED=[
     {id:'fix_trade_mkt',   name:'Agencia Trade Marketing',         amount:2500000, area:'Punto de Venta',date:'2026-01-01',category:'Agencias',      recurrence:'mensual',notes:'Pago mensual fijo'},
     {id:'fix_ads_media',   name:'Pauta Google + Meta Ads',         amount:2000000, area:'Digital',        date:'2026-01-01',category:'Pauta digital', recurrence:'mensual',notes:'Presupuesto mensual de ads'},
-    {id:'fix_norte_dig',   name:'Norte Digital (comisión 23% ads)',amount:460000,  area:'Digital',        date:'2026-01-01',category:'Agencias',      recurrence:'mensual',notes:'23% sobre $2.000.000 pauta'},
+    {id:'fix_norte_dig',   name:'Norte Digital (23% Google+Meta Ads)',amount:460000,  area:'Digital',        date:'2026-01-01',category:'Agencias',      recurrence:'mensual',notes:'23% sobre presupuesto mensual Google + Meta Ads (calculado automáticamente)',pct:0.23,pctBase:'fix_ads_media'},
   ];
   let added=false;
   FIXED.forEach(b=>{if(!D.budget.expenses.find(x=>x.id===b.id)){D.budget.expenses.push(b);added=true;}});
@@ -1265,6 +1265,22 @@ if(!D._seeded_v3){
     {id:'norte_dig_sodimac_01',name:'Norte Digital — Comisión 23% Sodimac Media',amount:161000,area:'Digital',date:'2026-09-01',category:'Agencias',recurrence:'mensual',notes:'23% sobre $700.000 Sodimac Media. Inicia septiembre 2026.'},
   ];
   NEW.forEach(e=>{if(!D.budget.expenses.find(x=>x.id===e.id)){D.budget.expenses.push(e);dirty=true;}});
+  if(dirty)save();
+})();
+
+/// Migración v14: limpiar gastos incorrectos + Norte Digital dinámico + Easy ×4
+(function migrateV14(){
+  if(!D.budget||!D.budget.expenses)return;
+  let dirty=false;
+  const BORRAR=['exp_ene_01','exp_ene_02','exp_mar_06','exp_mar_07','exp_mar_08','norte_dig_sodimac_01','bgt10','bgt2','bgt15','bgt16','exp_ago_04','exp_ago_06'];
+  const prev=D.budget.expenses.length;
+  D.budget.expenses=D.budget.expenses.filter(e=>!BORRAR.includes(e.id));
+  if(D.budget.expenses.length!==prev)dirty=true;
+  const nd=D.budget.expenses.find(e=>e.id==='fix_norte_dig');
+  if(nd&&!nd._v14){nd.pct=0.23;nd.pctBase='fix_ads_media';nd.name='Norte Digital (23% Google+Meta Ads)';nd.notes='23% sobre presupuesto mensual Google + Meta Ads (calculado automáticamente)';nd._v14=true;dirty=true;}
+  const easy=D.budget.expenses.find(e=>e.id==='easy_clinicas_01');
+  if(easy&&!easy._v14){easy.amount=103040*4;easy.name='Activación Clínicas Easy — Promotoras (×4)';easy.notes=(easy.notes||'')+' · 4 activaciones realizadas.';easy._v14=true;dirty=true;}
+  if(D.pdqs){const pp=D.pdqs.length;D.pdqs=D.pdqs.filter(p=>!p.fecha||!p.fecha.startsWith('2025'));if(D.pdqs.length!==pp)dirty=true;const pdq5=D.pdqs.find(p=>p.id==='pdq5');if(pdq5&&pdq5.estado!=='Mandado'){pdq5.estado='Mandado';pdq5.notas='PDQ ordenado y pagado. Expense registrado en ago-26.';dirty=true;}}
   if(dirty)save();
 })();
 
@@ -3998,7 +4014,7 @@ function rPreAnalisis(b,exps){
 }
 function rPre(){
   const b=D.budget;
-  const exps=b.expenses||[];
+  const exps=(b.expenses||[]).map(e=>{if(!e.pct||!e.pctBase)return e;const base=(b.expenses||[]).find(x=>x.id===e.pctBase);if(!base)return e;return Object.assign({},e,{amount:Math.round(Number(base.amount)*e.pct)});});
   // Vistas alternativas
   if(preView==='analisis'){rPreAnalisis(b,exps);return;}
   if(preView==='canjes'){rCanjes();return;}
@@ -5360,9 +5376,7 @@ function applyRemoteMigrations(){
     {id:'exp_ago_01',name:'Stand Feria Chicureo (junio)',amount:70000,  area:'Activaciones',date:'2026-08-03',category:'Ferias/Eventos',       recurrence:'puntual',notes:'',_v2:true},
     {id:'exp_ago_02',name:'Antisarro Calefont',          amount:2448500,area:'PDV',         date:'2026-08-03',category:'Materiales',           recurrence:'puntual',notes:'PDQ: Antisarro Calefont — 50 unidades',_v2:true},
     {id:'exp_ago_03',name:'Filtro Ducha',                amount:3698000,area:'PDV',         date:'2026-08-03',category:'Trade Marketing',       recurrence:'puntual',notes:'PDQ: Filtro Ducha — 100 unidades',_v2:true},
-    {id:'exp_ago_04',name:'Canaletas',                   amount:2474400,area:'',            date:'2026-08-03',category:'Materiales',           recurrence:'puntual',notes:'PDQ: Canaletas — 40 unidades',_v2:true},
     {id:'exp_ago_05',name:'Humboldt',                    amount:4748800,area:'PDV',         date:'2026-08-03',category:'Trade Marketing',       recurrence:'puntual',notes:'PDQ: Humboldt — 70 unidades',_v2:true},
-    {id:'exp_ago_06',name:'lineales',                    amount:60000,  area:'PDV',         date:'2026-08-03',category:'Trade Marketing',       recurrence:'puntual',notes:'revisar gasto',_v2:true},
   ];
   _re.forEach(b=>{
     const idx=D.budget.expenses.findIndex(x=>x.id===b.id);
