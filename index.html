@@ -1281,6 +1281,7 @@ if(!D._seeded_v3){
   const easy=D.budget.expenses.find(e=>e.id==='easy_clinicas_01');
   if(easy&&!easy._v14){easy.amount=103040*4;easy.name='Activación Clínicas Easy — Promotoras (×4)';easy.notes=(easy.notes||'')+' · 4 activaciones realizadas.';easy._v14=true;dirty=true;}
   if(D.pdqs){const pp=D.pdqs.length;D.pdqs=D.pdqs.filter(p=>!p.fecha||!p.fecha.startsWith('2025'));if(D.pdqs.length!==pp)dirty=true;const pdq5=D.pdqs.find(p=>p.id==='pdq5');if(pdq5&&pdq5.estado!=='Mandado'){pdq5.estado='Mandado';pdq5.notas='PDQ ordenado y pagado. Expense registrado en ago-26.';dirty=true;}}
+  D._migrV14deleted=BORRAR;
   if(dirty)save();
 })();
 
@@ -5378,7 +5379,9 @@ function applyRemoteMigrations(){
     {id:'exp_ago_03',name:'Filtro Ducha',                amount:3698000,area:'PDV',         date:'2026-08-03',category:'Trade Marketing',       recurrence:'puntual',notes:'PDQ: Filtro Ducha — 100 unidades',_v2:true},
     {id:'exp_ago_05',name:'Humboldt',                    amount:4748800,area:'PDV',         date:'2026-08-03',category:'Trade Marketing',       recurrence:'puntual',notes:'PDQ: Humboldt — 70 unidades',_v2:true},
   ];
+  const _migrDel=D._migrV14deleted||[];
   _re.forEach(b=>{
+    if(_migrDel.includes(b.id))return;
     const idx=D.budget.expenses.findIndex(x=>x.id===b.id);
     if(idx===-1)D.budget.expenses.push(b);
     else if(!D.budget.expenses[idx]._v2)Object.assign(D.budget.expenses[idx],b);
