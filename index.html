@@ -5416,8 +5416,7 @@ function applyRemoteMigrations(){
   D.budget.expenses=D.budget.expenses.filter(e=>!_OLD_IDS.includes(e.id));
   const _re=[
     // ENERO
-    {id:'exp_ene_01',name:'Fraile Castruccio',  amount:3313,   area:'PDV',         date:'2026-01-07',category:'Materiales',          recurrence:'puntual',notes:'BOLSA DE PAPEL KRAFT 41X30X12 BLANCO. PAPEL 100GM2. ASA DE PAPEL TORCIDO',_v2:true},
-    {id:'exp_ene_02',name:'Fraile Castruccio',  amount:49600,  area:'PDV',         date:'2026-01-07',category:'Logística',            recurrence:'puntual',notes:'ENVIO CLICKEX',_v2:true},
+    // exp_ene_01 y exp_ene_02 (Fraile Castruccio) eliminados — no son de la marca
     {id:'exp_ene_03',name:'Chilemat',           amount:953007, area:'PDV',         date:'2026-01-31',category:'Ferias/Eventos',        recurrence:'puntual',notes:'INNOVAMAT 2026 CUOTA 4 DE 5',_v2:true},
     // FEBRERO
     {id:'exp_feb_01',name:'Publicidad Exterior',amount:118000, area:'PDV',         date:'2026-02-09',category:'Materiales',          recurrence:'puntual',notes:'MANTEL SPANDEX 120X70X70',_v2:true},
@@ -5429,9 +5428,7 @@ function applyRemoteMigrations(){
     {id:'exp_mar_03',name:'Simple Print',       amount:376500, area:'PDV',         date:'2026-03-15',category:'Producción gráfica',   recurrence:'puntual',notes:'SERVICIO EXPRESS',_v2:true},
     {id:'exp_mar_04',name:'Reprograf',          amount:15126,  area:'PDV',         date:'2026-03-16',category:'Impresión',            recurrence:'puntual',notes:'MEDIO METRO ADHESIVO IMPRESO Y TROQUELADO',_v2:true},
     {id:'exp_mar_05',name:'Sodimac',            amount:4800000,area:'PDV',         date:'2026-03-23',category:'Ferias/Eventos',        recurrence:'puntual',notes:'PAGO PARTICIPACION VIGAHOME A GRAN FERIA DE CAPACITACIONES 2026',_v2:true},
-    {id:'exp_mar_06',name:'Fraile Castruccio',  amount:15000,  area:'PDV',         date:'2026-03-31',category:'Materiales',          recurrence:'puntual',notes:'BOLSA ALGODON BC012C 132 GR/M2. MEDIDA 41X37 (CM)',_v2:true},
-    {id:'exp_mar_07',name:'Fraile Castruccio',  amount:73700,  area:'PDV',         date:'2026-03-31',category:'Materiales',          recurrence:'puntual',notes:'PERSONALIZACION IMP-X',_v2:true},
-    {id:'exp_mar_08',name:'Fraile Castruccio',  amount:54500,  area:'PDV',         date:'2026-03-31',category:'Diseño',               recurrence:'puntual',notes:'DISENO SERVICIO COORDINACION MAQUETA E IMPRESION',_v2:true},
+    // exp_mar_06, exp_mar_07, exp_mar_08 (Fraile Castruccio) eliminados — no son de la marca
     // ABRIL
     {id:'exp_abr_01',name:'Easy Retail',        amount:531348, area:'PDV',         date:'2026-04-01',category:'Trade Marketing',      recurrence:'puntual',notes:'APORTE BLACK MARZO EASY',_v2:true},
     {id:'exp_abr_02',name:'Joaquin Mansilla',   amount:160000, area:'Activaciones',date:'2026-04-08',category:'Influencers',           recurrence:'puntual',notes:'Traspaso A Joaquin Mansilla - Publicidad filtro ducha Chico Sodimac',_v2:true},
