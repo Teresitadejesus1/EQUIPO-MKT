@@ -1320,6 +1320,24 @@ if(!D._seeded_v3){
   if(dirty)save();
 })();
 
+/// Migración v17: eliminar gastos Fraile Castruccio + fix clave inválida disPieces['rr.ss']
+(function migrateV17(){
+  let dirty=false;
+  // Eliminar entradas de Fraile Castruccio (no son de la marca)
+  if(D.budget&&D.budget.expenses){
+    const fraileIds=['exp_ene_01','exp_ene_02','exp_mar_06','exp_mar_07','exp_mar_08'];
+    const before=D.budget.expenses.length;
+    D.budget.expenses=D.budget.expenses.filter(e=>!fraileIds.includes(e.id));
+    if(D.budget.expenses.length!==before)dirty=true;
+  }
+  // Eliminar clave inválida 'rr.ss' en disPieces (Firebase no acepta puntos en claves)
+  if(D.disPieces&&Object.prototype.hasOwnProperty.call(D.disPieces,'rr.ss')){
+    delete D.disPieces['rr.ss'];
+    dirty=true;
+  }
+  if(dirty)save();
+})();
+
 /// Migración v16: limpieza — eliminar gastos inválidos + arreglar Norte Digital
 (function migrateV16(){
   if(!D.budget||!D.budget.expenses)return;
