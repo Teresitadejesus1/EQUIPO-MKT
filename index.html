@@ -1279,7 +1279,7 @@ if(!D._seeded_v3){
   const NEW=[
     {id:'ads_canaletas_01',name:'Pauta Ads — Lanzamiento PDQ Canaletas',amount:500000,area:'Digital',date:'2026-08-01',category:'Pauta digital',recurrence:'puntual',notes:'$500.000 inversión en ads para lanzamiento PDQ Canaletas.'},
     {id:'sodimac_media_01',name:'Sodimac Media — Pauta Retail',amount:700000,area:'Digital',date:'2026-09-01',category:'Pauta digital',recurrence:'mensual',notes:'$700.000/mes inversión en Sodimac Media. Inicia septiembre 2026 hasta fin de año.'},
-    {id:'norte_dig_sodimac_01',name:'Norte Digital — Comisión 23% Sodimac Media',amount:161000,area:'Digital',date:'2026-09-01',category:'Agencias',recurrence:'mensual',notes:'23% sobre $700.000 Sodimac Media. Inicia septiembre 2026.'},
+    // norte_dig_sodimac_01 eliminado — no corresponde
   ];
   NEW.forEach(e=>{if(!D.budget.expenses.find(x=>x.id===e.id)){D.budget.expenses.push(e);dirty=true;}});
   if(dirty)save();
@@ -1317,6 +1317,19 @@ if(!D._seeded_v3){
     const pdq5=D.pdqs.find(p=>p.id==='pdq5');
     if(pdq5&&pdq5.estado!=='Mandado'){pdq5.estado='Mandado';pdq5.notas='PDQ ordenado y pagado. Expense registrado en ago-26.';dirty=true;}
   }
+  if(dirty)save();
+})();
+
+/// Migración v18: sacar Norte Digital Sodimac + registrar Meli jul como referencia mensual
+(function migrateV18(){
+  if(!D.budget||!D.budget.expenses)return;
+  let dirty=false;
+  // Eliminar norte_dig_sodimac_01 (no corresponde)
+  const idx=D.budget.expenses.findIndex(e=>e.id==='norte_dig_sodimac_01');
+  if(idx!==-1){D.budget.expenses.splice(idx,1);dirty=true;}
+  // Actualizar meli_jul_2026 para que sea la referencia de proyección mensual
+  const melJul=D.budget.expenses.find(e=>e.id==='meli_jul_2026');
+  if(melJul&&!melJul._v18ref){melJul._v18ref=true;melJul._isMeliRef=true;dirty=true;}
   if(dirty)save();
 })();
 
@@ -4138,11 +4151,14 @@ function rPre(){
   const meliExps=digitalExps.filter(e=>e.id&&e.id.startsWith('meli_'));
   const meliLast2=meliExps.filter(e=>{if(!e.date)return false;const m=new Date(e.date+'T12:00').getMonth();return m>=curMonth-2&&m<curMonth;});
   const avgMeli=meliLast2.length>0?Math.round(meliLast2.reduce((s,e)=>s+Number(e.amount||0),0)/meliLast2.length):0;
+  // Meli forward projection: usar referencia bruta confirmada (julio 2026 = $1.193.938 bruto)
+  const meliRefEntry=meliExps.find(e=>e._isMeliRef);
+  const MELI_FORWARD=meliRefEntry?1193938:avgMeli;
   // Resto digital: promedio histórico completo
   const nonMeliExps=digitalExps.filter(e=>!e.id||!e.id.startsWith('meli_'));
   const nonMeliTotal=nonMeliExps.reduce((s,e)=>s+expTotalContrib(e,curYear,curMonth),0);
   const avgNonMeliDigital=mesesTranscurridos>0?Math.round(nonMeliTotal/mesesTranscurridos):0;
-  const avgMonthlyDigital=avgNonMeliDigital+avgMeli;
+  const avgMonthlyDigital=avgNonMeliDigital+MELI_FORWARD;
   const digitalTotal=digitalExps.reduce((s,e)=>s+expTotalContrib(e,curYear,curMonth),0);
   const digitalPuntuales={length:mesesTranscurridos}; // solo para mostrar meses en la UI
 
@@ -4187,6 +4203,15 @@ function rPre(){
   // by area/canal — usa expTotalContrib para contar bien los mensuales
   const byArea={};
   exps.forEach(e=>{const contrib=expTotalContrib(e,curYear,curMonth);if(contrib>0){const a=e.area||'Sin área';byArea[a]=(byArea[a]||0)+contrib;}});
+
+  // ── Costos Fijos Mensuales: desglose para card ──────────────────────────────
+  const _cfTM=exps.find(e=>e.id==='fix_trade_mkt');   const _amtTM=_cfTM?Number(_cfTM.amount||0):3200000;
+  const _cfND=exps.find(e=>e.id==='fix_norte_dig');   const _amtND=_cfND?Number(_cfND.amount||0):0;
+  const _cfGA=exps.find(e=>e.id==='bgtm01');           const _amtGA=_cfGA?Number(_cfGA.amount||0):1414086;
+  const _cfMA=exps.find(e=>e.id==='bgtm02');           const _amtMA=_cfMA?Number(_cfMA.amount||0):995259;
+  const _cfArr=exps.find(e=>e.id==='arriendo_exhibidor_01'); const _amtArr=_cfArr?Number(_cfArr.amount||0):1000000;
+  const _cfSod=exps.find(e=>e.id==='sodimac_media_01');      const _amtSod=_cfSod?Number(_cfSod.amount||0):700000;
+  const _totalCF=_amtTM+_amtND+_amtGA+_amtMA+MELI_FORWARD+_amtArr+_amtSod;
 
   let h=`
   <style>
@@ -4251,13 +4276,56 @@ function rPre(){
     <div class="pre-kpi" style="border-color:#bfdbfe">
       <div class="pre-kpi-label">🔁 Digital mensual (tendencia)</div>
       <div class="pre-kpi-val" style="color:#1d4ed8">${avgMonthlyDigital>0?fmt$(avgMonthlyDigital):'—'}</div>
-      <div class="pre-kpi-sub">${avgMonthlyDigital>0?`MeLi últ.2m ${fmt$(avgMeli)} + resto histórico ${fmt$(avgNonMeliDigital)} · ${fmt$(futureDigital)} proyectado`:'Sin datos aún'}</div>
+      <div class="pre-kpi-sub">${avgMonthlyDigital>0?`MeLi ref. jul ${fmt$(MELI_FORWARD)} + resto histórico ${fmt$(avgNonMeliDigital)} · ${fmt$(futureDigital)} proyectado`:'Sin datos aún'}</div>
     </div>
     <div class="pre-kpi" style="border-color:${pdqTotal>0?'#c4b5fd':'var(--border)'}">
       <div class="pre-kpi-label">🗂 PDQs comprometidos</div>
       <div class="pre-kpi-val" style="color:#7c3aed">${pdqTotal>0?fmt$(pdqTotal):'—'}</div>
       <div class="pre-kpi-sub">${pdqWithCost.length} PDQ${pdqWithCost.length!==1?'s':''} con costo definido${pdqTotalPlanned>0?` · ${fmt$(pdqTotalPlanned)} por ejecutar`:''}</div>
     </div>
+  </div>
+
+  <!-- COSTOS FIJOS MENSUALES -->
+  <div class="pre-section" style="margin-bottom:14px">
+    <h4>📌 Costos fijos mensuales estimados</h4>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:12px">
+      <!-- Columna izquierda: Agencias + Retail -->
+      <div>
+        <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Agencias</div>
+        <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border)">
+          <span style="color:var(--text)">Agencia Trade Marketing</span><span style="font-weight:700">${fmt$(_amtTM)}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border)">
+          <span style="color:var(--text)">Norte Digital (23% G+M)</span><span style="font-weight:700">${_amtND>0?fmt$(_amtND):'—'}</span>
+        </div>
+        <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;margin:10px 0 6px">Retail media <span style="font-weight:400;text-transform:none">(desde sep)</span></div>
+        <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border)">
+          <span style="color:var(--text)">Arriendo exhibidor</span><span style="font-weight:700">${fmt$(_amtArr)}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:5px 0">
+          <span style="color:var(--text)">Sodimac Media</span><span style="font-weight:700">${fmt$(_amtSod)}</span>
+        </div>
+      </div>
+      <!-- Columna derecha: Pauta digital + MeLi -->
+      <div>
+        <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Pauta digital <span style="font-weight:400;text-transform:none">(prom. histórico)</span></div>
+        <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border)">
+          <span style="color:var(--text)">Google Ads</span><span style="font-weight:700">${fmt$(_amtGA)}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border)">
+          <span style="color:var(--text)">Meta Ads</span><span style="font-weight:700">${fmt$(_amtMA)}</span>
+        </div>
+        <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;margin:10px 0 6px">Mercado Libre</div>
+        <div style="display:flex;justify-content:space-between;padding:5px 0">
+          <span style="color:var(--text)">Inversión MeLi <span style="font-size:10px;color:var(--muted)">(ref. jul bruto)</span></span><span style="font-weight:700;color:#1d4ed8">${fmt$(MELI_FORWARD)}</span>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:12px;padding:10px 14px;background:#f0fdf4;border-radius:8px;display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:11px;font-weight:700;color:#166534;text-transform:uppercase;letter-spacing:.4px">Total mensual estimado</span>
+      <span style="font-size:18px;font-weight:900;color:#166534">${fmt$(_totalCF)}</span>
+    </div>
+    <div style="font-size:10px;color:var(--muted);margin-top:6px">Meli y pauta digital basados en tendencia — valores reales varían mes a mes. Retail media se activa desde sep 2026.</div>
   </div>
 
   <!-- IVA / NETO ROW -->
@@ -4363,7 +4431,7 @@ function rPre(){
       </div>
     </div>
     ${avgMonthlyDigital>0?`<div style="font-size:11px;color:var(--muted);background:#eff6ff;border-radius:6px;padding:8px 12px">
-      💡 <strong>Digital mensual proyectado:</strong> ${fmt$(avgMonthlyDigital)} = MeLi prom. últimos 2 meses <strong>${fmt$(avgMeli)}</strong> + resto digital histórico ${fmt$(avgNonMeliDigital)}. Total proyectado: ${fmt$(futureDigital)} para ${monthsLeft} meses.
+      💡 <strong>Digital mensual proyectado:</strong> ${fmt$(avgMonthlyDigital)} = MeLi ref. jul bruto <strong>${fmt$(MELI_FORWARD)}</strong> + resto digital histórico ${fmt$(avgNonMeliDigital)}. Total proyectado: ${fmt$(futureDigital)} para ${monthsLeft} meses.
     </div>`:''}
     ${pdqNoDate.length>0?`<div style="font-size:11px;color:#92400e;background:#fffbeb;border-radius:6px;padding:8px 12px;margin-top:6px">
       ⚠ ${pdqNoDate.length} PDQ${pdqNoDate.length!==1?'s':''} sin fecha (${pdqNoDate.map(p=>p.nombre).join(', ')}) — ${fmt$(pdqNoDateTotal)} pendientes, NO incluidos en proyección. Asígnales fecha en la pestaña PDQs cuando se confirmen.
