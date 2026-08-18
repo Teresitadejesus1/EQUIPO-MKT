@@ -5264,6 +5264,90 @@ function rTareasPorCanal(){
   });
 
   h+=`</div>`;
+
+  // ── Historial de entregas ────────────────────────────────────────────────
+  const done=(D.tasks||[]).filter(t=>t.estado==='Completado');
+  const HIST_TEAM=[
+    {key:'Tere',   c:'#4361ee',i:'T'},
+    {key:'Vivi',   c:'#f72585',i:'V'},
+    {key:'Simona', c:'#3a86ff',i:'S'},
+  ];
+  if(done.length){
+    h+=`<style>
+    .hist-wrap{margin-top:24px;border:1.5px solid var(--border);border-radius:12px;background:var(--surface);overflow:hidden;}
+    .hist-head{display:flex;align-items:center;gap:10px;padding:12px 16px;cursor:pointer;user-select:none;}
+    .hist-head:hover{background:#f8fafc;}
+    .hist-title{font-size:13px;font-weight:800;color:var(--text);flex:1;}
+    .hist-badge{font-size:11px;background:#f1f5f9;color:#64748b;border-radius:99px;padding:2px 10px;font-weight:700;}
+    .hist-toggle{font-size:12px;color:var(--muted);transition:transform .2s;}
+    .hist-body{display:none;padding:12px 16px 16px;border-top:1px solid var(--border);}
+    .hist-body.open{display:block;}
+    .hist-cols{display:flex;gap:16px;flex-wrap:wrap;}
+    .hist-col{flex:1;min-width:200px;}
+    .hist-col-head{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+    .hist-item{display:flex;align-items:flex-start;gap:7px;padding:5px 0;border-bottom:1px solid #f1f5f9;}
+    .hist-item:last-child{border-bottom:none;}
+    .hist-check{font-size:13px;margin-top:1px;flex-shrink:0;}
+    .hist-iname{font-size:12px;color:var(--text);line-height:1.35;}
+    .hist-idate{font-size:10px;color:var(--muted);margin-top:2px;}
+    </style>
+    <div class="hist-wrap">
+      <div class="hist-head" onclick="(function(el){const b=el.nextElementSibling;b.classList.toggle('open');el.querySelector('.hist-toggle').style.transform=b.classList.contains('open')?'rotate(180deg)':''})(this)">
+        <span style="font-size:16px">📦</span>
+        <span class="hist-title">Historial de entregas</span>
+        <span class="hist-badge">${done.length} entregadas</span>
+        <span class="hist-toggle">▼</span>
+      </div>
+      <div class="hist-body">
+        <div class="hist-cols">`;
+
+    HIST_TEAM.forEach(tm=>{
+      const tDone=done.filter(t=>(t.responsable||'')=== tm.key)
+        .sort((a,b)=>(b.completedAt||'').localeCompare(a.completedAt||''));
+      if(!tDone.length)return;
+      h+=`<div class="hist-col">
+        <div class="hist-col-head">
+          <span style="width:18px;height:18px;border-radius:50%;background:${tm.c};color:#fff;font-size:9px;font-weight:900;display:inline-flex;align-items:center;justify-content:center">${tm.i}</span>
+          <span style="color:${tm.c}">${tm.key}</span>
+          <span style="color:var(--muted);font-weight:600">(${tDone.length})</span>
+        </div>
+        ${tDone.map(t=>{
+          const dt=t.completedAt?new Date(t.completedAt).toLocaleDateString('es-CL',{day:'2-digit',month:'short'}):'';
+          return`<div class="hist-item">
+            <span class="hist-check">✅</span>
+            <div>
+              <div class="hist-iname">${esc(t.name)}</div>
+              ${dt?`<div class="hist-idate">${dt}</div>`:''}
+            </div>
+          </div>`;
+        }).join('')}
+      </div>`;
+    });
+
+    // Tareas sin responsable claro (Seguimiento/Cotizar/Sin asignar completadas)
+    const otherDone=done.filter(t=>!HIST_TEAM.find(tm=>tm.key===t.responsable));
+    if(otherDone.length){
+      h+=`<div class="hist-col">
+        <div class="hist-col-head" style="color:#64748b">
+          <span style="color:#94a3b8">Otros</span>
+          <span style="color:var(--muted);font-weight:600">(${otherDone.length})</span>
+        </div>
+        ${otherDone.map(t=>{
+          const dt=t.completedAt?new Date(t.completedAt).toLocaleDateString('es-CL',{day:'2-digit',month:'short'}):'';
+          return`<div class="hist-item">
+            <span class="hist-check">✅</span>
+            <div>
+              <div class="hist-iname">${esc(t.name)}</div>
+              ${t.responsable?`<div class="hist-idate">${t.responsable}${dt?' · '+dt:''}</div>`:dt?`<div class="hist-idate">${dt}</div>`:''}
+            </div>
+          </div>`;
+        }).join('')}
+      </div>`;
+    }
+
+    h+=`</div></div></div>`;
+  }
+
   wrap.innerHTML=h;
 }
 
