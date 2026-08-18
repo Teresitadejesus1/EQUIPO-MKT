@@ -1343,6 +1343,8 @@ if(!D._seeded_v3){
     D.budget.expenses=D.budget.expenses.filter(e=>!fraileIds.includes(e.id));
     if(D.budget.expenses.length!==before)dirty=true;
   }
+  // Eliminar 'rr.ss' de D.areas (causa raíz: genera clave inválida en Firebase)
+  if(D.areas&&D.areas.includes('rr.ss')){D.areas=D.areas.filter(a=>a!=='rr.ss');dirty=true;}
   // Eliminar clave inválida 'rr.ss' en disPieces (Firebase no acepta puntos en claves)
   if(D.disPieces&&Object.prototype.hasOwnProperty.call(D.disPieces,'rr.ss')){
     delete D.disPieces['rr.ss'];
@@ -5465,7 +5467,11 @@ function applyRemoteMigrations(){
   if(!D.areas)D.areas=['Digital','Punto de Venta','Packaging','Oficina','Comercial'];
   if(!D.areas.includes('Comercial'))D.areas.push('Comercial');
   if(!D.contentTypes)D.contentTypes=['Redes Sociales','Email / Newsletter','Web','Campañas Pagadas'];
+  // Limpiar área inválida 'rr.ss' que genera clave con punto en Firebase (no permitido)
+  if(D.areas)D.areas=D.areas.filter(a=>a!=='rr.ss');
   if(!D.disPieces)D.disPieces={};
+  // Limpiar clave inválida Firebase: 'rr.ss'
+  if(D.disPieces&&Object.prototype.hasOwnProperty.call(D.disPieces,'rr.ss')){delete D.disPieces['rr.ss'];}
   if(!D.contentItems)D.contentItems={};
   if(!D.budget)D.budget={annual:266000000,expenses:[]};
   if(!D.rutinas)D.rutinas=DEFAULT_DATA.rutinas;
