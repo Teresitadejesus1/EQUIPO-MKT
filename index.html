@@ -4151,9 +4151,9 @@ function rPre(){
   const meliExps=digitalExps.filter(e=>e.id&&e.id.startsWith('meli_'));
   const meliLast2=meliExps.filter(e=>{if(!e.date)return false;const m=new Date(e.date+'T12:00').getMonth();return m>=curMonth-2&&m<curMonth;});
   const avgMeli=meliLast2.length>0?Math.round(meliLast2.reduce((s,e)=>s+Number(e.amount||0),0)/meliLast2.length):0;
-  // Meli forward projection: usar referencia bruta confirmada (julio 2026 = $1.193.938 bruto)
-  const meliRefEntry=meliExps.find(e=>e._isMeliRef);
-  const MELI_FORWARD=meliRefEntry?1193938:avgMeli;
+  // Meli forward projection: referencia bruta confirmada julio 2026 = $1.193.938
+  // (neto almacenado = $1.003.309; bruto real = $1.193.938 — confirmado por Tere)
+  const MELI_FORWARD=1193938;
   // Resto digital: promedio histórico completo
   const nonMeliExps=digitalExps.filter(e=>!e.id||!e.id.startsWith('meli_'));
   const nonMeliTotal=nonMeliExps.reduce((s,e)=>s+expTotalContrib(e,curYear,curMonth),0);
