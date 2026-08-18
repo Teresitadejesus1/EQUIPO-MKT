@@ -1537,6 +1537,23 @@ const TAB_COLORS={
   mat:'#db2777',pre:'#059669',gan:'#b45309',rut:'#0f766e',
   cal:'#4361ee',tareas:'#22c55e',prio:'#f59e0b',mas:'#64748b'
 };
+
+// ── Restaurar tab activo inmediatamente (sin esperar Firebase) ────────────────
+(function initTab(){
+  ALL_TABS.forEach(t=>{
+    const tabEl=document.getElementById('tab-'+t);
+    if(tabEl)tabEl.classList.toggle('active',t===curTab);
+    const vEl=document.getElementById('v-'+t);
+    if(vEl)vEl.style.display=t===curTab?'block':'none';
+  });
+  const titleEl=document.getElementById('hdr-title');
+  if(titleEl)titleEl.textContent=TAB_TITLES[curTab]||curTab;
+  const sidebarEl=document.getElementById('sidebar');
+  if(sidebarEl){const c=TAB_COLORS[curTab]||'#1e2d40';sidebarEl.style.background=`linear-gradient(180deg, ${c}dd 0%, #1e2d40 40%)`;}
+  // Mostrar loading en el tab correcto
+  const vEl=document.getElementById('v-'+curTab);
+  if(vEl&&!vEl.innerHTML.trim())vEl.innerHTML='<div class="empty"><div class="empty-icon">⏳</div><p>Conectando…</p></div>';
+})();
 function sw(tab){
   if(tab==='urgente')tab='tareas'; // redirigir tab eliminada
   curTab=tab;
@@ -5435,7 +5452,7 @@ const _fbRef=firebase.database().ref('vigahome');
 let _fbReady=false;
 
 // Show loading while connecting
-document.getElementById('v-hoy').innerHTML='<div class="empty"><div class="empty-icon">⏳</div><p>Conectando con Firebase…</p></div>';
+// El loading se muestra en el tab activo, no siempre en v-hoy
 
 // Sync indicator + force push button in header
 const _syncDot=document.createElement('span');
