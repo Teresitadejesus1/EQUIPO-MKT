@@ -1694,57 +1694,80 @@ function quickEditTaskName(id,el){
   inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();inp.blur();}if(e.key==='Escape'){inp.value=t.name;inp.blur();}});
 }
 function rHoy(){
-  const wrap=document.getElementById('v-hoy');if(!wrap)return;
-  const today=new Date().toISOString().slice(0,10);
-  const D=getD();
-  const pending=(D.tasks||[]).filter(t=>t.estado!=='Completado');
-  const urgent=pending.filter(t=>t.urgencia==='Alta');
+  const now=new Date();
+  const today=now.toISOString().slice(0,10);
+  const DAYS_ES=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+  const MONTHS_ES=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  const greet=now.getHours()<12?'Buenos días':now.getHours()<19?'Buenas tardes':'Buenas noches';
+  const dateStr=DAYS_ES[now.getDay()]+' '+now.getDate()+' de '+MONTHS_ES[now.getMonth()];
+  const allTasks=D.tasks||[];
+  const pending=allTasks.filter(t=>t.estado!=='Completado');
   const overdue=pending.filter(t=>t.deadline&&t.deadline<today);
-  const todayTasks=pending.filter(t=>t.deadline===today);
+  const d7=new Date(now);d7.setDate(d7.getDate()+7);
+  const weekEnd=d7.toISOString().slice(0,10);
+  const weekTasks=pending.filter(t=>t.deadline&&t.deadline>=today&&t.deadline<=weekEnd).sort((a,b)=>a.deadline.localeCompare(b.deadline));
   const TEAM_HOY=[
-    {key:'Tere',    c:'#4361ee',i:'T'},
-    {key:'Vivi',    c:'#f72585',i:'V'},
-    {key:'Simona',  c:'#3a86ff',i:'S'},
+    {key:'Tere',c:'#4361ee',i:'T'},
+    {key:'Vivi',c:'#f72585',i:'V'},
+    {key:'Simona',c:'#3a86ff',i:'S'},
   ];
-  let h=`<div class="view-body">
-    <div class="canal-grid" style="grid-template-columns:repeat(3,1fr)">`;
-  TEAM_HOY.forEach(tm=>{
-    const tTasks=pending.filter(t=>(t.responsable||'')===tm.key);
-    const tOver=tTasks.filter(t=>t.deadline&&t.deadline<today);
-    const tToday=tTasks.filter(t=>t.deadline===today);
-    const nextTask=tTasks.filter(t=>t.deadline&&t.deadline>=today).sort((a,b)=>a.deadline.localeCompare(b.deadline))[0];
-    h+=`<div class="canal-card" style="--cc:${tm.c};cursor:pointer" onclick="sw('tareas')">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-        <div style="width:36px;height:36px;border-radius:50%;background:${tm.c};color:#fff;font-size:15px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0">${tm.i}</div>
-        <div class="canal-card-name" style="margin:0">${tm.key}</div>
-      </div>
-      <div class="canal-card-count">${tTasks.length}</div>
-      <div class="canal-card-sub" style="color:${tOver.length>0?'var(--alta)':tToday.length>0?'#d97706':'var(--muted)'}">
-        ${tOver.length>0?`⚠ ${tOver.length} atrasada${tOver.length!==1?'s':''}`:tToday.length>0?`🟡 ${tToday.length} para hoy`:tTasks.length===0?'Al día ✓':'pendiente'+(tTasks.length!==1?'s':'')}
-      </div>
-      ${nextTask&&!tOver.length&&!tToday.length?`<div style="font-size:10px;color:var(--muted);margin-top:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">→ ${esc(nextTask.name.slice(0,30))}${nextTask.name.length>30?'…':''}</div>`:''}
-    </div>`;
+  const annual=(D.budget&&D.budget.annual)||0;
+  const spent=(D.budget&&D.budget.expenses)?D.budget.expenses.filter(e=>!e.recurrence||e.recurrence==='puntual').reduce((s,e)=>s+Number(e.amount||0),0):0;
+  const spentPct=annual>0?Math.min(spent/annual*100,100):0;
+  const urgColor={Alta:'#e63946',Media:'#f4a261',Baja:'#2a9d8f'};
+  const monthlyFixed=(D.budget&&D.budget.expenses)?D.budget.expenses.filter(e=>e.recurrence==='mensual').reduce((s,e)=>s+Number(e.amount||0),0):0;
+
+  let h='<style>.hoy-greeting{margin-bottom:20px;}.hoy-greeting h1{font-size:22px;font-weight:800;color:var(--text);margin-bottom:2px;}.hoy-greeting p{font-size:13px;color:var(--muted);}.canal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;}.canal-card{background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:16px;border-top:4px solid var(--cc);cursor:pointer;transition:box-shadow .15s;}.canal-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.1);}.canal-card-name{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;}.canal-card-count{font-size:28px;font-weight:800;color:var(--text);line-height:1;}.canal-card-sub{font-size:11px;margin-top:4px;}.hoy-two{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;}.hoy-card{background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:16px;}.hoy-card-title{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:12px;}.week-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);}.week-row:last-child{border-bottom:none;}.week-day{font-size:10px;font-weight:700;color:var(--muted);min-width:28px;text-align:center;background:var(--bg);border-radius:5px;padding:2px 4px;}.week-day.today{background:#4361ee;color:#fff;}.week-name{flex:1;font-size:12px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;}.week-name:hover{color:#4361ee;}.week-urg{width:6px;height:6px;border-radius:50%;flex-shrink:0;}.week-resp{font-size:10px;color:var(--muted);flex-shrink:0;}.bud-bar-bg{height:8px;background:var(--bg);border-radius:99px;overflow:hidden;margin:8px 0;}.bud-bar-fill{height:100%;border-radius:99px;background:#059669;transition:width .4s;}.overdue-pill{display:inline-flex;align-items:center;gap:5px;background:#fef2f2;border:1.5px solid #fca5a5;border-radius:8px;padding:8px 12px;font-size:12px;color:#991b1b;cursor:pointer;margin-bottom:16px;width:100%;}.overdue-pill:hover{background:#fee2e2;}</style>';
+
+  h+='<div class="hoy-greeting"><h1>'+greet+', Tere 👋</h1><p>'+dateStr+(overdue.length>0?' · <span style="color:var(--alta);font-weight:600">'+overdue.length+' tarea'+(overdue.length!==1?'s':'')+' atrasada'+(overdue.length!==1?'s':'')+'</span>':' · Todo al día ✅')+'</p></div>';
+
+  if(overdue.length>0){
+    h+='<div class="overdue-pill" onclick="sw('tareas')">🚨 <strong>'+overdue.length+' tarea'+(overdue.length!==1?'s':'')+' vencida'+(overdue.length!==1?'s':'')+' sin completar</strong><span style="margin-left:auto;opacity:.6;font-size:11px">Ver en Tareas →</span></div>';
+  }
+
+  h+='<div class="canal-grid" style="grid-template-columns:repeat(3,1fr)">';
+  TEAM_HOY.forEach(function(tm){
+    var tTasks=pending.filter(function(t){return(t.responsable||'')===tm.key;});
+    var tOver=tTasks.filter(function(t){return t.deadline&&t.deadline<today;});
+    var tToday=tTasks.filter(function(t){return t.deadline===today;});
+    var nextTask=tTasks.filter(function(t){return t.deadline&&t.deadline>=today;}).sort(function(a,b){return a.deadline.localeCompare(b.deadline);})[0];
+    var statusColor=tOver.length>0?'var(--alta)':tToday.length>0?'#d97706':'var(--muted)';
+    var statusText=tOver.length>0?('⚠ '+tOver.length+' atrasada'+(tOver.length!==1?'s':'')):tToday.length>0?('🟡 '+tToday.length+' para hoy'):tTasks.length===0?'Al día ✓':('pendiente'+(tTasks.length!==1?'s':''));
+    h+='<div class="canal-card" style="--cc:'+tm.c+';cursor:pointer" onclick="sw('tareas')">';
+    h+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">';
+    h+='<div style="width:36px;height:36px;border-radius:50%;background:'+tm.c+';color:#fff;font-size:15px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+tm.i+'</div>';
+    h+='<div class="canal-card-name" style="margin:0">'+tm.key+'</div></div>';
+    h+='<div class="canal-card-count">'+tTasks.length+'</div>';
+    h+='<div class="canal-card-sub" style="color:'+statusColor+'">'+statusText+'</div>';
+    if(nextTask&&!tOver.length&&!tToday.length){h+='<div style="font-size:10px;color:var(--muted);margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">→ '+esc(nextTask.name.slice(0,30))+(nextTask.name.length>30?'…':'')+'</div>';}
+    h+='</div>';
   });
-  h+=`</div>
-    <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">
-      ${urgent.length?`<div class="canal-card" style="--cc:#ef4444;flex:1;min-width:180px">
-        <div class="canal-card-name">🔥 Urgentes</div>
-        <div class="canal-card-count">${urgent.length}</div>
-        <div class="canal-card-sub">alta prioridad</div>
-      </div>`:''}
-      ${overdue.length?`<div class="canal-card" style="--cc:#ef4444;flex:1;min-width:180px">
-        <div class="canal-card-name">⚠ Atrasadas</div>
-        <div class="canal-card-count">${overdue.length}</div>
-        <div class="canal-card-sub">vencidas</div>
-      </div>`:''}
-      ${todayTasks.length?`<div class="canal-card" style="--cc:#d97706;flex:1;min-width:180px">
-        <div class="canal-card-name">🟡 Para hoy</div>
-        <div class="canal-card-count">${todayTasks.length}</div>
-        <div class="canal-card-sub">deadline hoy</div>
-      </div>`:''}
-    </div>
-  </div>`;
-  wrap.innerHTML=h;
+  h+='</div>';
+
+  h+='<div class="hoy-two">';
+  h+='<div class="hoy-card"><div class="hoy-card-title">📅 Esta semana</div>';
+  if(weekTasks.length===0){
+    h+='<div style="text-align:center;padding:20px 0;color:var(--muted);font-size:13px">Sin tareas programadas esta semana</div>';
+  } else {
+    weekTasks.slice(0,8).forEach(function(t){
+      var d=new Date(t.deadline+'T12:00');
+      var isToday=t.deadline===today;
+      var dayLabel=isToday?'Hoy':DAYS_ES[d.getDay()].slice(0,3);
+      h+='<div class="week-row"><span class="week-day'+(isToday?' today':'')+'">'+dayLabel+'</span><span class="week-urg" style="background:'+(urgColor[t.urgencia]||'#94a3b8')+'"></span><span class="week-name" onclick="openTask(''+t.id+'')" title="'+esc(t.name)+'">'+esc(t.name)+'</span>'+(t.responsable?'<span class="week-resp">'+esc(t.responsable)+'</span>':'')+'</div>';
+    });
+    if(weekTasks.length>8){h+='<div style="font-size:11px;color:var(--muted);text-align:center;padding-top:8px;cursor:pointer" onclick="sw('tareas')">+'+(weekTasks.length-8)+' más →</div>';}
+  }
+  h+='<div style="display:flex;gap:6px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)"><input id="qadd-hoy" class="fc" placeholder="+ Agregar tarea rápida…" style="flex:1;font-size:12px;padding:6px 10px" onkeydown="if(event.key==='Enter')qaddHoy()"/><button class="btn btn-primary btn-sm" onclick="qaddHoy()" style="font-size:12px">+</button></div></div>';
+
+  h+='<div class="hoy-card"><div class="hoy-card-title">💰 Presupuesto '+now.getFullYear()+'</div>';
+  h+='<div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:11px;color:var(--muted)">Gastado YTD</span><span style="font-size:11px;font-weight:700">'+fmt$(spent)+'</span></div>';
+  h+='<div class="bud-bar-bg"><div class="bud-bar-fill" style="width:'+spentPct.toFixed(1)+'%;background:'+(spentPct>80?'var(--alta)':spentPct>60?'var(--media)':'#059669')+'"></div></div>';
+  h+='<div style="display:flex;justify-content:space-between;margin-bottom:14px"><span style="font-size:11px;color:var(--muted)">'+spentPct.toFixed(0)+'% del presupuesto</span><span style="font-size:11px;color:var(--muted)">'+(annual>0?fmt$(annual):'-')+' total</span></div>';
+  if(monthlyFixed>0){h+='<div style="background:#eff6ff;border-radius:8px;padding:10px 12px;margin-bottom:10px"><div style="font-size:10px;font-weight:700;color:#1e40af;text-transform:uppercase;margin-bottom:3px">Fijo mensual</div><div style="font-size:16px;font-weight:800;color:#1d4ed8">'+fmt$(monthlyFixed)+'</div><div style="font-size:10px;color:#3b82f6">comprometido cada mes</div></div>';}
+  h+='<button class="btn btn-ghost btn-sm" onclick="sw('pre')" style="width:100%;font-size:11px">Ver Presupuesto completo →</button></div>';
+  h+='</div>';
+
+  document.getElementById('v-hoy').innerHTML=h;
 }
 function setKF(key,val){
   if(key==='hoy') kFilter.hoy=!kFilter.hoy;
