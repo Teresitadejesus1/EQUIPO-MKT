@@ -1707,9 +1707,11 @@ function rHoy(){
   const weekEnd=d7.toISOString().slice(0,10);
   const weekTasks=pending.filter(t=>t.deadline&&t.deadline>=today&&t.deadline<=weekEnd).sort((a,b)=>a.deadline.localeCompare(b.deadline));
   const TEAM_HOY=[
-    {key:'Tere',c:'#4361ee',i:'T'},
-    {key:'Vivi',c:'#f72585',i:'V'},
-    {key:'Simona',c:'#3a86ff',i:'S'},
+    {key:'Tere',   c:'#4361ee',i:'T'},
+    {key:'Vivi',   c:'#f72585',i:'V'},
+    {key:'Simona', c:'#3a86ff',i:'S'},
+    {key:'José',   c:'#f59e0b',i:'J'},
+    {key:'Santi',  c:'#10b981',i:'Sa'},
   ];
   const annual=(D.budget&&D.budget.annual)||0;
   const spent=(D.budget&&D.budget.expenses)?D.budget.expenses.filter(e=>!e.recurrence||e.recurrence==='puntual').reduce((s,e)=>s+Number(e.amount||0),0):0;
@@ -5106,9 +5108,14 @@ function rTareasPorCanal(){
     {key:'Tere',        c:'#4361ee',bg:'#eff2ff',i:'T'},
     {key:'Vivi',        c:'#f72585',bg:'#fff0f7',i:'V'},
     {key:'Simona',      c:'#3a86ff',bg:'#eff6ff',i:'S'},
+    {key:'José',        c:'#f59e0b',bg:'#fffbeb',i:'J'},
+    {key:'Santi',       c:'#10b981',bg:'#f0fdf4',i:'Sa'},
+  ];
+  const VIRTUAL=[
     {key:'Seguimiento', c:'#7c3aed',bg:'#f5f3ff',i:'🔄'},
     {key:'Cotizar',     c:'#059669',bg:'#f0fdf4',i:'💰'},
     {key:'__none__',    c:'#64748b',bg:'#f8fafc',i:'?'},
+  ];
   ];
   const URGC={Alta:'#e63946',Media:'#f4a261',Baja:'#2a9d8f'};
   const EST_C={'Pendiente':'#94a3b8','En progreso':'#3b82f6','Bloqueado':'#e63946','Completado':'#22c55e'};
@@ -5226,6 +5233,25 @@ function rTareasPorCanal(){
   h+=`</div>`;
 
   // ── Historial de entregas ────────────────────────────────────────────────
+  
+  // Seguimiento & Cotizaciones section
+  h+=`<div style="margin-top:20px;border-top:1.5px solid var(--border);padding-top:16px">
+    <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:12px">Seguimiento & Cotizaciones</div>
+    <div class="canal-grid">`;
+  VIRTUAL.forEach(tm=>{
+    const vTasks=(D.tasks||[]).filter(t=>tm.key==='__none__'?(!(t.responsable)||t.responsable==='__none__'):(t.responsable||'')===tm.key);
+    const vPend=vTasks.filter(t=>t.estado!=='Completado');
+    const vDone=vTasks.filter(t=>t.estado==='Completado');
+    if(tm.key==='__none__'&&!vPend.length)return;
+    h+=`<div class="canal-card" style="--cc:${tm.c};background:${tm.bg}">
+      <div class="canal-card-icon">${tm.i}</div>
+      <div class="canal-card-name">${tm.key==='__none__'?'Sin asignar':tm.key}</div>
+      <div class="canal-card-count">${vPend.length}</div>
+      <div class="canal-card-sub">${vDone.length>0?'+'+vDone.length+' completadas':'pendientes'}</div>
+    </div>`;
+  });
+  h+=`</div></div>`;
+
   const done=(D.tasks||[]).filter(t=>t.estado==='Completado');
   const HIST_TEAM=[
     {key:'Tere',   c:'#4361ee',i:'T'},
