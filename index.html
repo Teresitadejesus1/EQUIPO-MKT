@@ -5313,6 +5313,36 @@ function rTareasPorCanal(){
   }
 
   wrap.innerHTML=h;
+  rEntregadas();
+}
+
+function rEntregadas(){
+  const wrap=document.getElementById('v-tareas');
+  if(!wrap)return;
+  const old=document.getElementById('v-entregadas-section');
+  if(old)old.remove();
+  const TEAM_ORDER=['Tere','Vivi','Simona','José','Santi'];
+  const porPersona={};
+  (D.tasks||[]).filter(t=>t.estado==='Entregado').forEach(t=>{
+    const r=t.responsable||'Sin asignar';
+    if(!porPersona[r])porPersona[r]=[];
+    porPersona[r].push(t);
+  });
+  const personas=[...TEAM_ORDER.filter(p=>porPersona[p]),...Object.keys(porPersona).filter(p=>!TEAM_ORDER.includes(p)).sort()];
+  if(!personas.length)return;
+  const COLORS={Tere:'#6366f1',Vivi:'#ec4899',Simona:'#8b5cf6','José':'#f59e0b',Santi:'#10b981'};
+  let h='<div id="v-entregadas-section" style="margin-top:2.5rem;padding-top:1.5rem;border-top:3px solid #e5e7eb;">';
+  h+='<h2 style="font-size:1rem;font-weight:700;color:#374151;margin-bottom:1.2rem;">&#x2705; ENTREGADAS</h2>';
+  h+='<div style="display:flex;flex-wrap:wrap;gap:1.5rem;align-items:flex-start;">';
+  personas.forEach(persona=>{
+    const tareas=porPersona[persona];
+    const color=COLORS[persona]||'#64748b';
+    h+=`<div style="min-width:220px;flex:1;"><div style="font-size:.85rem;font-weight:700;color:${color};margin-bottom:.5rem;padding-bottom:.3rem;border-bottom:2px solid ${color};">${persona} · ${tareas.length}</div><div style="display:flex;flex-direction:column;gap:2px;">`;
+    tareas.forEach(t=>{h+=`<div style="font-size:.78rem;color:#6b7280;padding:2px 0;border-bottom:1px solid #f3f4f6;">&#x2713; ${t.titulo}</div>`;});
+    h+='</div></div>';
+  });
+  h+='</div></div>';
+  wrap.insertAdjacentHTML('beforeend',h);
 }
 
 function qaddTeamTask(inp,respKey){
