@@ -5117,7 +5117,7 @@ function rTareasPorCanal(){
   const URGC={Alta:'#e63946',Media:'#f4a261',Baja:'#2a9d8f'};
   const EST_C={'Pendiente':'#94a3b8','En progreso':'#3b82f6','Bloqueado':'#e63946','Completado':'#22c55e'};
 
-  const active=(D.tasks||[]).filter(t=>t.estado!=='Completado');
+  const active=(D.tasks||[]).filter(t=>t.estado!=='Completado'&&t.estado!=='Entregado');
 
   function dlBadge(ds){
     if(!ds)return'';
