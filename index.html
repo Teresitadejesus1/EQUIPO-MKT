@@ -221,8 +221,7 @@ select.fsel{padding:4px 8px;border-radius:6px;border:1.5px solid var(--border);f
 .resolve-btn{background:var(--rev-bg);border:1.5px solid #d8b4fe;border-radius:6px;padding:4px 10px;font-size:11px;font-weight:700;color:var(--rev);cursor:pointer;white-space:nowrap;}
 .resolve-btn:hover{background:#d8b4fe;}
 
-/* Diseño (formerly Vivi) */
-.area-block{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);margin-bottom:12px;overflow:hidden;}
+Entregado'&&t.deadline.area-block{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);margin-bottom:12px;overflow:hidden;}
 .area-hdr{padding:10px 14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;}
 .area-hdr:hover{background:var(--bg);}
 .area-name{font-weight:700;font-size:14px;}
@@ -1600,7 +1599,7 @@ function render(){
 
 function updateBadges(){
   const today=new Date().toISOString().slice(0,10);
-  const urgCount=D.tasks.filter(t=>t.estado!=='Completado'&&t.deadline&&t.deadline<today).length;
+  const urgCount=D.tasks.filter(t=>t.estado!=='Completado'&&t.estado!=='Entregado'&&t.deadline&&t.deadline<today).length;
   const bu=document.getElementById('badge-urgente');
   if(bu){bu.textContent=urgCount;bu.style.display=urgCount>0?'inline-block':'none';}
   const comCount=D.comercial.filter(c=>c.estado!=='Listo'&&c.estado!=='Cancelado'&&c.urgencia==='Alta').length;
@@ -1610,7 +1609,7 @@ function updateBadges(){
 
 function checkAlerts(){
   const today=new Date().toISOString().slice(0,10);
-  const overdue=D.tasks.filter(t=>t.estado!=='Completado'&&t.deadline&&t.deadline<today);
+  const overdue=D.tasks.filter(t=>t.estado!=='Completado'&&t.estado!=='Entregado'&&t.deadline&&t.deadline<today);
   const banner=document.getElementById('alert-banner');
   const txt=document.getElementById('alert-text');
   if(!banner||!txt)return;
@@ -2754,7 +2753,7 @@ function rKanban(){
   const cards=projs.map(p=>{
     const tasks=(D.tasks||[]).filter(t=>t.projectId===p.id);
     const done=tasks.filter(t=>t.estado==='Completado').length;
-    const overdueCount=tasks.filter(t=>t.estado!=='Completado'&&t.deadline&&t.deadline<today).length;
+    const overdueCount=tasks.filter(t=>t.estado!=='Completado'&&t.estado!=='Entregado'&&t.deadline&&t.deadline<today).length;
     const blockedCount=tasks.filter(t=>t.blockerType).length;
     const dl=daysLeftCamp(p.endDate);
     const color=p.color||'#f97316';
