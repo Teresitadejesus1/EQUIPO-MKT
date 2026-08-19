@@ -8,7 +8,7 @@
 :root{
   color-scheme:light;
   --bg:#f4f5f9;--surface:#fff;--border:#e2e5ee;--text:#1a1d2e;--muted:#7a7f9a;
-  --accent:#4361ee;--alta:#e63946;--alta-bg:#fde8ea;--media:#e07b39;--media-bg:#fef0e4;
+  --accent:#f97316;--alta:#e63946;--alta-bg:#fde8ea;--media:#e07b39;--media-bg:#fef0e4;
   --baja:#2a9d8f;--baja-bg:#e0f5f3;--done-c:#9ea8b8;--done-bg:#f1f3f5;
   --rev:#7209b7;--rev-bg:#f3e8ff;
   --dis:#f72585;--dis-bg:#ffe8f4;
@@ -383,7 +383,7 @@ textarea.fc{resize:vertical;min-height:50px;}
 }
 .sb-logo-icon {
   width: 32px; height: 32px;
-  background: #4361ee;
+  background: #f97316;
   border-radius: 8px;
   display: flex; align-items: center; justify-content: center;
   color: white; font-weight: 700; font-size: 16px;
@@ -441,7 +441,7 @@ textarea.fc{resize:vertical;min-height:50px;}
 }
 .sb-avatar {
   width: 32px; height: 32px;
-  background: #4361ee;
+  background: #f97316;
   border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
   color: white; font-weight: 700; font-size: 14px;
@@ -545,7 +545,7 @@ body { display: flex; flex-direction: row; min-height: 100vh; }
 /* ── CAMPAÑAS CARDS ── */
 .camp-filters { display: flex; gap: 8px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
 .camp-filter { padding: 6px 14px; border-radius: 20px; border: 1px solid #e2e8f0; background: white; cursor: pointer; font-size: 13px; color: #64748b; }
-.camp-filter.active { background: #4361ee; color: white; border-color: #4361ee; font-weight: 600; }
+.camp-filter.active { background: #f97316; color: white; border-color: #f97316; font-weight: 600; }
 .camp-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(380px,1fr)); gap: 16px; }
 .camp-card { background: white; border-radius: 12px; padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); border: 1px solid #f1f5f9; }
 .camp-card-hdr { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
@@ -566,7 +566,7 @@ body { display: flex; flex-direction: row; min-height: 100vh; }
 .ent-resp { font-size: 11px; color: #64748b; background: #f1f5f9; padding: 1px 6px; border-radius: 8px; }
 .ent-add-row { display: flex; gap: 6px; margin-top: 6px; }
 .ent-input { flex: 1; border: 1px solid #e2e8f0; border-radius: 6px; padding: 5px 10px; font-size: 13px; outline: none; }
-.ent-input:focus { border-color: #4361ee; }
+.ent-input:focus { border-color: #f97316; }
 .urg-mini { font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 8px; }
 .urg-mini.urg-alta { background: #fde8ea; color: #e63946; }
 .urg-mini.urg-media { background: #fef0e4; color: #e07b39; }
@@ -867,13 +867,13 @@ body { display: flex; flex-direction: row; min-height: 100vh; }
 
 <script>
 // ═══ CONSTANTS & DEFAULTS ═══════════════════════════════════════════════════
-const COLORS=['#4361ee','#7209b7','#f72585','#e63946','#e07b39','#2a9d8f','#457b9d','#606c38','#8338ec','#3a86ff'];
+const COLORS=['#f97316','#7209b7','#f72585','#e63946','#e07b39','#2a9d8f','#457b9d','#606c38','#8338ec','#3a86ff'];
 const PSTATS=['Briefing pendiente','En diseño','En revisión','Aprobado','Entregado'];
 const CPLATFORMS=['Instagram','Facebook','TikTok','LinkedIn','Email','Web','Meta Ads','Google Ads','Otra'];
 const EXP_CATS=['Ferias/Eventos','Materiales','Producción gráfica','Impresión','Trade Marketing','Influencers','Producción audiovisual','Logística','Diseño','Capacitación','Agencias','Pauta digital','Otros'];
 const MONTHS_ES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 const MONTHS_SHORT=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-const AREA_DEF_COLORS=['#4361ee','#f72585','#e07b39','#2a9d8f','#7209b7','#3a86ff'];
+const AREA_DEF_COLORS=['#f97316','#f72585','#e07b39','#2a9d8f','#7209b7','#3a86ff'];
 
 const DEFAULT_DATA={
   projects:[],tasks:[],
@@ -1531,11 +1531,11 @@ let _calY=new Date().getFullYear(),_calM=new Date().getMonth(),_calD=new Date().
 const ALL_TABS=['hoy','urgente','kanban','com','brand','rev','dis','pdq','cnt','mat','pre','gan','rut','cal','tareas','prio','mas'];
 const TAB_TITLES={hoy:'📅 Hoy',urgente:'📌 Pendientes',kanban:'🚀 Campañas',com:'🛒 Comercial',brand:'🏷 Brand',rev:'👔 Revisión',dis:'🎨 Diseño',pdq:'🗂 PDQs',cnt:'📱 Content',mat:'🎬 Material',pre:'💰 Presupuesto',gan:'📊 Gantt',rut:'🔁 Rutinas',cal:'🗓 Calendario',tareas:'✅ Tareas por Canal',prio:'🎯 Prioridad',mas:'··· Más'};
 const TAB_COLORS={
-  hoy:'#4361ee',urgente:'#e63946',kanban:'#2a9d8f',
+  hoy:'#f97316',urgente:'#e63946',kanban:'#2a9d8f',
   com:'#0369a1',brand:'#9333ea',rev:'#7209b7',
   dis:'#f72585',pdq:'#7c3aed',cnt:'#3a86ff',
   mat:'#db2777',pre:'#059669',gan:'#b45309',rut:'#0f766e',
-  cal:'#4361ee',tareas:'#22c55e',prio:'#f59e0b',mas:'#64748b'
+  cal:'#f97316',tareas:'#22c55e',prio:'#f59e0b',mas:'#64748b'
 };
 
 // ── Restaurar tab activo inmediatamente (sin esperar Firebase) ────────────────
@@ -1572,6 +1572,9 @@ function sw(tab){
     const c=TAB_COLORS[tab]||'#1e2d40';
     sidebarEl.style.background=`linear-gradient(180deg, ${c}dd 0%, #1e2d40 40%)`;
   }
+  // Explicit tab refresh — ensures active tab re-renders with latest data
+  const _tabFns={hoy:rHoy,prio:rPrio,prioridad:rPrio,tareas:rTareasPorCanal,equipo:rTareasPorCanal,cal:rCal,calendario:rCal};
+  if(_tabFns[tab])try{_tabFns[tab]();}catch(e){}
   render();
 }
 
@@ -1707,7 +1710,7 @@ function rHoy(){
   const weekEnd=d7.toISOString().slice(0,10);
   const weekTasks=pending.filter(t=>t.deadline&&t.deadline>=today&&t.deadline<=weekEnd).sort((a,b)=>a.deadline.localeCompare(b.deadline));
   const TEAM_HOY=[
-    {key:'Tere',c:'#4361ee',i:'T'},
+    {key:'Tere',c:'#f97316',i:'T'},
     {key:'Vivi',c:'#f72585',i:'V'},
     {key:'Simona',c:'#3a86ff',i:'S'},
   {key:'José',   c:'#f59e0b',i:'J'},
@@ -1734,9 +1737,9 @@ function rHoy(){
   .week-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border)}
   .week-row:last-child{border-bottom:none}
   .week-day{font-size:10px;font-weight:700;color:var(--muted);min-width:28px;text-align:center;background:var(--bg);border-radius:5px;padding:2px 4px}
-  .week-day.today{background:#4361ee;color:#fff}
+  .week-day.today{background:#f97316;color:#fff}
   .week-name{flex:1;font-size:12px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
-  .week-name:hover{color:#4361ee}
+  .week-name:hover{color:#f97316}
   .week-urg{width:6px;height:6px;border-radius:50%;flex-shrink:0}
   .week-resp{font-size:10px;color:var(--muted);flex-shrink:0}
   .bud-bar-bg{height:8px;background:var(--bg);border-radius:99px;overflow:hidden;margin:8px 0}
@@ -1946,7 +1949,7 @@ function rListaView(){
   .lista-row{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border);cursor:default;transition:background .15s;}
   .lista-row:last-child{border-bottom:none;}
   .lista-row.dragging{opacity:.4;background:#f0f4ff;}
-  .lista-row.drag-over{background:#e8f0fe;border-top:2px solid #4361ee;}
+  .lista-row.drag-over{background:#e8f0fe;border-top:2px solid #f97316;}
   .lista-row[data-done="true"]{opacity:.55;}
   .drag-handle{cursor:grab;color:var(--muted);font-size:14px;padding:2px 4px;user-select:none;flex-shrink:0;}
   .drag-handle:active{cursor:grabbing;}
@@ -2214,8 +2217,8 @@ const MKT_DATES={
   '2025-11-28':{l:'Black Friday',i:'🛍',c:'#1e293b'},
   '2025-12-01':{l:'CyberMonday',i:'💻',c:'#0369a1'},
   '2025-12-25':{l:'Navidad',i:'🎄',c:'#e63946'},
-  '2025-12-31':{l:'Nochevieja',i:'🥂',c:'#4361ee'},
-  '2026-01-01':{l:'Año Nuevo',i:'🎉',c:'#4361ee'},
+  '2025-12-31':{l:'Nochevieja',i:'🥂',c:'#f97316'},
+  '2026-01-01':{l:'Año Nuevo',i:'🎉',c:'#f97316'},
   '2026-02-14':{l:'San Valentín',i:'💕',c:'#e63946'},
   '2026-04-02':{l:'Jueves Santo',i:'✝️',c:'#7c3aed'},
   '2026-04-03':{l:'Viernes Santo',i:'✝️',c:'#7c3aed'},
@@ -2228,8 +2231,8 @@ const MKT_DATES={
   '2026-11-27':{l:'Black Friday',i:'🛍',c:'#1e293b'},
   '2026-11-30':{l:'CyberMonday',i:'💻',c:'#0369a1'},
   '2026-12-25':{l:'Navidad',i:'🎄',c:'#e63946'},
-  '2026-12-31':{l:'Nochevieja',i:'🥂',c:'#4361ee'},
-  '2027-01-01':{l:'Año Nuevo',i:'🎉',c:'#4361ee'},
+  '2026-12-31':{l:'Nochevieja',i:'🥂',c:'#f97316'},
+  '2027-01-01':{l:'Año Nuevo',i:'🎉',c:'#f97316'},
   '2027-02-14':{l:'San Valentín',i:'💕',c:'#e63946'},
   '2027-03-26':{l:'Viernes Santo',i:'✝️',c:'#7c3aed'},
   '2027-05-09':{l:'Día de la Madre',i:'💐',c:'#ec4899'},
@@ -2264,13 +2267,13 @@ function getCalEvents(){
   const _today=localDateStr(new Date());
   function add(date,ev){if(!date)return;if(!events[date])events[date]=[];events[date].push(ev);}
   // Tasks con deadline — color por responsable
-  const _RESP_COL={Tere:'#4361ee',Vivi:'#f72585',Simona:'#3a86ff'};
+  const _RESP_COL={Tere:'#f97316',Vivi:'#f72585',Simona:'#3a86ff'};
   (D.tasks||[]).filter(t=>t.deadline&&t.estado!=='Completado').forEach(t=>{
     const cc=(D.canales||[]).find(c=>c.key===t.area);
     const dl=localDateStr(t.deadline); // normaliza formato
     if(!dl)return;
     const isOver=dl<_today;
-    const tColor=_RESP_COL[t.responsable]||(cc?cc.color:'#4361ee');
+    const tColor=_RESP_COL[t.responsable]||(cc?cc.color:'#f97316');
     add(dl,{type:'task',label:t.name,color:tColor,icon:cc?cc.icon:'✅',urgencia:t.urgencia,id:t.id,responsable:t.responsable,deadline:dl,overdue:isOver});
   });
   // PDQ from budget expenses
@@ -2327,7 +2330,7 @@ function rCal(){
   .cal-cell.today{background:#eff6ff;}
   .cal-cell.other-month{background:var(--bg);opacity:.6;}
   .cal-day-num{font-size:11px;font-weight:700;color:var(--muted);margin-bottom:3px;}
-  .cal-cell.today .cal-day-num{width:20px;height:20px;background:#4361ee;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;}
+  .cal-cell.today .cal-day-num{width:20px;height:20px;background:#f97316;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;}
   .cal-chip{font-size:10px;padding:1px 5px;border-radius:4px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;}
   .cal-mkt{font-size:9px;padding:1px 4px;border-radius:3px;margin-bottom:2px;font-weight:700;}
   .cal-pdq{font-size:9px;padding:1px 4px;border-radius:3px;margin-bottom:2px;background:#7c3aed18;color:#7c3aed;font-weight:700;}
@@ -2336,7 +2339,7 @@ function rCal(){
   .week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;flex:1;overflow-y:auto;}
   .week-col{background:var(--surface);border:1.5px solid var(--border);border-radius:10px;overflow:hidden;}
   .week-col-head{padding:8px;text-align:center;border-bottom:1.5px solid var(--border);background:var(--bg);}
-  .week-col-head.today-col{background:#4361ee;color:#fff;}
+  .week-col-head.today-col{background:#f97316;color:#fff;}
   .week-col-body{padding:6px;overflow-y:auto;}
   .week-ev{font-size:11px;padding:4px 7px;border-radius:6px;margin-bottom:4px;cursor:pointer;border-left:3px solid;}
   .week-ev:hover{opacity:.85;}
@@ -2350,13 +2353,13 @@ function rCal(){
   /* Year view */
   .year-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;flex:1;overflow-y:auto;}
   .mini-month{background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:10px;cursor:pointer;}
-  .mini-month:hover{border-color:#4361ee;}
+  .mini-month:hover{border-color:#f97316;}
   .mini-month-name{font-size:11px;font-weight:800;text-align:center;margin-bottom:6px;color:var(--text);}
   .mini-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;}
   .mini-day{height:14px;width:100%;display:flex;align-items:center;justify-content:center;font-size:8px;border-radius:3px;color:var(--muted);}
-  .mini-day.has-ev{background:#4361ee22;color:#4361ee;font-weight:700;}
+  .mini-day.has-ev{background:#f9731622;color:#f97316;font-weight:700;}
   .mini-day.has-mkt{background:#e6394622;color:#e63946;font-weight:700;}
-  .mini-day.is-today{background:#4361ee;color:#fff;border-radius:50%;}
+  .mini-day.is-today{background:#f97316;color:#fff;border-radius:50%;}
   .mini-day-head{font-size:7px;color:var(--muted);text-align:center;font-weight:700;}
   /* Leyenda */
   .cal-legend{display:flex;align-items:center;gap:12px;flex-shrink:0;padding:8px 0;font-size:10px;color:var(--muted);flex-wrap:wrap;}
@@ -2500,7 +2503,7 @@ function rCal(){
   // Leyenda general (mes y semana)
   if(_calMode==='mes'||_calMode==='semana'){
     h+=`<div class="cal-legend">
-      <span><span style="width:10px;height:10px;border-radius:50%;background:#4361ee;display:inline-block"></span> Tere</span>
+      <span><span style="width:10px;height:10px;border-radius:50%;background:#f97316;display:inline-block"></span> Tere</span>
       <span><span style="width:10px;height:10px;border-radius:50%;background:#f72585;display:inline-block"></span> Vivi</span>
       <span><span style="width:10px;height:10px;border-radius:50%;background:#3a86ff;display:inline-block"></span> Simona</span>
       <span><span style="color:#7c3aed">🗂</span> Pedidos/PDQ</span>
@@ -2560,7 +2563,7 @@ function rPrio(){
 
   const URGC={Alta:'#e63946',Media:'#f4a261',Baja:'#2a9d8f'};
   const EST_C={'Pendiente':'#94a3b8','En progreso':'#3b82f6','Bloqueado':'#e63946','Completado':'#22c55e'};
-  const RESP_C={Tere:{c:'#4361ee',bg:'#eff2ff'},Vivi:{c:'#f72585',bg:'#fff0f7'},Simona:{c:'#3a86ff',bg:'#eff6ff'}};
+  const RESP_C={Tere:{c:'#f97316',bg:'#eff2ff'},Vivi:{c:'#f72585',bg:'#fff0f7'},Simona:{c:'#3a86ff',bg:'#eff6ff'}};
 
   function score(t){
     let s=0;
@@ -2657,7 +2660,7 @@ function rPrio(){
   </div>
 
   <div class="pl-stats">
-    <div class="pl-stat" style="border-color:#4361ee"><div class="pl-stat-val" style="color:#4361ee">${statTere}</div><div class="pl-stat-lbl">Tere</div></div>
+    <div class="pl-stat" style="border-color:#f97316"><div class="pl-stat-val" style="color:#f97316">${statTere}</div><div class="pl-stat-lbl">Tere</div></div>
     <div class="pl-stat" style="border-color:#f72585"><div class="pl-stat-val" style="color:#f72585">${statVivi}</div><div class="pl-stat-lbl">Vivi</div></div>
     <div class="pl-stat" style="border-color:#3a86ff"><div class="pl-stat-val" style="color:#3a86ff">${statSimo}</div><div class="pl-stat-lbl">Simona</div></div>
     ${overdue>0?`<div class="pl-stat" style="border-color:#dc2626"><div class="pl-stat-val" style="color:#dc2626">${overdue}</div><div class="pl-stat-lbl">Atrasadas</div></div>`:''}
@@ -2666,7 +2669,7 @@ function rPrio(){
 
   <div class="pl-chips">
     <button class="pl-chip${_prioFilt===''?' active':''}" onclick="setPrioFilt('')">Todas</button>
-    <button class="pl-chip${_prioFilt==='Tere'?' active':''}" onclick="setPrioFilt('Tere')" style="${_prioFilt==='Tere'?'background:#4361ee;border-color:#4361ee;color:#fff':'border-color:#4361ee;color:#4361ee'}">Tere</button>
+    <button class="pl-chip${_prioFilt==='Tere'?' active':''}" onclick="setPrioFilt('Tere')" style="${_prioFilt==='Tere'?'background:#f97316;border-color:#f97316;color:#fff':'border-color:#f97316;color:#f97316'}">Tere</button>
     <button class="pl-chip${_prioFilt==='Vivi'?' active':''}" onclick="setPrioFilt('Vivi')" style="${_prioFilt==='Vivi'?'background:#f72585;border-color:#f72585;color:#fff':'border-color:#f72585;color:#f72585'}">Vivi</button>
     <button class="pl-chip${_prioFilt==='Simona'?' active':''}" onclick="setPrioFilt('Simona')" style="${_prioFilt==='Simona'?'background:#3a86ff;border-color:#3a86ff;color:#fff':'border-color:#3a86ff;color:#3a86ff'}">Simona</button>
   </div>`;
@@ -2730,7 +2733,7 @@ function rKanban(){
     const doneE=ents.filter(e=>e.done).length;
     const pct=ents.length>0?Math.round(doneE/ents.length*100):0;
     let h=`<div class="ent-progress">
-      <div class="ent-bar-wrap"><div class="ent-bar-fill" style="width:${pct}%;background:${proj.color||'#4361ee'}"></div></div>
+      <div class="ent-bar-wrap"><div class="ent-bar-fill" style="width:${pct}%;background:${proj.color||'#f97316'}"></div></div>
       <span class="ent-pct">${doneE}/${ents.length} entregables</span>
     </div>`;
     ents.forEach(e=>{
@@ -2754,7 +2757,7 @@ function rKanban(){
     const overdueCount=tasks.filter(t=>t.estado!=='Completado'&&t.deadline&&t.deadline<today).length;
     const blockedCount=tasks.filter(t=>t.blockerType).length;
     const dl=daysLeftCamp(p.endDate);
-    const color=p.color||'#4361ee';
+    const color=p.color||'#f97316';
     const status=p.status||'planning';
     const statusColor=STATUS_COLORS[status]||'#9ea8b8';
     const statusLabel=STATUS_LABELS[status]||status;
@@ -2984,7 +2987,7 @@ function rRev(){
     const done=pts.filter(t=>t.estado==='Completado').length;
     const total=pts.length;
     const pct=total>0?Math.round(done/total*100):0;
-    const color=p.color||'#4361ee';
+    const color=p.color||'#f97316';
     return`<tr>
       <td><span class="camp-dot" style="background:${color};display:inline-block"></span> ${esc(p.name)}</td>
       <td>${esc(p.area||'–')}</td>
@@ -4790,7 +4793,7 @@ function rGan(){
   const AREA_COLORS_MAP={};D.areas.forEach((a,i)=>{AREA_COLORS_MAP[a]=AREA_DEF_COLORS[i%AREA_DEF_COLORS.length];});
   let groups=[];
   if(ganttGroupBy==='project'){D.projects.forEach(pr=>{const tks=D.tasks.filter(t=>t.projectId===pr.id&&t.deadline);if(tks.length)groups.push({label:pr.name,color:pr.color,tasks:tks});});const orphan=D.tasks.filter(t=>t.deadline&&!D.projects.find(p=>p.id===t.projectId));if(orphan.length)groups.push({label:'Sin proyecto',color:'#9ea8b8',tasks:orphan});}
-  else if(ganttGroupBy==='area'){D.areas.forEach(a=>{const tks=D.tasks.filter(t=>t.area===a&&t.deadline);if(tks.length)groups.push({label:a,color:AREA_COLORS_MAP[a]||'#4361ee',tasks:tks});});const noArea=D.tasks.filter(t=>!t.area&&t.deadline);if(noArea.length)groups.push({label:'Sin área',color:'#9ea8b8',tasks:noArea});}
+  else if(ganttGroupBy==='area'){D.areas.forEach(a=>{const tks=D.tasks.filter(t=>t.area===a&&t.deadline);if(tks.length)groups.push({label:a,color:AREA_COLORS_MAP[a]||'#f97316',tasks:tks});});const noArea=D.tasks.filter(t=>!t.area&&t.deadline);if(noArea.length)groups.push({label:'Sin área',color:'#9ea8b8',tasks:noArea});}
   else{[['Alta','#e63946'],['Media','#e07b39'],['Baja','#2a9d8f']].forEach(([u,c])=>{const tks=D.tasks.filter(t=>t.urgencia===u&&t.deadline);if(tks.length)groups.push({label:u,color:c,tasks:tks});});}
 
   const totalW=days.length*DAY_W+180;
@@ -4807,7 +4810,7 @@ function rGan(){
     h+=`</tr>`;
     g.tasks.forEach(t=>{
       const pr=D.projects.find(p=>p.id===t.projectId);
-      const bc=ganttGroupBy==='project'?g.color:(ganttGroupBy==='area'?g.color:({'Alta':'#e63946','Media':'#e07b39','Baja':'#2a9d8f'}[t.urgencia]||'#4361ee'));
+      const bc=ganttGroupBy==='project'?g.color:(ganttGroupBy==='area'?g.color:({'Alta':'#e63946','Media':'#e07b39','Baja':'#2a9d8f'}[t.urgencia]||'#f97316'));
       const startD=t.startDate?new Date(t.startDate+'T12:00'):new Date(new Date(t.deadline+'T12:00').getTime()-7*86400000);
       const endD=new Date(t.deadline+'T12:00');
       let bsi=-1,bei=-1;days.forEach((day,i)=>{if(day>=startD&&day<=endD){if(bsi<0)bsi=i;bei=i;}});
@@ -5105,7 +5108,7 @@ function rTareasPorCanal(){
   const inWeekS=inWeek.toISOString().slice(0,10);
 
   const TEAM=[
-    {key:'Tere',        c:'#4361ee',bg:'#eff2ff',i:'T'},
+    {key:'Tere',        c:'#f97316',bg:'#eff2ff',i:'T'},
     {key:'Vivi',        c:'#f72585',bg:'#fff0f7',i:'V'},
     {key:'Simona',      c:'#3a86ff',bg:'#eff6ff',i:'S'},
     {key:'José',        c:'#f59e0b',bg:'#fffbeb',i:'J'},
@@ -5232,7 +5235,7 @@ function rTareasPorCanal(){
   // ── Historial de entregas ────────────────────────────────────────────────
   const done=(D.tasks||[]).filter(t=>t.estado==='Completado');
   const HIST_TEAM=[
-    {key:'Tere',   c:'#4361ee',i:'T'},
+    {key:'Tere',   c:'#f97316',i:'T'},
     {key:'Vivi',   c:'#f72585',i:'V'},
     {key:'Simona', c:'#3a86ff',i:'S'},
   ];
@@ -5328,6 +5331,29 @@ function rTareasPorCanal(){
     });
     eh+=`</div></div>`;
     wrap.innerHTML+=eh;
+  // Sin asignar entregadas
+  const PPLE=['Tere','Simona','Vivi','José','Santi'];
+  const entg=(D.tasks||[]).filter(t=>t.estado==='Entregado'||t.estado==='Completado');
+  const sinAsignar = entg.filter(t => !PPLE.includes(t.responsable||t.area||''));
+  if(sinAsignar.length > 0){
+    let sa = `<div style="margin-top:16px;padding:0 16px 32px"><h3 style="font-size:13px;font-weight:700;color:#94a3b8;margin-bottom:12px">⚠️ Sin asignar (${sinAsignar.length})</h3><div style="display:flex;flex-direction:column;gap:8px">`;
+    sinAsignar.forEach(t => {
+      const tid = t.id;
+      sa += `<div style="display:flex;align-items:center;gap:12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:8px 12px">
+      <span style="flex:1;font-size:13px;color:#334155">${t.titulo||t.name||''}</span>
+      <select onchange="(function(el){const t=D.tasks.find(x=>x.id==='${tid}');if(t){t.responsable=el.value;t.area=el.value;save();rTareasPorCanal();};})(this)" style="font-size:12px;padding:4px 8px;border-radius:6px;border:1px solid #cbd5e1;color:#475569">
+        <option value="">Asignar...</option>
+        <option value="Tere">Tere</option>
+        <option value="Vivi">Vivi</option>
+        <option value="Simona">Simona</option>
+        <option value="José">José</option>
+        <option value="Santi">Santi</option>
+      </select>
+    </div>`;
+    });
+    sa += `</div></div>`;
+    wrap.innerHTML += sa;
+  }
   }
 }
 
@@ -5399,7 +5425,7 @@ function rMas(){
     <div style="font-size:16px;font-weight:800;color:var(--text);margin-bottom:16px">Herramientas adicionales</div>
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
       ${ITEMS.map(it=>`
-        <div onclick="sw('${it.tab}')" style="background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:16px;cursor:pointer;transition:all .15s" onmouseover="this.style.borderColor='#4361ee';this.style.background='#f0f4ff'" onmouseout="this.style.borderColor='';this.style.background='var(--surface)'">
+        <div onclick="sw('${it.tab}')" style="background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:16px;cursor:pointer;transition:all .15s" onmouseover="this.style.borderColor='#f97316';this.style.background='#f0f4ff'" onmouseout="this.style.borderColor='';this.style.background='var(--surface)'">
           <div style="font-size:24px;margin-bottom:8px">${it.icon}</div>
           <div style="font-weight:700;font-size:13px;color:var(--text);margin-bottom:3px">${it.name}</div>
           <div style="font-size:11px;color:var(--muted)">${it.desc}</div>
