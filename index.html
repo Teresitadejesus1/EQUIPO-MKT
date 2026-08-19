@@ -6,7 +6,7 @@
 <title>Dashboard · Viga Home</title>
 <style>
 :root{
-  color-scheme:light;
+  color-scheme:light
   --bg:#f4f5f9;--surface:#fff;--border:#e2e5ee;--text:#1a1d2e;--muted:#7a7f9a;
   --accent:#f97316;--alta:#e63946;--alta-bg:#fde8ea;--media:#e07b39;--media-bg:#fef0e4;
   --baja:#2a9d8f;--baja-bg:#e0f5f3;--done-c:#9ea8b8;--done-bg:#f1f3f5;
@@ -5332,8 +5332,6 @@ function rTareasPorCanal(){
     eh+=`</div></div>`;
     wrap.innerHTML+=eh;
   // Sin asignar entregadas
-  const PPLE=['Tere','Simona','Vivi','José','Santi'];
-  const entg=(D.tasks||[]).filter(t=>t.estado==='Entregado'||t.estado==='Completado');
   const sinAsignar = entg.filter(t => !PPLE.includes(t.responsable||t.area||''));
   if(sinAsignar.length > 0){
     let sa = `<div style="margin-top:16px;padding:0 16px 32px"><h3 style="font-size:13px;font-weight:700;color:#94a3b8;margin-bottom:12px">⚠️ Sin asignar (${sinAsignar.length})</h3><div style="display:flex;flex-direction:column;gap:8px">`;
