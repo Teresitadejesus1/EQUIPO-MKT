@@ -1711,7 +1711,7 @@ function rHoy(){
     {key:'Vivi',c:'#f72585',i:'V'},
     {key:'Simona',c:'#3a86ff',i:'S'},
   {key:'José',   c:'#f59e0b',i:'J'},
-  {key:'Santi',  c:'#10b981',i:'Sa'}
+  {key:'Santi',  c:'#10b981',i:'Sa'},
   ];
   const annual=(D.budget&&D.budget.annual)||0;
   const spent=(D.budget&&D.budget.expenses)?D.budget.expenses.filter(e=>!e.recurrence||e.recurrence==='puntual').reduce((s,e)=>s+Number(e.amount||0),0):0;
@@ -5109,7 +5109,7 @@ function rTareasPorCanal(){
     {key:'Vivi',        c:'#f72585',bg:'#fff0f7',i:'V'},
     {key:'Simona',      c:'#3a86ff',bg:'#eff6ff',i:'S'},
     {key:'José',        c:'#f59e0b',bg:'#fffbeb',i:'J'},
-    {key:'Santi',       c:'#10b981',bg:'#f0fdf4',i:'Sa'}
+    {key:'Santi',       c:'#10b981',bg:'#f0fdf4',i:'Sa'},
     {key:'Seguimiento', c:'#7c3aed',bg:'#f5f3ff',i:'🔄'},
     {key:'Cotizar',     c:'#059669',bg:'#f0fdf4',i:'💰'},
     {key:'__none__',    c:'#64748b',bg:'#f8fafc',i:'?'},
