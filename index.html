@@ -6,7 +6,7 @@
 <title>Dashboard · Viga Home</title>
 <style>
 :root{
-  color-scheme:light;
+  color-scheme:light
   --bg:#f4f5f9;--surface:#fff;--border:#e2e5ee;--text:#1a1d2e;--muted:#7a7f9a;
   --accent:#f97316;--alta:#e63946;--alta-bg:#fde8ea;--media:#e07b39;--media-bg:#fef0e4;
   --baja:#2a9d8f;--baja-bg:#e0f5f3;--done-c:#9ea8b8;--done-bg:#f1f3f5;
@@ -1703,7 +1703,7 @@ function rHoy(){
   const greet=now.getHours()<12?'Buenos días':now.getHours()<19?'Buenas tardes':'Buenas noches';
   const dateStr=`${DAYS_ES[now.getDay()]} ${now.getDate()} de ${MONTHS_ES[now.getMonth()]}`;
   const allTasks=D.tasks||[];
-  const pending=allTasks.filter(t=>t.estado!=='Completado');
+  const pending=allTasks.filter(t=>t.estado!=='Completado'&&t.estado!=='Entregado');
   const overdue=pending.filter(t=>t.deadline&&t.deadline<today);
   const d7=new Date(now);d7.setDate(d7.getDate()+7);
   const weekEnd=d7.toISOString().slice(0,10);
