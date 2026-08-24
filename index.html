@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Dashboard · Viga Home</title>
 <style>
-:root{
+:root
   color-scheme:light
   --bg:#f4f5f9;--surface:#fff;--border:#e2e5ee;--text:#1a1d2e;--muted:#7a7f9a;
   --accent:#f97316;--alta:#e63946;--alta-bg:#fde8ea;--media:#e07b39;--media-bg:#fef0e4;
@@ -2077,9 +2077,21 @@ function toggleDoneTask(id){
   const t=D.tasks.find(x=>x.id===id);
   if(!t)return;
   t.estado=t.estado==='Completado'?'Pendiente':'Completado';
-  if(t.estado==='Completado'&&t._fromComercial){const c=D.comercial?.find(x=>x.taskId===id);if(c)c.estado='Listo';}
+    if(t.estado==='Completado'){t.completedAt=new Date().toISOString();if(t._fromComercial){const c=D.comercial?.find(x=>x.taskId===id);if(c)c.estado='Listo';}}
+    else{t.completedAt='';}
   save();rPendientes();
 }
+  function undoEntregada(id){const t=D.tasks.find(x=>x.id===id);if(!t)return;t.estado='Pendiente';t.completedAt='';save();render();}
+  function buildHistorial(done){
+      const grps={};done.forEach(t=>{const dt=t.completedAt?new Date(t.completedAt):t.deadline?new Date(t.deadline+'T00:00:00'):null;const key=dt?dt.toLocaleDateString('es-CL',{month:'long',year:'numeric'}):'Sin fecha';const skey=dt?dt.toISOString().slice(0,7):'0000-00';if(!grps[key])grps[key]={tasks:[],skey};grps[key].tasks.push(t);});
+      let h2='';
+                                      Object.keys(grps).sort((a,b)=>grps[b].skey.localeCompare(grps[a].skey)).forEach(month=>{
+      const mT=grps[month].tasks.sort((a,b)=>(b.completedAt||b.deadline||'').localeCompare(a.completedAt||a.deadline||''));
+         const items=mT.map(t=>{const d2=t.completedAt?new Date(t.completedAt).toLocaleDateString('es-CL',{day:'2-digit',month:'short'}):t.deadline?new Date(t.deadline+'T00:00:00').toLocaleDateString('es-CL',{day:'2-digit',month:'short'}):'';return'<div style="display:flex;align-items:center;gap:7px;padding:5px 0;border-bottom:1px solid #f1f5f9;justify-content:space-between"><div style="display:flex;align-items:flex-start;gap:7px;flex:1"><span>✅</span><div><div class="hist-iname">'+esc(t.name)+'</div>'+((t.responsable||d2)?'<div class="hist-idate">'+(t.responsable&&d2?t.responsable+' · '+d2:t.responsable||d2)+'</div>':'')+'</div></div><button onclick="undoEntregada(\''+t.id+'\')" style="background:none;border:1px solid #e2e8f0;border-radius:6px;padding:2px 7px;font-size:11px;cursor:pointer;color:var(--muted)">↩</button></div>';}).join('');
+      h2+='<div style="margin-bottom:8px"><div onclick="(function(el){var b=el.nextElementSibling;b.style.display=b.style.display===\'none\'?\'block\':\'none\';})(this)" style="display:flex;align-items:center;gap:8px;padding:8px 12px;cursor:pointer;border-radius:8px;background:#f8fafc;user-select:none"><span style="font-size:13px;font-weight:800;color:var(--text);flex:1;text-transform:capitalize">'+month+'</span><span class="hist-badge">'+mT.length+'</span></div><div style="display:none;padding:4px 0 8px 12px">'+items+'</div></div>';
+                                             });
+      return h2;
+  }
 function listaQuickAdd(){
   const v=document.getElementById('lista-qadd')?.value.trim();
   if(!v)return;
@@ -2087,7 +2099,7 @@ function listaQuickAdd(){
   D.tasks.push({id,name:v,estado:'Pendiente',urgencia:'Media',projectId:'',area:'',responsable:'',blockerType:'',blockerNote:'',notes:'',driveLink:'',frecuencia:'Puntual',deadline:'',revisor:'',revTags:[]});
   if(!D.taskOrder)D.taskOrder=[];
   D.taskOrder.unshift(id); // add to top
-  save();rPendientes();
+    save();rPendientes()
 }
 
 function applyKF(tasks){
@@ -5232,7 +5244,7 @@ function rTareasPorCanal(){
   h+=`</div>`;
 
   // ── Historial de entregas ────────────────────────────────────────────────
-  const done=(D.tasks||[]).filter(t=>t.estado==='Completado');
+    const done=(D.tasks||[]).filter(t=>t.estado==='Completado'||t.estado==='Entregado');
   const HIST_TEAM=[
     {key:'Tere',   c:'#f97316',i:'T'},
     {key:'Vivi',   c:'#f72585',i:'V'},
@@ -5265,51 +5277,9 @@ function rTareasPorCanal(){
         <span class="hist-toggle">▼</span>
       </div>
       <div class="hist-body">
-        <div class="hist-cols">`;
+                <div class="hist-cols" style="display:block">`;
 
-    HIST_TEAM.forEach(tm=>{
-      const tDone=done.filter(t=>(t.responsable||'')=== tm.key)
-        .sort((a,b)=>(b.completedAt||'').localeCompare(a.completedAt||''));
-      if(!tDone.length)return;
-      h+=`<div class="hist-col">
-        <div class="hist-col-head">
-          <span style="width:18px;height:18px;border-radius:50%;background:${tm.c};color:#fff;font-size:9px;font-weight:900;display:inline-flex;align-items:center;justify-content:center">${tm.i}</span>
-          <span style="color:${tm.c}">${tm.key}</span>
-          <span style="color:var(--muted);font-weight:600">(${tDone.length})</span>
-        </div>
-        ${tDone.map(t=>{
-          const dt=t.completedAt?new Date(t.completedAt).toLocaleDateString('es-CL',{day:'2-digit',month:'short'}):'';
-          return`<div class="hist-item">
-            <span class="hist-check">✅</span>
-            <div>
-              <div class="hist-iname">${esc(t.name)}</div>
-              ${dt?`<div class="hist-idate">${dt}</div>`:''}
-            </div>
-          </div>`;
-        }).join('')}
-      </div>`;
-    });
-
-    // Tareas sin responsable claro (Seguimiento/Cotizar/Sin asignar completadas)
-    const otherDone=done.filter(t=>!HIST_TEAM.find(tm=>tm.key===t.responsable));
-    if(otherDone.length){
-      h+=`<div class="hist-col">
-        <div class="hist-col-head" style="color:#64748b">
-          <span style="color:#94a3b8">Otros</span>
-          <span style="color:var(--muted);font-weight:600">(${otherDone.length})</span>
-        </div>
-        ${otherDone.map(t=>{
-          const dt=t.completedAt?new Date(t.completedAt).toLocaleDateString('es-CL',{day:'2-digit',month:'short'}):'';
-          return`<div class="hist-item">
-            <span class="hist-check">✅</span>
-            <div>
-              <div class="hist-iname">${esc(t.name)}</div>
-              ${t.responsable?`<div class="hist-idate">${t.responsable}${dt?' · '+dt:''}</div>`:dt?`<div class="hist-idate">${dt}</div>`:''}
-            </div>
-          </div>`;
-        }).join('')}
-      </div>`;
-    }
+        h+=buildHistorial(done);
 
     h+=`</div></div></div>`;
   }
