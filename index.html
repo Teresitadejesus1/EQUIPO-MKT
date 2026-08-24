@@ -5279,7 +5279,7 @@ function rTareasPorCanal(){
       <div class="hist-body">
                 <div class="hist-cols" style="display:block">`;
 
-        h+=buildHistorial(done);
+            HIST_TEAM.forEach(tm=>{const tDone=done.filter(t=>(t.responsable||'')===tm.key).sort((a,b)=>(b.completedAt||b.deadline||'').localeCompare(a.completedAt||a.deadline||''));if(!tDone.length)return;h+=`<div class="hist-col"><div class="hist-col-head"><span style="background:${tm.c};color:#fff;width:18px;height:18px;border-radius:50%;font-size:9px;font-weight:900;display:inline-flex;align-items:center;justify-content:center">${tm.i}</span><span style="color:${tm.c};margin-left:4px">${tm.key}</span><span style="color:var(--muted);font-weight:600;margin-left:auto">(${tDone.length})</span></div>${buildHistorial(tDone)}</div>`;});const otherDone=done.filter(t=>!HIST_TEAM.find(tm=>tm.key===t.responsable));if(otherDone.length){h+=`<div class="hist-col"><div class="hist-col-head" style="color:#64748b"><span style="color:#94a3b8">Otros</span><span style="color:var(--muted);font-weight:600;margin-left:auto">(${otherDone.length})</span></div>${buildHistorial(otherDone)}</div>`;}
 
     h+=`</div></div></div>`;
   }
