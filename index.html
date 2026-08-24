@@ -5629,7 +5629,7 @@ _fbRef.on('value',snap=>{
     if(remote){D=remote;applyRemoteMigrations();}
   }
   render();
-  sw('hoy');
+  sw(localStorage.getItem('viga-curtab')||'hoy');
   const dot=document.getElementById('sync-dot');
   if(dot){dot.textContent='🟢 Sincronizado';dot.style.color='var(--baja)';}
 });
