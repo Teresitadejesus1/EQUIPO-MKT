@@ -5643,9 +5643,9 @@ _fbRef.on('value',snap=>{
   if(dot){dot.textContent='🟢 Sincronizado';dot.style.color='var(--baja)';}
 });
 
-_fbRef.on('connecting',()=>{
+firebase.database().ref('.info/connected').on('value',(snap)=>{
   const dot=document.getElementById('sync-dot');
-  if(dot){dot.textContent='🟡 Conectando…';dot.style.color='var(--media)';}
+  if(dot&&snap.val()===false){dot.textContent='🔗 Conectando…';dot.style.color='var(--media)';}
 });
 </script>
 </body>
