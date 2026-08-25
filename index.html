@@ -4645,7 +4645,7 @@ function rPreTabla(){
   const MONTHS=['2026-01','2026-02','2026-03','2026-04','2026-05','2026-06','2026-07','2026-08','2026-09','2026-10','2026-11','2026-12'];
   const MN=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
   const fmt=n=>'$'+Math.round(n).toLocaleString('es-CL');
-  function mAmt(e,ym){if(e.recurrence==='mensual')return e.amount||0;return(e.date||'').slice(0,7)===ym?(e.amount||0):0;}
+  function mAmt(e,ym){if(e.recurrence==='mensual'){const s=(e.date||'').slice(0,7);if(s&&ym<s)return 0;return e.amount||0;}return(e.date||'').slice(0,7)===ym?(e.amount||0):0;}
   const areas=[...new Set(exps.map(e=>e.area||'Otros'))].sort();
   let h='<div style="display:flex;gap:8px;margin-bottom:16px"><button onclick="rPre()" style="padding:6px 14px;border-radius:6px;border:1.5px solid #e2e5ee;background:#fff;color:#1a1d2e;font-size:12px;font-weight:700;cursor:pointer">&#128202; Resumen</button><button style="padding:6px 14px;border-radius:6px;border:none;background:#1a1d2e;color:#fff;font-size:12px;font-weight:700;cursor:pointer">&#128203; Vista Tabla</button></div>';
   h+='<div style="overflow-x:auto"><table style="border-collapse:collapse;font-size:11px;width:100%"><thead><tr style="background:#f8f9fc"><th style="text-align:left;padding:8px 10px;position:sticky;left:0;background:#f8f9fc;border-bottom:2px solid #e2e5ee;min-width:180px;z-index:2">&#205;tem</th><th style="padding:8px 5px;border-bottom:2px solid #e2e5ee;color:#7a7f9a;font-size:9px">Tipo</th>';
